@@ -23,13 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} absolute antialiased bg-gray-100 min-h-screen flex flex-col items-center justify-center`}
-      >
+    <main className="absolute w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg p-0">
+      <main className="absolute h-[calc(100vh-117px)] w-full overflow-y-auto">
         {children}
-      </body>
-    </html>
+      </main>
+    </main>
   );
 }
