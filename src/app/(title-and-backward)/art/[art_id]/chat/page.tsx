@@ -1,5 +1,7 @@
 const Page = async ({ params }: { params: { art_id: string } }) => {
-  return <>Chat page</>;
+  return (
+    <div className="absolute width-full height-full overflow-y-auto"></div>
+  );
 };
 
 export default Page;
