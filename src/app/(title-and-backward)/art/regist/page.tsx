@@ -60,7 +60,9 @@ const Page = () => {
     fetch("http://13.124.44.90:8080/api/posts", {
       method: "POST",
       // body: formData,
-      headers: {},
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         title: title,
         description: description,
@@ -84,7 +86,7 @@ const Page = () => {
         {/* 이미지 업로드 영역 */}
         <Slider items={imageUrls} maxItemNum={8}>
           <div className="bg-[#EEEEEE] rounded-xl flex flex-col items-center justify-center h-full relative">
-            <label>
+            <label className="cursor-pointer">
               <div className="flex flex-col items-center justify-center w-full h-full">
                 <Image
                   src="/camera.svg"
@@ -178,6 +180,21 @@ const Page = () => {
                 setDescription(e.target.value);
               }}
               className="h-full resize-none overflow-y-auto min-h-[180px]"
+              placeholder={
+                "무엇을 만들고자 하나요?" +
+                "\n" +
+                "- 만들고 싶은 대상이나 해결하고 싶은 문제를 적어주세요" +
+                "\n" +
+                "\n" +
+                "한 줄로 소개한다면?" +
+                "\n" +
+                "- 프로젝트 내용을 짧고 명확하게 써주세요" +
+                "\n" +
+                "\n" +
+                "무엇을 만들고자 하나요?" +
+                "\n" +
+                "- 만들고 싶은 대상이나 해결하고 싶은 문제를 적어주세요"
+              }
             >
               {" "}
             </textarea>

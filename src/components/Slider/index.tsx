@@ -10,7 +10,7 @@ import Image from "next/image";
 import { ImageType } from "@/app/(title-and-backward)/art/regist/page";
 
 const Slider = (props: {
-  items: Array<ImageType>;
+  items: Array<ImageType> | Array<string>;
   maxItemNum?: number;
   children?: React.ReactNode;
 }) => {
@@ -28,6 +28,8 @@ const Slider = (props: {
 
   const currentIndexView = isMaxItemNumUsed ? currentIndex : currentIndex + 1;
 
+  const itsImageString = items && typeof items[0] == "string";
+
   return (
     <Swiper
       modules={[Navigation]}
@@ -39,8 +41,8 @@ const Slider = (props: {
           <SwiperSlide key={index} className="flex justify-center items-center">
             <div className="w-full h-full relative">
               <Image
-                src={item.imageUrl}
-                alt={item.imageUrl}
+                src={itsImageString ? item : item.imageUrl}
+                alt={itsImageString ? item : item.imageUrl}
                 layout="fill"
                 objectFit="cover"
               />
