@@ -1,5 +1,4 @@
 "use client";
-import "@/app/globals.css";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,15 +32,18 @@ export default function Layout({
 
   return (
     <main className="absolute w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg p-0">
-      <header className="h-11 flex items-center justify-between px-4 py-2 bg-white">
-        <div className="absolute" onClick={() => window.history.back()}>
+      <header className="h-11 flex items-center justify-between px-[16px] pt-[16px] bg-white">
+        <div
+          className="absolute cursor-pointer"
+          onClick={() => window.history.back()}
+        >
           <Image src="/icon_arrow_left.svg" alt="back" width={24} height={24} />
         </div>
         <div className="w-full text-center">
           <h1 className="text-lg font-bold text-center">{title}</h1>
         </div>
       </header>
-      <main className="absolute h-[calc(100vh-44px)] w-full overflow-y-auto">
+      <main className="absolute h-[calc(100vh-58px)] w-full overflow-y-auto">
         {children}
       </main>
     </main>

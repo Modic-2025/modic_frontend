@@ -8,8 +8,13 @@ const ArtCard = (props: {
 }) => {
   return (
     <Link href={`/art/${props.data.id}`}>
-      <figure className="art bg-gray-200 min-h-40 rounded-lg">
-        <img src={props.data.img_urls} title={props.data.id} />
+      <figure className="art">
+        <img
+          src={props.data.imageUrls[0]}
+          className="rounded-xl bg-gray-200"
+          alt={props.data.imageUrls[0]}
+          title={props.data.id}
+        />
       </figure>
     </Link>
   );

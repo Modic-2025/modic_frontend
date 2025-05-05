@@ -1,0 +1,202 @@
+"use client";
+import UploadImage from "@/APIs/ImageUploader";
+import Slider from "@/components/Slider";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+export interface ImageType {
+  imageUrl: string;
+  imageId: string;
+}
+
+const Page = () => {
+  const [imageUrls, setImageUrls] = useState<ImageType[]>([]);
+  // Form data
+  // const [files, setFiles] = useState<Array<File>>([]);
+  const [title, setTitle] = useState<string>("");
+  const [comCost, setComCost] = useState<number>(0);
+  const [nonComCost, setNonComCost] = useState<number>(0);
+  const [description, setDescription] = useState<string>("");
+
+  // Event listener가 setter 호출하는 방식
+  const onChangeImage = (e) => {
+    const newFiles = e.target.files;
+
+    if (imageUrls.length + newFiles.length > 8) {
+      alert("최대 8개의 이미지만 업로드할 수 있습니다.");
+      return;
+    }
+
+    const { length } = newFiles;
+    for (let i = 0; i < length; i++) {
+      UploadImage(newFiles[i], ([imageUrl, imageId], e) => {
+        if (e) {
+          console.error("Error occured");
+          return;
+        }
+        setImageUrls((prev) => [
+          ...prev,
+          {
+            imageUrl: imageUrl,
+            imageId: imageId,
+          } as ImageType,
+        ]);
+      });
+    }
+  };
+
+  // On create post
+  const onClickCreatePost = (e) => {
+    const formData = new FormData();
+    imageUrls.forEach((item) => {
+      // List<File>
+      formData.append("imageIds", item.imageId);
+    });
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("commercialPrice", comCost);
+    formData.append("nonCommercialPrice", nonComCost);
+
+    fetch("http://13.124.44.90:8080/api/posts", {
+      method: "POST",
+      // body: formData,
+      headers: {},
+      body: JSON.stringify({
+        title: title,
+        description: description,
+        commercialPrice: comCost,
+        nonCommercialPrice: nonComCost,
+        imageIds: imageUrls.map((item) => item.imageId),
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log("성공:", data))
+      .catch((error) => console.error("에러:", error));
+  };
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* 게시글 작성 타이틀 */}
+      <div className="p-4">
+        <label className="block text-md font-semibold mb-2">
+          그림체 대표 이미지
+        </label>
+        {/* 이미지 업로드 영역 */}
+        <Slider items={imageUrls} maxItemNum={8}>
+          <div className="bg-[#EEEEEE] rounded-xl flex flex-col items-center justify-center h-full relative">
+            <label>
+              <div className="flex flex-col items-center justify-center w-full h-full">
+                <Image
+                  src="/camera.svg"
+                  alt="Camera"
+                  width={48}
+                  height={48}
+                  layout="relative"
+                />
+                <span className="text-gray-400 text-sm">
+                  이미지 업로드 ({imageUrls.length}/8)
+                </span>
+                <span className="text-gray-400 text-sm">
+                  최소 1개, 최대 8개까지 업로드 가능
+                </span>
+              </div>
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => onChangeImage(e)}
+              />
+            </label>
+          </div>
+        </Slider>
+
+        {/* 제목 입력란 */}
+        <div className="mt-6">
+          <label className="block text-md font-semibold mb-2">제목</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+            }}
+            className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black px-4 py-3 text-sm outline-none placeholder-gray-400"
+            placeholder="제목을 입력해주세요"
+          />
+        </div>
+
+        {/* 가격 입력란 */}
+        <div className="mt-4">
+          <label className="block text-md font-semibold mb-2">가격</label>
+          <div className="flex flex-row items-center gap-2">
+            <div className="relative basis-1/2">
+              <input
+                type="number"
+                value={comCost}
+                onChange={(e) => {
+                  setComCost(e.target.value);
+                }}
+                className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
+                placeholder="상업용 가격"
+              />
+              <Image
+                src="/circle-letter-c.svg"
+                alt="commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </div>
+            <div className="relative basis-1/2">
+              <input
+                type="number"
+                value={nonComCost}
+                onChange={(e) => {
+                  setNonComCost(e.target.value);
+                }}
+                className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
+                placeholder="비상업용 가격"
+              />
+              <Image
+                src="/circle-letter-c.svg"
+                alt="non-commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 그림체 소개 */}
+        <div className="mt-6">
+          <label className="block text-md font-semibold mb-2">
+            그림체 소개
+          </label>
+          <div className="relative rounded-lg bg-[#EDEEEF] px-4 py-4 text-sm text-gray-600 flex flex-col min-h-[180px]">
+            <textarea
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+              }}
+              className="h-full resize-none overflow-y-auto min-h-[180px]"
+            >
+              {" "}
+            </textarea>
+          </div>
+          <div className="text-right text-xs text-gray-400 mt-2">0/800</div>
+        </div>
+
+        {/* 작성 완료 버튼 */}
+        <div className="mt-6">
+          <button
+            className="w-full h-12 rounded-lg bg-[#3E3E3E] text-white text-base"
+            onClick={onClickCreatePost}
+          >
+            <p className="font-bold">작성 완료</p>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Page;
