@@ -11,7 +11,9 @@ const ContentViewer = (props: {
   grid: gridType;
   arts?: Array<Art_thumbnail>;
 }) => {
-  const [arts, setArts] = useState<Array<Art_thumbnail>>(props.arts);
+  const [arts, setArts] = useState<Array<Art_thumbnail>>(
+    props.arts ? props.arts : []
+  );
   const [grid, setGrid] = useState<gridType>(props.grid);
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>();
 

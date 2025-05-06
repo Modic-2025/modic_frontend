@@ -1,11 +1,27 @@
+interface SaveUrlResponse {
+  data: {
+    imagePath: string;
+    imageSaveUrl: string;
+  };
+}
+
+interface CallbackResponse {
+  data: {
+    imageId: string;
+  };
+}
+
+interface GetUrlResponse {
+  data: {
+    imageGetUrl: string;
+  };
+}
+
 const UploadImage = async (
   file: File,
-  callback: (r: [string, string], e?) => {}
-) => {
+  callback: (r: [string, string], e?: unknown) => void
+): Promise<SaveUrlResponse | false> => {
   const { name } = file;
-  // const formData = new FormData();
-  // formData.append("imageUsagePurpose", "PROFILE");
-  // formData.append("fileName", file);
 
   const res_save_url = await fetch(
     `http://13.124.44.90:8080/api/posts/images/save-url`,
@@ -61,15 +77,18 @@ const UploadImage = async (
   if (res_callback.ok) {
     const data = await res_callback.json();
     const { imageId } = data.data;
-    const res_img_url = await fetch(
-      `http://13.124.44.90:8080/api/posts/images/${imageId}/get-url`
-    );
-    if (res_img_url.ok) {
-      const data = await res_img_url.json();
-      const { imageGetUrl } = data.data;
-      callback([imageGetUrl, imageId]);
-    } else {
-      callback("", "error");
+    try {
+      const res_img_url = await fetch(
+        `http://13.124.44.90:8080/api/posts/images/${imageId}/get-url`
+      );
+      if (res_img_url.ok) {
+        const data = await res_img_url.json();
+        const { imageGetUrl } = data.data;
+        callback([imageGetUrl, imageId]);
+      } else {
+      }
+    } catch (e: unknown) {
+      callback(["", ""], e);
     }
   }
 

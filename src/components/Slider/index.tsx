@@ -26,9 +26,7 @@ const Slider = (props: {
     }
   }, [items]);
 
-  const currentIndexView = isMaxItemNumUsed ? currentIndex : currentIndex + 1;
-
-  const itsImageString = items && typeof items[0] == "string";
+  // const currentIndexView = isMaxItemNumUsed ? currentIndex : currentIndex + 1;
 
   return (
     <Swiper
@@ -41,8 +39,8 @@ const Slider = (props: {
           <SwiperSlide key={index} className="flex justify-center items-center">
             <div className="w-full h-full relative">
               <Image
-                src={itsImageString ? item : item.imageUrl}
-                alt={itsImageString ? item : item.imageUrl}
+                src={typeof item === "string" ? item : item.imageUrl}
+                alt={typeof item == "string" ? item : item.imageUrl}
                 layout="fill"
                 objectFit="cover"
               />
@@ -55,7 +53,7 @@ const Slider = (props: {
         </SwiperSlide>
       )}
       <div className="absolute right-2 bottom-2 bg-white rounded-lg px-3 text-stone-400 font-medium z-1">
-        {currentIndexView}/{maxItemNum}
+        {currentIndex + 1}/{maxItemNum}
       </div>
     </Swiper>
   );

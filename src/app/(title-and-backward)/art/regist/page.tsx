@@ -19,57 +19,66 @@ const Page = () => {
   const [description, setDescription] = useState<string>("");
 
   // Event listener가 setter 호출하는 방식
-  const onChangeImage = (e) => {
+  const onChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = e.target.files;
+    if (newFiles) {
+      if (imageUrls.length + newFiles.length > 8) {
+        alert("최대 8개의 이미지만 업로드할 수 있습니다.");
+        return;
+      }
 
-    if (imageUrls.length + newFiles.length > 8) {
-      alert("최대 8개의 이미지만 업로드할 수 있습니다.");
-      return;
-    }
-
-    const { length } = newFiles;
-    for (let i = 0; i < length; i++) {
-      UploadImage(newFiles[i], ([imageUrl, imageId], e) => {
-        if (e) {
-          console.error("Error occured");
-          return;
-        }
-        setImageUrls((prev) => [
-          ...prev,
-          {
-            imageUrl: imageUrl,
-            imageId: imageId,
-          } as ImageType,
-        ]);
-      });
+      const { length } = newFiles;
+      for (let i = 0; i < length; i++) {
+        UploadImage(newFiles[i], ([imageUrl, imageId], e) => {
+          if (e) {
+            console.error("Error occured");
+            return;
+          }
+          setImageUrls((prev) => [
+            ...prev,
+            {
+              imageUrl: imageUrl,
+              imageId: imageId,
+            } as ImageType,
+          ]);
+        });
+      }
     }
   };
 
   // On create post
-  const onClickCreatePost = (e) => {
+  interface CreatePostPayload {
+    title: string;
+    description: string;
+    commercialPrice: number;
+    nonCommercialPrice: number;
+    imageIds: string[];
+  }
+
+  const onClickCreatePost = (e: React.MouseEvent<HTMLButtonElement>) => {
     const formData = new FormData();
     imageUrls.forEach((item) => {
-      // List<File>
       formData.append("imageIds", item.imageId);
     });
     formData.append("title", title);
     formData.append("description", description);
-    formData.append("commercialPrice", comCost);
-    formData.append("nonCommercialPrice", nonComCost);
+    formData.append("commercialPrice", comCost.toString());
+    formData.append("nonCommercialPrice", nonComCost.toString());
+
+    const payload: CreatePostPayload = {
+      title: title,
+      description: description,
+      commercialPrice: comCost,
+      nonCommercialPrice: nonComCost,
+      imageIds: imageUrls.map((item) => item.imageId),
+    };
 
     fetch("http://13.124.44.90:8080/api/posts", {
       method: "POST",
-      // body: formData,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        title: title,
-        description: description,
-        commercialPrice: comCost,
-        nonCommercialPrice: nonComCost,
-        imageIds: imageUrls.map((item) => item.imageId),
-      }),
+      body: JSON.stringify(payload),
     })
       .then((response) => response.json())
       .then((data) => console.log("성공:", data))
@@ -102,11 +111,7 @@ const Page = () => {
                   최소 1개, 최대 8개까지 업로드 가능
                 </span>
               </div>
-              <input
-                type="file"
-                className="hidden"
-                onChange={(e) => onChangeImage(e)}
-              />
+              <input type="file" className="hidden" onChange={onChangeImage} />
             </label>
           </div>
         </Slider>
@@ -134,7 +139,7 @@ const Page = () => {
                 type="number"
                 value={comCost}
                 onChange={(e) => {
-                  setComCost(e.target.value);
+                  setComCost(Number(e.target.value));
                 }}
                 className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
                 placeholder="상업용 가격"
@@ -152,7 +157,7 @@ const Page = () => {
                 type="number"
                 value={nonComCost}
                 onChange={(e) => {
-                  setNonComCost(e.target.value);
+                  setNonComCost(Number(e.target.value));
                 }}
                 className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
                 placeholder="비상업용 가격"
@@ -195,9 +200,7 @@ const Page = () => {
                 "\n" +
                 "- 만들고 싶은 대상이나 해결하고 싶은 문제를 적어주세요"
               }
-            >
-              {" "}
-            </textarea>
+            />
           </div>
           <div className="text-right text-xs text-gray-400 mt-2">0/800</div>
         </div>

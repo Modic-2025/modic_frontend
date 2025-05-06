@@ -1,9 +1,8 @@
 "use client";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
-import useGenerateImage, { generateImage } from "@/APIs/useGenerateImage";
+import { generateImage } from "@/APIs/useGenerateImage";
 import { Art } from "@/types/Art";
-import imageUrlToBase64 from "@/utils/ImageUrlToBase64";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -37,7 +36,10 @@ const Chat = ({ artId }: { artId: number }) => {
       return;
     }
     if (e.key === "Enter") {
-      setChatStack((prev) => [...prev, { text: inputText, image: inputImage }]);
+      setChatStack((prev) => [
+        ...prev,
+        { type: 1, text: inputText, image: inputImage },
+      ]);
       setInputText("");
       setInputImage("");
       // setChatDisabled(true);
@@ -95,7 +97,7 @@ const Chat = ({ artId }: { artId: number }) => {
   }, [showConfirmWindow]);
 
   useEffect(() => {
-    if (confirmState) {
+    if (confirmState && inputFile) {
       UploadImage(inputFile, (r, e) => {
         if (e) {
           console.error("Error occured in image upload");
@@ -119,7 +121,7 @@ const Chat = ({ artId }: { artId: number }) => {
     }
   }, [confirmState]);
 
-  const callbackGenerateImage = async (res, error: Error) => {
+  const callbackGenerateImage = async (res: Response, error: Error) => {
     console.log("res :>> ", res);
 
     if (error) {
@@ -128,7 +130,7 @@ const Chat = ({ artId }: { artId: number }) => {
         ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
         {
           type: 0 as 0,
-          text: "생성중 에러가 발생하였습니다. 잠시 후 다시 시도해주세요",
+          text: "생성중 에러가 발생하였습니다. 잠시 후 다시 시도해주세요",
         } as ChatType,
       ]);
     }
@@ -157,6 +159,7 @@ const Chat = ({ artId }: { artId: number }) => {
           <div className="flex items-center flex-col text-center">
             <Image
               src={inputImage}
+              alt={inputImage}
               layout="relative"
               width={100}
               height={100}
@@ -266,7 +269,7 @@ const Chat = ({ artId }: { artId: number }) => {
           <input
             type="file"
             className="hidden"
-            onChange={(e) => setInputFile(e.target.files[0])}
+            onChange={(e) => setInputFile(e.target.files && e.target.files[0])}
           />
         </label>
       </div>

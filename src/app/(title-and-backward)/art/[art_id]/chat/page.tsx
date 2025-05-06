@@ -1,7 +1,6 @@
 import Chat from "@/components/Chat";
-import { Art } from "@/types/Art";
 
-const Page = async ({ params }: { params: { art_id: number } }) => {
+const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
   // console.log("art_id :>> ", art_id);
   // const requestStr = "http://13.124.44.90:8080/api/posts/" + art_id;

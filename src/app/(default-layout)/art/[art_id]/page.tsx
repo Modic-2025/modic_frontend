@@ -2,12 +2,10 @@
 import Slider from "@/components/Slider";
 import Link from "next/link";
 
-const Page = async ({ params }: { params: { art_id: string } }) => {
-  const res = await fetch(
-    `http://13.124.44.90:8080/api/posts/${params.art_id}`
-  );
+const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
+  const { art_id } = await params;
+  const res = await fetch(`http://13.124.44.90:8080/api/posts/${art_id}`);
   const data = await res.json();
-  console.log("data :>> ", data);
   const { status } = data;
 
   const artData = data.data;
@@ -58,7 +56,7 @@ const Page = async ({ params }: { params: { art_id: string } }) => {
 
         {/* 컴포넌트 구조적 문제로 fixed 사용함, safari같은 브라우저의 경우 하단 스크롤 시 nav-bar에 이 버튼이 가려지는 현상 발생 */}
         <div className="fixed bottom-14 left-0 w-full max-w-sm p-4 left-1/2 transform -translate-x-1/2">
-          <Link href={`/art/${params.art_id}/chat`}>
+          <Link href={`/art/${art_id}/chat`}>
             <button className="w-full py-3 bg-gray-900 text-white rounded-lg shadow cursor-pointer">
               <p className="font-bold">작품 사용하기</p>
             </button>
