@@ -1,11 +1,10 @@
 import useSWR from "swr";
 
+const AI_SERVER_HOST = "https://8987-121-131-111-122.ngrok-free.app";
+
 const useGenerateImage = () => {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
-  const { data, error, isLoading, mutate } = useSWR(
-    "https://6435-121-131-111-122.ngrok-free.app",
-    fetcher
-  );
+  const { data, error, isLoading, mutate } = useSWR(AI_SERVER_HOST, fetcher);
 
   return {
     user: data,
@@ -24,7 +23,7 @@ export const generateImage = async (
   formData.append("style", style);
   formData.append("content", image);
   try {
-    const res = await fetch("https://6435-121-131-111-122.ngrok-free.app", {
+    const res = await fetch(AI_SERVER_HOST, {
       method: "POST",
       // headers: {
       //   "Content-Type": "application/json",

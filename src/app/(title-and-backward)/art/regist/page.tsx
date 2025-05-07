@@ -2,6 +2,7 @@
 import UploadImage from "@/APIs/ImageUploader";
 import Slider from "@/components/Slider";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export interface ImageType {
@@ -10,6 +11,8 @@ export interface ImageType {
 }
 
 const Page = () => {
+  const router = useRouter();
+
   const [imageUrls, setImageUrls] = useState<ImageType[]>([]);
   // Form data
   // const [files, setFiles] = useState<Array<File>>([]);
@@ -81,8 +84,22 @@ const Page = () => {
       body: JSON.stringify(payload),
     })
       .then((response) => response.json())
-      .then((data) => console.log("성공:", data))
-      .catch((error) => console.error("에러:", error));
+      .then((data) => {
+        console.log("data :>> ", data);
+        const { status, isSuccess } = data;
+        const { postId } = data.data;
+        if (status == 201 && isSuccess) {
+          router.push("/art");
+          router.replace(`/art/${postId}`);
+          return;
+        }
+      })
+      .catch((error) => {
+        alert(
+          "서버에러로 인해 정상적으로 생성되지 않았습니다. \n잠시 후 다시 시도해주세요."
+        );
+        console.error("에러:", error);
+      });
   };
 
   return (
