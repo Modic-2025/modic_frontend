@@ -170,7 +170,7 @@ const Chat = ({ artId }: { artId: number }) => {
             <h1 className="font-bold mb-4">진행 시 N코인이 차감됩니다.</h1>
             <div className="flex flex-row gap-6">
               <button
-                className="cursor-pointer border-2 p-2 rounded-md border-[#E9E9E9]"
+                className="cursor-pointer border-2 p-2 rounded-md bg-white border-[#E9E9E9]"
                 onClick={() => {
                   setConfirmState(false);
                   setShowConfirmWindow(false);

@@ -17,7 +17,7 @@ export default function Home() {
         </section>
       </main>
       <Link href="/art/regist">
-        <button className="fixed bottom-18 left-1/2 transform translate-x-[calc(50%-20px)] bg-gray-900 text-white max-w-sm px-6 p-3 rounded-full">
+        <button className="fixed bottom-18 left-1/2 transform translate-x-[calc(50%-20px)] bg-gray-900 text-white max-w-sm px-6 p-3 rounded-full cursor-pointer">
           <p className="font-bold">작품 등록하기</p>
         </button>
       </Link>
