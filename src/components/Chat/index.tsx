@@ -249,29 +249,34 @@ const Chat = ({ artId }: { artId: number }) => {
         )
       )}
 
-      {/* Chat input, 추후 수정예정 */}
-      <div className="w-[calc(39%-2rem)] fixed flex flex-row bottom-4 h-12 px-4 gap-2 bg-white rounded-full shadow-2xl">
-        <input
-          className="w-full h-full inset-0 flex-9/10"
-          placeholder="모딕이 변환할 이미지를 선택해 주세요"
-          value={inputText}
-          disabled={true}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={textInputKeydownCheck}
-        />
-        <label className="flex-1/10 flex justify-center cursor-pointer">
-          <Image
-            src="/gallery-add.svg"
-            alt="Select image"
-            width={36}
-            height={36}
-          />
+      <div className="fixed bottom-4 inset-x-0 mx-auto max-w-sm px-4 h-12 gap-2">
+        <div className="flex flex-row px-4 h-full bg-white rounded-full shadow-2xl">
+          {" "}
+          {/* wraper */}
           <input
-            type="file"
-            className="hidden"
-            onChange={(e) => setInputFile(e.target.files && e.target.files[0])}
+            className="w-full h-full inset-0 flex-9/10"
+            placeholder="모딕이 변환할 이미지를 선택해 주세요"
+            value={inputText}
+            disabled={true}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={textInputKeydownCheck}
           />
-        </label>
+          <label className="flex-1/10 flex justify-center cursor-pointer">
+            <Image
+              src="/gallery-add.svg"
+              alt="Select image"
+              width={36}
+              height={36}
+            />
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) =>
+                setInputFile(e.target.files && e.target.files[0])
+              }
+            />
+          </label>
+        </div>
       </div>
     </div>
   );
