@@ -1,7 +1,7 @@
 ---
 name: MODIC Issue Template
 about: 이슈 템플릿
-title: ''
+title: "[태그] 제목"
 labels: ''
 assignees: ''
 
