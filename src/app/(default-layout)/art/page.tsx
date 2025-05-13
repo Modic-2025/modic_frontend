@@ -5,8 +5,8 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
-      <nav className="tabs flex flex-row">
-        <button className="active basis-1/3">최신순</button>
+      <nav className="flex flex-row">
+        <button className="basis-1/3">최신순</button>
         <button className="basis-1/3">인기순</button>
         <button className="basis-1/3">팔로잉</button>
       </nav>

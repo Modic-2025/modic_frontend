@@ -25,15 +25,29 @@ export default function RootLayout({
 }>) {
   return (
     <main className="absolute w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg p-0">
-      <header>
+      <header className="flex flex-row items-center gap-3 h-14 px-4 py-2 bg-white border-[#E8E8E8]">
         <div className="header-left">
           <Link href="/art">
-            <div className="logo">MODIC</div>
+            <Image
+              src="/MODIC.svg"
+              alt="MODIC"
+              layout="relative"
+              width={140}
+              height={32}
+            />
           </Link>
         </div>
-        <div className="search-bar">
-          <input type="text" placeholder="찾고 싶은 작품이 있나요?" />
-          <span className="search-icon">&#128269;</span>
+        <div className="h-full w-full py-0.5">
+          <div className="flex flex-row items-center justify-center h-full w-full bg-[#E8E8E8] rounded-lg pl-4 pr-2">
+            <input
+              type="text"
+              className="w-full focus:outline-none"
+              placeholder="찾고 싶은 작품이 있나요?"
+            />
+            <div className="cursor-pointer">
+              <Image src="/Magnifyingglass.svg" width={32} height={32} />
+            </div>
+          </div>
         </div>
       </header>
       <main className="absolute h-[calc(100vh-117px)] w-full overflow-y-auto">
