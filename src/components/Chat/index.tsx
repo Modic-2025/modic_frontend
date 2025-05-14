@@ -160,9 +160,9 @@ const Chat = ({ artId }: { artId: number }) => {
             <Image
               src={inputImage}
               alt={inputImage}
-              layout="relative"
-              width={100}
-              height={100}
+              layout="raw"
+              width={200}
+              height={200}
               className="rounded-2xl shadow-lg mb-4 max-w-[30vw] max-h-[30vh]"
               // unoptimized
             />
