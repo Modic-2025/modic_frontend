@@ -1,4 +1,3 @@
-import "@/components/ArtCard/ArtCard.css";
 import { Art_thumbnail, Art } from "@/types/Art";
 import Image from "next/image";
 import Link from "next/link";
