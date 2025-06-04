@@ -10,22 +10,24 @@ export interface ImageType {
   imageId: string;
 }
 
+const MAX_IMAGE_NUM = 8;
+
 const Page = () => {
   const router = useRouter();
 
   const [imageUrls, setImageUrls] = useState<ImageType[]>([]);
   // Form data
-  // const [files, setFiles] = useState<Array<File>>([]);
   const [title, setTitle] = useState<string>("");
   const [comCost, setComCost] = useState<number>(0);
   const [nonComCost, setNonComCost] = useState<number>(0);
   const [description, setDescription] = useState<string>("");
+  const [descriptionLength, setDescriptionLength] = useState<number>(0);
 
-  // Event listener가 setter 호출하는 방식
+  // Event listener
   const onChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = e.target.files;
     if (newFiles) {
-      if (imageUrls.length + newFiles.length > 8) {
+      if (imageUrls.length + newFiles.length > MAX_IMAGE_NUM) {
         alert("최대 8개의 이미지만 업로드할 수 있습니다.");
         return;
       }
@@ -47,6 +49,13 @@ const Page = () => {
         });
       }
     }
+  };
+
+  const onChangeDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = e.target;
+    if (value.length > 800) return;
+    setDescription(value);
+    setDescriptionLength(value.length);
   };
 
   // On create post
@@ -87,7 +96,23 @@ const Page = () => {
       .then((data) => {
         console.log("data :>> ", data);
         const { status, isSuccess } = data;
+
+        if (!isSuccess) {
+          const { code, message, reason } = data;
+          console.log("code :>> ", code);
+          if (code == "C-001") {
+            const alertMsg =
+              `게시글을 만들 수 없었습니다. (${message})` +
+              "\n" +
+              "- " +
+              reason.join("\n- ");
+            alert(alertMsg);
+          }
+          return;
+        }
+
         const { postId } = data.data;
+        // Success routing
         if (status == 201 && isSuccess) {
           router.push("/art");
           router.replace(`/art/${postId}`);
@@ -95,9 +120,6 @@ const Page = () => {
         }
       })
       .catch((error) => {
-        alert(
-          "서버에러로 인해 정상적으로 생성되지 않았습니다. \n잠시 후 다시 시도해주세요."
-        );
         console.error("에러:", error);
       });
   };
@@ -110,7 +132,7 @@ const Page = () => {
           그림체 대표 이미지
         </label>
         {/* 이미지 업로드 영역 */}
-        <Slider items={imageUrls} maxItemNum={8}>
+        <Slider items={imageUrls} maxItemNum={MAX_IMAGE_NUM}>
           <div className="bg-[#EEEEEE] rounded-xl flex flex-col items-center justify-center h-full relative">
             <label className="cursor-pointer">
               <div className="flex flex-col items-center justify-center w-full h-full">
@@ -156,7 +178,9 @@ const Page = () => {
                 type="number"
                 value={comCost}
                 onChange={(e) => {
-                  setComCost(Number(e.target.value));
+                  setComCost(
+                    Number(e.target.value) > 0 ? Number(e.target.value) : 0
+                  );
                 }}
                 className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
                 placeholder="상업용 가격"
@@ -174,7 +198,9 @@ const Page = () => {
                 type="number"
                 value={nonComCost}
                 onChange={(e) => {
-                  setNonComCost(Number(e.target.value));
+                  setNonComCost(
+                    Number(e.target.value) > 0 ? Number(e.target.value) : 0
+                  );
                 }}
                 className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
                 placeholder="비상업용 가격"
@@ -198,9 +224,7 @@ const Page = () => {
           <div className="relative rounded-lg bg-[#EDEEEF] px-4 py-4 text-sm text-gray-600 flex flex-col min-h-[180px]">
             <textarea
               value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-              }}
+              onChange={onChangeDescription}
               className="h-full resize-none overflow-y-auto min-h-[180px]"
               placeholder={
                 "무엇을 만들고자 하나요?" +
@@ -219,7 +243,9 @@ const Page = () => {
               }
             />
           </div>
-          <div className="text-right text-xs text-gray-400 mt-2">0/800</div>
+          <div className="text-right text-xs text-gray-400 mt-2">
+            {descriptionLength}/800
+          </div>
         </div>
 
         {/* 작성 완료 버튼 */}
