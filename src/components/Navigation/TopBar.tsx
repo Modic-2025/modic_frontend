@@ -18,13 +18,15 @@ export default function TopBar() {
         />
       </button>
 
-      {/* 오른쪽 아이콘: 닫기 */}
-      <Image
-        src="/icon_close.svg"
-        alt="닫기"
-        width={24}
-        height={24}
-      />
+      {/* 오른쪽 아이콘: 닫기 → 로그인 화면으로 이동 */}
+      <button onClick={() => router.push("/login")}>
+        <Image
+          src="/icon_close.svg"
+          alt="닫기"
+          width={24}
+          height={24}
+        />
+      </button>
     </div>
   );
 }

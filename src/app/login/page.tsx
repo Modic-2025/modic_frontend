@@ -17,39 +17,40 @@ export default function LoginPage() {
     e.preventDefault();
     console.log("email:", email);
     console.log("password:", password);
-    // TODO: 로그인 처리 API 연결
   };
 
   return (
     <div className="w-full h-full bg-white flex flex-col items-center px-6">
       {/* 로고 */}
       <h1
-        className="text-[57.736px] font-[900] text-[#292929] mt-[120px] mb-20 text-center"
+        className="text-[57.736px] font-[900] text-black mt-[120px] mb-20 text-center"
         style={{ fontFamily: "Inter" }}
       >
         MODIC
       </h1>
 
-      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full max-w-xs">
+      {/* 로그인 폼 */}
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col items-center gap-4 w-full max-w-xs"
+      >
         {/* 이메일 입력 */}
         <input
           type="email"
-          placeholder="이메일을 입력하세요."
+          placeholder="이메일을 입력해주세요"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full h-[48px] rounded-md border border-gray-300 px-4 text-sm placeholder-[#7A7A7A] font-sans"
-          style={{ fontFamily: "Inter, sans-serif" }}
+          className="w-full h-[58px] px-[16px] rounded-[8px] border border-gray4 bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
         />
 
         {/* 비밀번호 입력 */}
-        <div className="relative w-full">
+        <div className="relative w-full mt-[16px]">
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="비밀번호를 입력하세요."
+            placeholder="비밀번호를 입력해주세요"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-[48px] rounded-md border border-gray-300 px-4 pr-10 text-sm placeholder-[#7A7A7A] font-sans"
-            style={{ fontFamily: "Inter, sans-serif" }}
+            className="w-full h-[58px] px-[16px] pr-10 rounded-[8px] border border-gray4 bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
           />
           <button
             type="button"
@@ -65,45 +66,55 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* 로그인 상태 유지 & 비밀번호 찾기 */}
-        <div className="flex justify-between w-full text-xs text-[#7A7A7A] font-sans mt-1 mb-4">
-          <label className="flex items-center gap-1">
-            <input type="checkbox" className="accent-black w-[14px] h-[14px]" />
-            로그인 상태 유지
-          </label>
-          <button
-            onClick={() => router.push("/signup/password/code")}
-            className="underline"
-          >
-            비밀번호 찾기
-          </button>
-        </div>
-
         {/* 로그인 버튼 */}
-        <PrimaryButton text="로그인" disabled={!isActive} onClick={() => {}} />
+        <div className="mt-[24px] w-full">
+          <PrimaryButton text="로그인" disabled={!isActive} onClick={() => {}} />
+        </div>
       </form>
 
-      {/* 소셜 로그인 */}
-      <div className="w-full max-w-xs flex flex-col gap-3 mt-8">
-        <button className="flex items-center justify-center h-[48px] rounded-md bg-[#FEE500] text-black font-semibold">
-          <Image src="/kakao.svg" alt="kakao" width={20} height={20} className="mr-2" />
-          카카오톡으로 로그인
-        </button>
-        <button className="flex items-center justify-center h-[48px] rounded-md border border-gray-300 text-black font-semibold">
-          <Image src="/google.svg" alt="google" width={20} height={20} className="mr-2" />
-          구글로 로그인
-        </button>
+      {/* 하단 텍스트 링크 */}
+      <div className="mt-[40px] mb-[48px] flex justify-center items-center gap-[8px] text-sm text-black font-sans">
+        <button onClick={() => router.push("/signup/password/code")}>비밀번호 찾기</button>
+        <div
+          style={{
+            width: "0.5px",
+            height: "14px",
+            background: "#F3F4F6",
+          }}
+        />
+        <button onClick={() => router.push("/signup")}>회원가입</button>
       </div>
 
-      {/* 회원가입 안내 */}
-      <div className="mt-8 flex items-center justify-center gap-[4px] text-[13px]">
-        <span className="text-[#7A7A7A]">아직 회원이 아니신가요?</span>
-        <button
-          onClick={() => router.push("/signup")}
-          className="text-black underline font-semibold text-[13px]"
-        >
-          지금 회원가입하기
-        </button>
+      {/* 간편 로그인 섹션 */}
+      <div className="w-full max-w-xs flex flex-col items-center">
+        {/* 구분선 + 텍스트 */}
+        <div className="flex items-center w-full mb-[16px]">
+          <div className="flex-1 h-px bg-gray-300" />
+          <span
+            className="px-3"
+            style={{
+              color: "#9E9FAD",
+              fontFamily: "Pretendard",
+              fontSize: "14px",
+              fontStyle: "normal",
+              fontWeight: 400,
+              lineHeight: "normal",
+            }}
+          >
+            간편 로그인
+          </span>
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+
+        {/* SNS 버튼 */}
+        <div className="flex justify-center gap-4">
+          <button className="w-[44px] h-[44px] rounded-full bg-white flex items-center justify-center">
+            <Image src="/google-logo.svg" alt="Google login" width={24} height={24} />
+          </button>
+          <button className="w-[44px] h-[44px] rounded-full bg-[#FEE500] flex items-center justify-center">
+            <Image src="/kakao-logo.svg" alt="Kakao login" width={24} height={24} />
+          </button>
+        </div>
       </div>
     </div>
   );
