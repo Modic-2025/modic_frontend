@@ -19,6 +19,18 @@ export default function LoginPage() {
     console.log("password:", password);
   };
 
+  // 구글 로그인 핸들러
+  const handleGoogleLogin = () => {
+    const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ID!;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI!;
+    const SCOPE = process.env.NEXT_PUBLIC_GOOGLE_SCOPE!;
+    const RESPONSE_TYPE = "code";
+
+    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
+
+    window.location.href = GOOGLE_AUTH_URL;
+  };
+
   return (
     <div className="w-full h-full bg-white flex flex-col items-center px-6">
       {/* 로고 */}
@@ -108,9 +120,15 @@ export default function LoginPage() {
 
         {/* SNS 버튼 */}
         <div className="flex justify-center gap-4">
-          <button className="w-[44px] h-[44px] rounded-full bg-white border border-[#F3F4F6] flex items-center justify-center">
+          {/* ✅ 구글 로그인 버튼 */}
+          <button
+            onClick={handleGoogleLogin}
+            className="w-[44px] h-[44px] rounded-full bg-white border border-[#F3F4F6] flex items-center justify-center"
+          >
             <Image src="/google-logo.svg" alt="Google login" width={24} height={24} />
           </button>
+
+          {/* (카카오 로그인은 아직 구현 X) */}
           <button className="w-[44px] h-[44px] rounded-full bg-[#FEE500] flex items-center justify-center">
             <Image src="/kakao-logo.svg" alt="Kakao login" width={24} height={24} />
           </button>
