@@ -23,7 +23,7 @@ export default function LoginPage() {
     <div className="w-full h-full bg-white flex flex-col items-center px-6">
       {/* 로고 */}
       <h1
-        className="text-[57.736px] font-[900] text-black mt-[120px] mb-20 text-center"
+        className="text-[57.736px] font-[900] text-black mt-[120px] mb-[40px] text-center"
         style={{ fontFamily: "Inter" }}
       >
         MODIC
@@ -40,7 +40,7 @@ export default function LoginPage() {
           placeholder="이메일을 입력해주세요"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full h-[58px] px-[16px] rounded-[8px] border border-gray4 bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
+          className="w-full h-[58px] px-[16px] rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
         />
 
         {/* 비밀번호 입력 */}
@@ -50,7 +50,7 @@ export default function LoginPage() {
             placeholder="비밀번호를 입력해주세요"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-[58px] px-[16px] pr-10 rounded-[8px] border border-gray4 bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
+            className="w-full h-[58px] px-[16px] pr-10 rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
           />
           <button
             type="button"
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
         {/* SNS 버튼 */}
         <div className="flex justify-center gap-4">
-          <button className="w-[44px] h-[44px] rounded-full bg-white flex items-center justify-center">
+          <button className="w-[44px] h-[44px] rounded-full bg-white border border-[#F3F4F6] flex items-center justify-center">
             <Image src="/google-logo.svg" alt="Google login" width={24} height={24} />
           </button>
           <button className="w-[44px] h-[44px] rounded-full bg-[#FEE500] flex items-center justify-center">
