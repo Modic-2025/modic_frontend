@@ -12,12 +12,10 @@ export default function LoginLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body>
-        <main className="absolute w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg p-0">
-          <div className="h-full w-full">{children}</div>
-        </main>
-      </body>
-    </html>
+    <div className="w-full min-h-screen flex justify-center bg-[#F8F8F8]">
+      <main className="w-full max-w-sm bg-white shadow-lg">
+        <div className="min-h-screen flex flex-col">{children}</div>
+      </main>
+    </div>
   );
 }
