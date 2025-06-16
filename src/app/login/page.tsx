@@ -22,7 +22,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
+      const response = await axios.post("http://13.124.44.90:8080/api/auth/login", {
         email,
         password,
       });
