@@ -45,7 +45,12 @@ export default function RootLayout({
               placeholder="찾고 싶은 작품이 있나요?"
             />
             <div className="cursor-pointer">
-              <Image src="/Magnifyingglass.svg" width={32} height={32} />
+              <Image
+                src="/Magnifyingglass.svg"
+                alt="search"
+                width={32}
+                height={32}
+              />
             </div>
           </div>
         </div>
