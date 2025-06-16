@@ -22,10 +22,13 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://13.124.44.90:8080/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://api.modic.kr:8080/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
       const { accessToken, refreshToken } = response.data.data;
       localStorage.setItem("accessToken", accessToken);

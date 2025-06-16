@@ -85,7 +85,7 @@ const Page = () => {
       imageIds: imageUrls.map((item) => item.imageId),
     };
 
-    fetch("http://13.124.44.90:8080/api/posts", {
+    fetch("http://api.modic.kr:8080/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

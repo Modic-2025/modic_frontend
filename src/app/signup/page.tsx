@@ -18,14 +18,11 @@ export default function SignupPage() {
   const isEmailValid = email === "" || emailRegex.test(email);
 
   const isActive =
-    name.trim() !== "" &&
-    email.trim() !== "" &&
-    isNameValid &&
-    isEmailValid;
+    name.trim() !== "" && email.trim() !== "" && isNameValid && isEmailValid;
 
   const handleNext = async () => {
     try {
-      const response = await fetch("http://13.124.44.90:8080/api/users", {
+      const response = await fetch("http://api.modic.kr:8080/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

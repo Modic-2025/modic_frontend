@@ -24,7 +24,7 @@ const UploadImage = async (
   const { name } = file;
 
   const res_save_url = await fetch(
-    `http://13.124.44.90:8080/api/posts/images/save-url`,
+    `http://api.modic.kr:8080/api/posts/images/save-url`,
     {
       method: "POST",
       headers: {
@@ -60,7 +60,7 @@ const UploadImage = async (
     return false;
   }
   const res_callback = await fetch(
-    `http://13.124.44.90:8080/api/posts/images/save-url/callback`,
+    `http://api.modic.kr:8080/api/posts/images/save-url/callback`,
     {
       method: "POST",
       headers: {
@@ -79,7 +79,7 @@ const UploadImage = async (
     const { imageId } = data.data;
     try {
       const res_img_url = await fetch(
-        `http://13.124.44.90:8080/api/posts/images/${imageId}/get-url`
+        `http://api.modic.kr:8080/api/posts/images/${imageId}/get-url`
       );
       if (res_img_url.ok) {
         const data = await res_img_url.json();

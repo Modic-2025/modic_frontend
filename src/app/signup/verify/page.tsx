@@ -24,11 +24,14 @@ export default function EmailVerificationPage() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("http://13.124.44.90:8080/api/auth/email/verify-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: verificationCode }),
-      });
+      const res = await fetch(
+        "http://api.modic.kr:8080/api/auth/email/verify-code",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code: verificationCode }),
+        }
+      );
 
       const result = await res.json();
       console.log("🔐 인증번호 검증 응답:", result);
