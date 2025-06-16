@@ -55,11 +55,11 @@ const Chat = ({ artId }: { artId: number }) => {
     console.log("data :>> ", data);
     if (data) {
       const art: Art = data.data;
-      const { imageUrls } = art;
+      const { images } = art;
       setChatStack([
         {
           type: 0,
-          image: imageUrls[0],
+          image: images[0].imageUrl,
           text: "이 그림체로 어떤 작품을 만들어볼까요?",
         },
       ]);
@@ -115,7 +115,11 @@ const Chat = ({ artId }: { artId: number }) => {
         setInputImage("");
         setChatDisabled(true);
 
-        generateImage(data.data.imageUrls[0], r[0], callbackGenerateImage);
+        generateImage(
+          data.data.images[0].imageUrl,
+          r[0],
+          callbackGenerateImage
+        );
         setConfirmState(false);
       });
     }

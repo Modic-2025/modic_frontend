@@ -23,7 +23,7 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
       <>
         {/* 이미지영역 및 작가 */}
         <div className="px-4 pt-4">
-          <Slider items={artData.imageUrls} />
+          <Slider items={artData.images} />
           <div className="flex items-center justify-between pt-3 pb-3 border-b-1 border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-gray-200 mr-2"></div>
