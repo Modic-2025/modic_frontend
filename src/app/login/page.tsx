@@ -3,50 +3,66 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import axios from "axios";
 import PrimaryButton from "@/components/Button/PrimaryButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const isActive = email.trim() !== "" && password.trim() !== "";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("email:", email);
-    console.log("password:", password);
+    if (!isActive) return;
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post("http://localhost:8080/api/auth/login", {
+        email,
+        password,
+      });
+
+      const { accessToken, refreshToken } = response.data.data;
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      console.log("✅ 로그인 성공:", response.data);
+
+      router.push("/welcome");
+    } catch (err) {
+      console.error("❌ 로그인 실패:", err);
+      alert("이메일 또는 비밀번호가 올바르지 않습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 구글 로그인 핸들러
   const handleGoogleLogin = () => {
     const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ID!;
     const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI!;
     const SCOPE = process.env.NEXT_PUBLIC_GOOGLE_SCOPE!;
-    const RESPONSE_TYPE = "code";
-
-    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
-
+    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}`;
     window.location.href = GOOGLE_AUTH_URL;
+  };
+
+  const handleKakaoLogin = () => {
+    const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY!;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
+    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+    window.location.href = KAKAO_AUTH_URL;
   };
 
   return (
     <div className="w-full h-full bg-white flex flex-col items-center px-6">
-      {/* 로고 */}
-      <h1
-        className="text-[57.736px] font-[900] text-black mt-[120px] mb-[40px] text-center"
-        style={{ fontFamily: "Inter" }}
-      >
+      <h1 className="text-[57.736px] font-[900] text-black mt-[120px] mb-[40px] text-center" style={{ fontFamily: "Inter" }}>
         MODIC
       </h1>
 
-      {/* 로그인 폼 */}
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col items-center gap-4 w-full max-w-xs"
-      >
-        {/* 이메일 입력 */}
+      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full max-w-xs">
         <input
           type="email"
           placeholder="이메일을 입력해주세요"
@@ -55,7 +71,6 @@ export default function LoginPage() {
           className="w-full h-[58px] px-[16px] rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
         />
 
-        {/* 비밀번호 입력 */}
         <div className="relative w-full mt-[16px]">
           <input
             type={showPassword ? "text" : "password"}
@@ -69,58 +84,33 @@ export default function LoginPage() {
             onClick={() => setShowPassword((prev) => !prev)}
             className="absolute right-3 top-1/2 transform -translate-y-1/2"
           >
-            <Image
-              src={showPassword ? "/icon_close_eye.svg" : "/icon_eye.svg"}
-              alt="toggle password"
-              width={20}
-              height={20}
-            />
+            <Image src={showPassword ? "/icon_close_eye.svg" : "/icon_eye.svg"} alt="toggle password" width={20} height={20} />
           </button>
         </div>
 
-        {/* 로그인 버튼 */}
         <div className="mt-[24px] w-full">
-          <PrimaryButton text="로그인" disabled={!isActive} onClick={() => {}} />
+          <PrimaryButton
+            text={loading ? "로그인 중..." : "로그인"}
+            disabled={!isActive || loading}
+            onClick={() => handleSubmit(new Event("submit") as unknown as React.FormEvent)}
+          />
         </div>
       </form>
 
-      {/* 하단 텍스트 링크 */}
       <div className="mt-[40px] mb-[48px] flex justify-center items-center gap-[8px] text-sm text-black font-sans">
         <button onClick={() => router.push("/signup/password/code")}>비밀번호 찾기</button>
-        <div
-          style={{
-            width: "0.5px",
-            height: "14px",
-            background: "#F3F4F6",
-          }}
-        />
+        <div style={{ width: "0.5px", height: "14px", background: "#F3F4F6" }} />
         <button onClick={() => router.push("/signup")}>회원가입</button>
       </div>
 
-      {/* 간편 로그인 섹션 */}
       <div className="w-full max-w-xs flex flex-col items-center">
-        {/* 구분선 + 텍스트 */}
         <div className="flex items-center w-full mb-[16px]">
           <div className="flex-1 h-px bg-gray-300" />
-          <span
-            className="px-3"
-            style={{
-              color: "#9E9FAD",
-              fontFamily: "Pretendard",
-              fontSize: "14px",
-              fontStyle: "normal",
-              fontWeight: 400,
-              lineHeight: "normal",
-            }}
-          >
-            간편 로그인
-          </span>
+          <span className="px-3 text-[#9E9FAD] text-[14px] font-[Pretendard]">간편 로그인</span>
           <div className="flex-1 h-px bg-gray-300" />
         </div>
 
-        {/* SNS 버튼 */}
         <div className="flex justify-center gap-4">
-          {/* ✅ 구글 로그인 버튼 */}
           <button
             onClick={handleGoogleLogin}
             className="w-[44px] h-[44px] rounded-full bg-white border border-[#F3F4F6] flex items-center justify-center"
@@ -128,8 +118,10 @@ export default function LoginPage() {
             <Image src="/google-logo.svg" alt="Google login" width={24} height={24} />
           </button>
 
-          {/* (카카오 로그인은 아직 구현 X) */}
-          <button className="w-[44px] h-[44px] rounded-full bg-[#FEE500] flex items-center justify-center">
+          <button
+            onClick={handleKakaoLogin}
+            className="w-[44px] h-[44px] rounded-full bg-[#FEE500] flex items-center justify-center"
+          >
             <Image src="/kakao-logo.svg" alt="Kakao login" width={24} height={24} />
           </button>
         </div>
