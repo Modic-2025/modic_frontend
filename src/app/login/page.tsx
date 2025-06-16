@@ -32,7 +32,7 @@ export default function LoginPage() {
       localStorage.setItem("refreshToken", refreshToken);
       console.log("✅ 로그인 성공:", response.data);
 
-      router.push("/welcome");
+      router.push("/art");
     } catch (err) {
       console.error("❌ 로그인 실패:", err);
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
