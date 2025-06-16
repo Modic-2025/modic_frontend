@@ -1,3 +1,4 @@
+// app/signup/layout.tsx
 import type { Metadata } from "next";
 import TopBarWrapper from "@/components/Navigation/TopBarWrapper";
 
@@ -12,18 +13,16 @@ export default function SignupLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body className="bg-[#F8F8F8] flex items-center justify-center min-h-screen">
-        <main className="relative w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg">
-          {/* 조건부 TopBar */}
-          <TopBarWrapper />
+    <div className="flex items-center justify-center w-full min-h-screen bg-[#F8F8F8]">
+      <main className="relative w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg">
+        {/* 조건부 TopBar */}
+        <TopBarWrapper />
 
-          {/* TopBar 제외 영역 */}
-          <div className="absolute top-[44px] bottom-0 w-full overflow-y-auto">
-            {children}
-          </div>
-        </main>
-      </body>
-    </html>
+        {/* TopBar 제외 영역 */}
+        <div className="absolute top-[44px] bottom-0 w-full overflow-y-auto">
+          {children}
+        </div>
+      </main>
+    </div>
   );
 }
