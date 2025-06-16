@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import PrimaryButton from "@/components/Button/PrimaryButton";
 
+const REGEX_NUMBER = /^[0-9]$/;
+
 export default function EmailVerificationPage() {
   const router = useRouter();
   const [code, setCode] = useState(["", "", "", ""]);
@@ -12,6 +14,9 @@ export default function EmailVerificationPage() {
   const isComplete = code.every((digit) => digit !== "");
 
   const handleChange = (index: number, value: string) => {
+    if (value && !REGEX_NUMBER.test(value)) {
+      return;
+    }
     const newCode = [...code];
     newCode[index] = value.slice(0, 1); // 한 글자만 유지
     setCode(newCode);
