@@ -18,14 +18,11 @@ export default function SignupPage() {
   const isEmailValid = email === "" || emailRegex.test(email);
 
   const isActive =
-    name.trim() !== "" &&
-    email.trim() !== "" &&
-    isNameValid &&
-    isEmailValid;
+    name.trim() !== "" && email.trim() !== "" && isNameValid && isEmailValid;
 
   const handleNext = async () => {
     try {
-      const response = await fetch("http://13.124.44.90:8080/api/users", {
+      const response = await fetch("http://api.modic.kr:8080/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,17 +58,25 @@ export default function SignupPage() {
       <div>
         {/* 타이틀 */}
         <div className="mb-8">
-          <h2 className="text-[24px] font-bold text-black mb-1" style={{ fontFamily: "Pretendard" }}>
+          <h2
+            className="text-[24px] font-bold text-black mb-1"
+            style={{ fontFamily: "Pretendard" }}
+          >
             회원가입
           </h2>
-          <p className="text-[16px] font-medium text-[#9E9FAD]" style={{ fontFamily: "Pretendard" }}>
+          <p
+            className="text-[16px] font-medium text-[#9E9FAD]"
+            style={{ fontFamily: "Pretendard" }}
+          >
             모딕에 오신 걸 환영합니다!
           </p>
         </div>
 
         {/* 이름 입력 */}
         <div className="mb-6">
-          <label className="block text-[16px] font-bold text-black mb-2">이름</label>
+          <label className="block text-[16px] font-bold text-black mb-2">
+            이름
+          </label>
           <FormInput
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -80,8 +85,16 @@ export default function SignupPage() {
           <div className="flex items-center gap-1 mt-2 min-h-[20px]">
             {name && !isNameValid ? (
               <>
-                <Image src="/alert-circle-filled.svg" alt="경고" width={13} height={13} />
-                <p className="text-[#EB003B] text-[12px] font-medium" style={{ fontFamily: "Pretendard" }}>
+                <Image
+                  src="/alert-circle-filled.svg"
+                  alt="경고"
+                  width={13}
+                  height={13}
+                />
+                <p
+                  className="text-[#EB003B] text-[12px] font-medium"
+                  style={{ fontFamily: "Pretendard" }}
+                >
                   한글 또는 영문 1~20자로 입력해주세요.
                 </p>
               </>
@@ -93,7 +106,9 @@ export default function SignupPage() {
 
         {/* 이메일 입력 */}
         <div className="mb-10">
-          <label className="block text-[16px] font-bold text-black mb-2">이메일</label>
+          <label className="block text-[16px] font-bold text-black mb-2">
+            이메일
+          </label>
           <FormInput
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -102,8 +117,16 @@ export default function SignupPage() {
           <div className="flex items-center gap-1 mt-2 min-h-[20px]">
             {email && !isEmailValid ? (
               <>
-                <Image src="/alert-circle-filled.svg" alt="경고" width={13} height={13} />
-                <p className="text-[#EB003B] text-[12px] font-medium" style={{ fontFamily: "Pretendard" }}>
+                <Image
+                  src="/alert-circle-filled.svg"
+                  alt="경고"
+                  width={13}
+                  height={13}
+                />
+                <p
+                  className="text-[#EB003B] text-[12px] font-medium"
+                  style={{ fontFamily: "Pretendard" }}
+                >
                   올바른 이메일 형식을 입력해주세요.
                 </p>
               </>
@@ -116,11 +139,7 @@ export default function SignupPage() {
 
       {/* 다음 버튼 */}
       <div className="w-full">
-        <PrimaryButton
-          text="다음"
-          disabled={!isActive}
-          onClick={handleNext}
-        />
+        <PrimaryButton text="다음" disabled={!isActive} onClick={handleNext} />
       </div>
     </div>
   );

@@ -39,7 +39,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-gray-100 min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-gray-100`}
         style={{ fontFamily: "Pretendard, Inter, sans-serif" }}
       >
         {children}

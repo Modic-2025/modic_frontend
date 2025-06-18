@@ -1,6 +1,6 @@
 import useSWR from "swr";
 
-const AI_SERVER_HOST = "https://0f8a-121-131-111-122.ngrok-free.app";
+const AI_SERVER_HOST = "https://046c-121-131-111-122.ngrok-free.app/";
 
 const useGenerateImage = () => {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());

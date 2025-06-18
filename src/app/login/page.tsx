@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import PrimaryButton from "@/components/Button/PrimaryButton";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,14 +23,24 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://13.124.44.90:8080/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://api.modic.kr:8080/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
       const { accessToken, refreshToken } = response.data.data;
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      Cookies.set("accessToken", accessToken, {
+        path: "/",
+        expires: 1 / 48,
+      });
+      Cookies.set("refreshToken", refreshToken, {
+        expires: 1 / 48,
+      });
       console.log("✅ 로그인 성공:", response.data);
 
       router.push("/art");
@@ -58,11 +69,17 @@ export default function LoginPage() {
 
   return (
     <div className="w-full h-full bg-white flex flex-col items-center px-6">
-      <h1 className="text-[57.736px] font-[900] text-black mt-[120px] mb-[40px] text-center" style={{ fontFamily: "Inter" }}>
+      <h1
+        className="text-[57.736px] font-[900] text-black mt-[120px] mb-[40px] text-center"
+        style={{ fontFamily: "Inter" }}
+      >
         MODIC
       </h1>
 
-      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full max-w-xs">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col items-center gap-4 w-full max-w-xs"
+      >
         <input
           type="email"
           placeholder="이메일을 입력해주세요"
@@ -84,7 +101,12 @@ export default function LoginPage() {
             onClick={() => setShowPassword((prev) => !prev)}
             className="absolute right-3 top-1/2 transform -translate-y-1/2"
           >
-            <Image src={showPassword ? "/icon_close_eye.svg" : "/icon_eye.svg"} alt="toggle password" width={20} height={20} />
+            <Image
+              src={showPassword ? "/icon_close_eye.svg" : "/icon_eye.svg"}
+              alt="toggle password"
+              width={20}
+              height={20}
+            />
           </button>
         </div>
 
@@ -92,21 +114,29 @@ export default function LoginPage() {
           <PrimaryButton
             text={loading ? "로그인 중..." : "로그인"}
             disabled={!isActive || loading}
-            onClick={() => handleSubmit(new Event("submit") as unknown as React.FormEvent)}
+            onClick={() =>
+              handleSubmit(new Event("submit") as unknown as React.FormEvent)
+            }
           />
         </div>
       </form>
 
       <div className="mt-[40px] mb-[48px] flex justify-center items-center gap-[8px] text-sm text-black font-sans">
-        <button onClick={() => router.push("/signup/password/code")}>비밀번호 찾기</button>
-        <div style={{ width: "0.5px", height: "14px", background: "#F3F4F6" }} />
+        <button onClick={() => router.push("/signup/password/code")}>
+          비밀번호 찾기
+        </button>
+        <div
+          style={{ width: "0.5px", height: "14px", background: "#F3F4F6" }}
+        />
         <button onClick={() => router.push("/signup")}>회원가입</button>
       </div>
 
       <div className="w-full max-w-xs flex flex-col items-center">
         <div className="flex items-center w-full mb-[16px]">
           <div className="flex-1 h-px bg-gray-300" />
-          <span className="px-3 text-[#9E9FAD] text-[14px] font-[Pretendard]">간편 로그인</span>
+          <span className="px-3 text-[#9E9FAD] text-[14px] font-[Pretendard]">
+            간편 로그인
+          </span>
           <div className="flex-1 h-px bg-gray-300" />
         </div>
 
@@ -115,14 +145,24 @@ export default function LoginPage() {
             onClick={handleGoogleLogin}
             className="w-[44px] h-[44px] rounded-full bg-white border border-[#F3F4F6] flex items-center justify-center"
           >
-            <Image src="/google-logo.svg" alt="Google login" width={24} height={24} />
+            <Image
+              src="/google-logo.svg"
+              alt="Google login"
+              width={24}
+              height={24}
+            />
           </button>
 
           <button
             onClick={handleKakaoLogin}
             className="w-[44px] h-[44px] rounded-full bg-[#FEE500] flex items-center justify-center"
           >
-            <Image src="/kakao-logo.svg" alt="Kakao login" width={24} height={24} />
+            <Image
+              src="/kakao-logo.svg"
+              alt="Kakao login"
+              width={24}
+              height={24}
+            />
           </button>
         </div>
       </div>

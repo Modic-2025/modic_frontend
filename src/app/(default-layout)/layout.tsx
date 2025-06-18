@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="absolute w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg p-0">
+    <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
       <header className="flex flex-row items-center gap-3 h-14 px-4 py-2 bg-white border-[#E8E8E8]">
         <div className="header-left">
           <Link href="/art">
@@ -55,11 +55,11 @@ export default function RootLayout({
           </div>
         </div>
       </header>
-      <main className="absolute h-[calc(100vh-117px)] w-full overflow-y-auto">
+      <main className="relative h-[calc(100vh-112px)] w-full overflow-y-auto">
         {children}
       </main>
 
-      <footer className="absolute h-16">
+      <footer className="h-14 w-full">
         <div className="flex flex-row justify-center items-center h-full">
           <button className="basis-1/4 flex justify-center items-center">
             <Image src="/IconHome.svg" width={28} height={28} alt="홈" />
@@ -76,7 +76,14 @@ export default function RootLayout({
             />
           </button>
           <button className="basis-1/4 flex justify-center items-center">
-            <Image src="/IconProfile.svg" width={28} height={28} alt="프로필" />
+            <Link href="/users/me">
+              <Image
+                src="/IconProfile.svg"
+                width={28}
+                height={28}
+                alt="프로필"
+              />
+            </Link>
           </button>
         </div>
       </footer>

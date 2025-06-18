@@ -10,18 +10,18 @@ const ArtCard = (props: {
     <Link href={`/art/${props.data.id}`}>
       <figure className="art">
         <Image
-          src={props.data.imageUrls[0]}
+          src={props.data.images[0].imageUrl}
           layout="raw"
           width={200}
           height={200}
           className="rounded-xl bg-gray-200"
-          alt={props.data.imageUrls[0]}
+          alt={props.data.images[0].imageUrl}
           title={props.data.id}
         />
         {/* <img
-          src={props.data.imageUrls[0]}
+          src={props.data.images[0].imageUrl}
           className="rounded-xl bg-gray-200"
-          alt={props.data.imageUrls[0]}
+          alt={props.data.images[0].imageUrl}
           title={props.data.id}
         /> */}
       </figure>

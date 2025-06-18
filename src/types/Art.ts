@@ -1,6 +1,6 @@
 export interface Art_thumbnail {
   id: string;
-  imageUrls: Array<string>;
+  images: Array<{ imageUrl: string; imageId: string }>;
 }
 
 export interface Art extends Art_thumbnail {

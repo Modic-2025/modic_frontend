@@ -24,11 +24,14 @@ export default function EmailVerificationPage() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("http://13.124.44.90:8080/api/auth/email/verify-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: verificationCode }),
-      });
+      const res = await fetch(
+        "http://api.modic.kr:8080/api/auth/email/verify-code",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code: verificationCode }),
+        }
+      );
 
       const result = await res.json();
       console.log("🔐 인증번호 검증 응답:", result);
@@ -59,10 +62,16 @@ export default function EmailVerificationPage() {
   return (
     <div className="flex flex-col justify-between w-full h-full px-6 pt-6 pb-5">
       <div>
-        <h2 className="text-[24px] font-bold text-black mb-2" style={{ fontFamily: "Pretendard" }}>
+        <h2
+          className="text-[24px] font-bold text-black mb-2"
+          style={{ fontFamily: "Pretendard" }}
+        >
           이메일 인증
         </h2>
-        <p className="text-[16px] font-medium text-[#9E9FAD]" style={{ fontFamily: "Pretendard" }}>
+        <p
+          className="text-[16px] font-medium text-[#9E9FAD]"
+          style={{ fontFamily: "Pretendard" }}
+        >
           이메일로 전송된 인증번호를 입력해주세요.
         </p>
 
@@ -97,7 +106,10 @@ export default function EmailVerificationPage() {
 
         {/* 에러 메시지 */}
         {error && (
-          <p className="mt-4 text-[12px] font-bold text-[#FF5100]" style={{ fontFamily: "Pretendard" }}>
+          <p
+            className="mt-4 text-[12px] font-bold text-[#FF5100]"
+            style={{ fontFamily: "Pretendard" }}
+          >
             {error}
           </p>
         )}

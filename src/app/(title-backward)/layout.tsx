@@ -31,7 +31,7 @@ export default function Layout({
   }, [pathname]);
 
   return (
-    <main className="absolute w-full max-w-sm min-h-screen bg-white mx-auto shadow-lg p-0">
+    <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
       <header className="h-11 flex items-center justify-between px-[16px] pt-[16px] bg-white">
         <div
           className="absolute cursor-pointer"
