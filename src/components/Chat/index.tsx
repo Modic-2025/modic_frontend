@@ -101,6 +101,7 @@ const Chat = ({ artId }: { artId: number }) => {
       UploadImage(inputFile, (r, e) => {
         if (e) {
           console.error("Error occured in image upload");
+          return;
         }
         setChatStack((prev) => [
           ...prev,

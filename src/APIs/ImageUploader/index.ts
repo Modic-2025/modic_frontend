@@ -28,6 +28,7 @@ const UploadImage = async (
     {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         "Content-Type": "application/json", // JSON 전송 시 필수
       },
       body: JSON.stringify({
@@ -64,7 +65,7 @@ const UploadImage = async (
     {
       method: "POST",
       headers: {
-        "Content-Type": "application/json", // JSON 전송 시 필수
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         fileName: name,

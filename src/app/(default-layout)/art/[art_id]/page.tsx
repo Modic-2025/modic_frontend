@@ -1,5 +1,6 @@
 // import { Navigation } from "swiper/modules";
 import Slider from "@/components/Slider";
+import Image from "next/image";
 import Link from "next/link";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
@@ -7,15 +8,11 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const res = await fetch(`http://api.modic.kr:8080/api/posts/${art_id}`);
   const data = await res.json();
   const { status } = data;
-
+  console.log("data :>> ", data);
   const artData = data.data;
-
+  console.log("artData :>> ", artData);
   if (status != 200) {
-    return (
-      <>
-        <p> SERVER ERROR! ({status}) </p>
-      </>
-    );
+    return <p> SERVER ERROR! ({status}) </p>;
   }
 
   if (status == 200) {
@@ -26,7 +23,15 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
           <Slider items={artData.images} />
           <div className="flex items-center justify-between pt-3 pb-3 border-b-1 border-gray-200">
             <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-gray-200 mr-2"></div>
+              <Link href={`/users/${artData.userId}`}>
+                <Image
+                  src="/temporary/anonymous.svg"
+                  alt="Profile image"
+                  width={32}
+                  height={32}
+                  className="rounded-full mr-2"
+                />
+              </Link>
               <div>
                 <div className="text-sm font-medium leading-tight">모디기</div>
                 <div className="text-xs text-gray-400">@modicinic</div>
