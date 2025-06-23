@@ -1,26 +1,71 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import PrimaryButton from "@/components/Button/PrimaryButton";
-import { useRouter } from "next/navigation";
 
 export default function PasswordSetupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-    const router = useRouter(); 
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const name = searchParams.get("name");
 
   const isPasswordValid =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]{8,20}$/.test(password);
 
   const isMatch = password === confirmPassword;
-
   const isValid = isPasswordValid && isMatch;
 
   const togglePassword = () => setShowPassword((prev) => !prev);
   const toggleConfirm = () => setShowConfirm((prev) => !prev);
+
+  const handleSignup = async () => {
+    if (!email || !name) {
+      setError("잘못된 접근입니다. 이메일 또는 이름이 없습니다.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch("http://api.modic.kr:8080/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      const result = await response.json();
+      console.log("회원가입 응답:", result);
+
+      if (result.isSuccess && result.status === 201) {
+        router.push("/signup/success");
+      } else if (result.status === 409) {
+        setError("이미 가입된 이메일입니다.");
+      } else {
+        setError(result.message || "회원가입에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error("회원가입 에러:", err);
+      setError("서버와 통신 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-between w-full h-full px-6 pt-6 pb-5">
@@ -54,7 +99,6 @@ export default function PasswordSetupPage() {
             </button>
           </div>
 
-          {/* 에러 메시지 */}
           <div className="flex items-center gap-1 mt-2 min-h-[20px]">
             {password && !isPasswordValid ? (
               <>
@@ -69,7 +113,7 @@ export default function PasswordSetupPage() {
           </div>
         </div>
 
-        {/* 비밀번호 확인 입력 */}
+        {/* 비밀번호 확인 */}
         <div className="mb-[49px]">
           <label className="block text-[16px] font-bold text-black mb-2">비밀번호 확인</label>
           <div className="relative">
@@ -90,7 +134,6 @@ export default function PasswordSetupPage() {
             </button>
           </div>
 
-          {/* 에러 메시지 */}
           <div className="flex items-center gap-1 mt-2 min-h-[20px]">
             {confirmPassword && !isMatch ? (
               <>
@@ -104,17 +147,18 @@ export default function PasswordSetupPage() {
             )}
           </div>
         </div>
+
+        {/* 에러 메시지 */}
+        {error && (
+          <p className="text-[#EB003B] text-[12px] font-medium mb-4" style={{ fontFamily: "Pretendard" }}>
+            {error}
+          </p>
+        )}
       </div>
 
       {/* 버튼 */}
       <div className="w-full">
-        <PrimaryButton
-          text="로그인"
-          disabled={!isValid}
-          onClick={() => {
-            router.push("/signup/success");
-          }}
-        />
+        <PrimaryButton text={loading ? "가입 중..." : "가입하기"} disabled={!isValid || loading} onClick={handleSignup} />
       </div>
     </div>
   );

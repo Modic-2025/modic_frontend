@@ -41,11 +41,11 @@ export default function LoginPage() {
       Cookies.set("refreshToken", refreshToken, {
         expires: 1 / 48,
       });
-      console.log("✅ 로그인 성공:", response.data);
+      console.log("로그인 성공:", response.data);
 
       router.push("/art");
     } catch (err) {
-      console.error("❌ 로그인 실패:", err);
+      console.error("로그인 실패:", err);
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
@@ -61,7 +61,7 @@ export default function LoginPage() {
   };
 
   const handleKakaoLogin = () => {
-    const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY!;
+    const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
     const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
     const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
     window.location.href = KAKAO_AUTH_URL;

@@ -20,7 +20,7 @@ export default function GoogleRedirectPage() {
     const authorizationCode = params.get("code");
 
     if (!authorizationCode) {
-      console.error("❌ 인증 코드 없음");
+      console.error("인증 코드 없음");
       router.push("/login");
       return;
     }
@@ -61,7 +61,7 @@ export default function GoogleRedirectPage() {
 
         router.push("/welcome");
       } catch (error) {
-        console.error("❌ 로그인 처리 중 오류 발생:", error);
+        console.error("로그인 처리 중 오류 발생:", error);
         router.push("/login");
       }
     };

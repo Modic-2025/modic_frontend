@@ -1,127 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import PrimaryButton from "@/components/Button/PrimaryButton";
+import axios from "axios";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+export default function KakaoRedirectPage() {
   const router = useRouter();
 
-  const isActive = email.trim() !== "" && password.trim() !== "";
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authorizationCode = params.get("code");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("email:", email);
-    console.log("password:", password);
-  };
+    if (!authorizationCode) {
+      console.error("카카오 인가 코드 없음");
+      router.push("/login");
+      return;
+    }
 
-  // 구글 로그인 핸들러
-  const handleGoogleLogin = () => {
-    const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ID!;
-    const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI!;
-    const SCOPE = process.env.NEXT_PUBLIC_GOOGLE_SCOPE!;
-    const RESPONSE_TYPE = "code";
+    const sendCodeToBackend = async () => {
+      try {
+        const response = await axios.post("http://localhost:8080/api/users/social-login", {
+          code: authorizationCode,
+          socialType: "KAKAO",
+        });
 
-    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
-    window.location.href = GOOGLE_AUTH_URL;
-  };
+        const { accessToken, refreshToken } = response.data.data;
 
-  // 카카오 로그인 핸들러
-  const handleKakaoLogin = () => {
-    const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
-    const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
-    const RESPONSE_TYPE = "code";
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
 
-    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`;
-    window.location.href = KAKAO_AUTH_URL;
-  };
+        console.log("카카오 로그인 성공:", response.data);
+        router.push("/welcome");
+      } catch (error) {
+        console.error("카카오 로그인 실패:", error);
+        router.push("/login");
+      }
+    };
 
-  return (
-    <div className="w-full h-full bg-white flex flex-col items-center px-6">
-      {/* 로고 */}
-      <h1 className="text-[57.736px] font-[900] text-black mt-[120px] mb-[40px] text-center" style={{ fontFamily: "Inter" }}>
-        MODIC
-      </h1>
+    sendCodeToBackend();
+  }, [router]);
 
-      {/* 로그인 폼 */}
-      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full max-w-xs">
-        {/* 이메일 입력 */}
-        <input
-          type="email"
-          placeholder="이메일을 입력해주세요"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full h-[58px] px-[16px] rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
-        />
-
-        {/* 비밀번호 입력 */}
-        <div className="relative w-full mt-[16px]">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="비밀번호를 입력해주세요"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-[58px] px-[16px] pr-10 rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2"
-          >
-            <Image
-              src={showPassword ? "/icon_close_eye.svg" : "/icon_eye.svg"}
-              alt="toggle password"
-              width={20}
-              height={20}
-            />
-          </button>
-        </div>
-
-        {/* 로그인 버튼 */}
-        <div className="mt-[24px] w-full">
-          <PrimaryButton text="로그인" disabled={!isActive} onClick={() => {}} />
-        </div>
-      </form>
-
-      {/* 하단 텍스트 링크 */}
-      <div className="mt-[40px] mb-[48px] flex justify-center items-center gap-[8px] text-sm text-black font-sans">
-        <button onClick={() => router.push("/signup/password/code")}>비밀번호 찾기</button>
-        <div style={{ width: "0.5px", height: "14px", background: "#F3F4F6" }} />
-        <button onClick={() => router.push("/signup")}>회원가입</button>
-      </div>
-
-      {/* 간편 로그인 섹션 */}
-      <div className="w-full max-w-xs flex flex-col items-center">
-        {/* 구분선 + 텍스트 */}
-        <div className="flex items-center w-full mb-[16px]">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="px-3 text-[#9E9FAD] text-[14px] font-[Pretendard]">간편 로그인</span>
-          <div className="flex-1 h-px bg-gray-300" />
-        </div>
-
-        {/* SNS 버튼 */}
-        <div className="flex justify-center gap-4">
-          {/* 구글 로그인 버튼 */}
-          <button
-            onClick={handleGoogleLogin}
-            className="w-[44px] h-[44px] rounded-full bg-white border border-[#F3F4F6] flex items-center justify-center"
-          >
-            <Image src="/google-logo.svg" alt="Google login" width={24} height={24} />
-          </button>
-
-          {/* 카카오 로그인 버튼 */}
-          <button
-            onClick={handleKakaoLogin}
-            className="w-[44px] h-[44px] rounded-full bg-[#FEE500] flex items-center justify-center"
-          >
-            <Image src="/kakao-logo.svg" alt="Kakao login" width={24} height={24} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="text-center mt-40">카카오 로그인 처리 중입니다...</div>;
 }

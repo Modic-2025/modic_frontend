@@ -20,37 +20,10 @@ export default function SignupPage() {
   const isActive =
     name.trim() !== "" && email.trim() !== "" && isNameValid && isEmailValid;
 
-  const handleNext = async () => {
-    try {
-      const response = await fetch("http://api.modic.kr:8080/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password: "tempPassword123!", // 임시 비밀번호
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.isSuccess && result.status === 201) {
-        console.log("회원가입 성공, userId:", result.data.userId);
-        const emailParam = encodeURIComponent(email);
-        const nameParam = encodeURIComponent(name);
-        router.push(`/signup/verify?email=${emailParam}&name=${nameParam}`);
-      } else if (result.status === 409) {
-        alert("이미 가입된 이메일입니다.");
-      } else {
-        alert("회원가입에 실패했습니다.");
-        console.error("회원가입 실패:", result);
-      }
-    } catch (error) {
-      alert("에러가 발생했습니다.");
-      console.error("API 호출 에러:", error);
-    }
+  const handleNext = () => {
+    const emailParam = encodeURIComponent(email);
+    const nameParam = encodeURIComponent(name);
+    router.push(`/signup/verify?email=${emailParam}&name=${nameParam}`);
   };
 
   return (
