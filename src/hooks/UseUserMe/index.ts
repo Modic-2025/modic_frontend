@@ -1,9 +1,9 @@
 import useSWR from "swr";
 
-const useUserMe = (token: string) => {
+const useUserMe = (token: string | null) => {
   return useSWR(
-    ["http://api.modic.kr:8080/api/users/me", token],
-    (url: string, token: string) => {
+    token ? ["http://api.modic.kr:8080/api/profiles/me", token] : null,
+    async ([url, token]: [string, string]) => {
       console.log("token :>> ", token);
       fetch(url, {
         headers: {

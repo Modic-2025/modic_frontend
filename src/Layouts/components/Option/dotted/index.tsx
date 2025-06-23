@@ -1,14 +1,15 @@
 "use client";
 import Image from "next/image";
+import { commonClassNames } from "../..";
 
-const Option = ({ onClick }: { onClick?: () => void }) => {
+const OptionDotted = ({ onClick }: { onClick?: () => void }) => {
   return (
     <div
-      className="cursor-pointer basis-1/10"
+      className={`${commonClassNames} basis-1/10`}
       onClick={onClick ? onClick : () => {}}
     >
       <Image
-        src="/Menu.svg"
+        src="/IconMenuLined.svg"
         alt="back"
         className="mr-0"
         width={24}
@@ -18,4 +19,4 @@ const Option = ({ onClick }: { onClick?: () => void }) => {
   );
 };
 
-export default Option;
+export default OptionDotted;

@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { commonClassNames } from "..";
 
-const Backward = () => {
+const Close = ({ backToPath }: {backToPath: string}) => {
   return (
     <div
       className={`${commonClassNames} basis-1/10`}
@@ -13,4 +13,4 @@ const Backward = () => {
   );
 };
 
-export default Backward;
+export default Close;

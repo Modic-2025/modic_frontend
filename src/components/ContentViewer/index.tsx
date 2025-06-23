@@ -7,6 +7,19 @@ import useArts from "@/APIs/useArts";
 type gridType = 2 | 3 | 4 | 5 | 6;
 type artsByGridType = Array<Array<Art_thumbnail>>;
 
+type tab = {
+  value: string;
+  name: string;
+  selected?: boolean;
+  // onClick?: (e:EventListener) => string;
+};
+
+const C_TABS: Array<tab> = [
+  { value: "NEWEST", name: "최신순", selected: true },
+  { value: "HOTTEST", name: "인기순" },
+  { value: "FOLLOWING", name: "팔로잉" },
+];
+
 const ContentViewer = (props: {
   grid: gridType;
   arts?: Array<Art_thumbnail>;
@@ -16,8 +29,13 @@ const ContentViewer = (props: {
   );
   const [grid, setGrid] = useState<gridType>(props.grid);
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>();
+  const [tabs, setTabs] = useState<Array<tab>>(C_TABS);
 
-  const { data, error, isLoading } = useArts();
+  const { data, error, isLoading } = useArts(
+    tabs.find((item) => item.selected).value,
+    0,
+    20
+  );
 
   useEffect(() => {
     if (arts) {
@@ -40,17 +58,11 @@ const ContentViewer = (props: {
   useEffect(() => {
     if (!error && data) {
       const { content } = data.data;
-      console.log("content :>> ", content);
       if (content) {
-        console.log("content :>> ", content);
         setArts(content);
       }
     }
   }, [data]);
-
-  if (isLoading) {
-    return <p> 작품 가져오는 중 .. </p>;
-  }
 
   if (error) {
     return (
@@ -61,19 +73,57 @@ const ContentViewer = (props: {
     );
   }
 
+  const tabOnClickListener = (tabValue: string) => {
+    setTabs(
+      tabs.map((item) => ({
+        ...item,
+        selected: item.value == tabValue,
+      }))
+    );
+  };
+
   return (
-    <div className={`content-viewer flex flex-row gap-4`}>
-      {artsByGrid &&
-        artsByGrid.map((_, index) => (
-          <div key={index} className="basis-1/2">
-            {_.map((art, index) => (
-              <div key={art.id} className="mb-4">
-                <ArtCard key={index} data={art} />
+    <>
+      <nav className="flex flex-row pb-4 font-semibold">
+        {tabs.map((item, idx) => (
+          <Tab key={idx} item={item} onClick={tabOnClickListener} />
+        ))}
+      </nav>
+      {isLoading ? (
+        <p> 작품 가져오는 중 .. </p>
+      ) : (
+        <div className={`content-viewer flex flex-row gap-4`}>
+          {artsByGrid &&
+            artsByGrid.map((_, index) => (
+              <div key={index} className="basis-1/2">
+                {_.map((art, index) => (
+                  <div key={art.id} className="mb-4">
+                    <ArtCard key={index} data={art} />
+                  </div>
+                ))}
               </div>
             ))}
-          </div>
-        ))}
-    </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+const Tab = ({
+  item,
+  onClick,
+}: {
+  item: tab;
+  key: number;
+  onClick: (value: string) => void;
+}) => {
+  return (
+    <button
+      onClick={() => onClick(item.value)}
+      className={`basis-1/3 cursor-pointer ${item.selected ? "text-[#FF5100] underline decoration-2 underline-offset-4" : ""}`}
+    >
+      {item.name}
+    </button>
   );
 };
 
