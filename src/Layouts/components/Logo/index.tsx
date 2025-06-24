@@ -9,8 +9,8 @@ const Logo = () => {
           src="/MODIC.svg"
           alt="MODIC"
           layout="relative"
-          width={140}
-          height={32}
+          width={106}
+          height={36}
         />
       </Link>
     </div>

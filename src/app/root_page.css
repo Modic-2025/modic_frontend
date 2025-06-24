@@ -27,11 +27,6 @@ body {
   font-weight: bold;
 } */
 
-/* Gallery */
-.gallery {
-  padding: 0 16px 80px 16px;
-}
-
 .row {
   display: flex;
   gap: 12px;
