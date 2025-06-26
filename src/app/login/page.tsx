@@ -24,7 +24,7 @@ export default function LoginPage() {
       setLoading(true);
 
       const response = await axios.post(
-        `${process.env.API_HOST}:8080/api/auth/login`,
+        `${process.env.API_HOST}/api/auth/login`,
         {
           email,
           password,

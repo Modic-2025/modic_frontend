@@ -85,7 +85,7 @@ const Page = () => {
       imageIds: imageUrls.map((item) => item.imageId),
     };
 
-    fetch(`${process.env.API_HOST}:8080/api/posts`, {
+    fetch(`${process.env.API_HOST}/api/posts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

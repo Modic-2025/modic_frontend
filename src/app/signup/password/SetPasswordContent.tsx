@@ -39,7 +39,7 @@ export default function PasswordSetupPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${process.env.API_HOST}:8080/api/users`, {
+      const response = await fetch(`${process.env.API_HOST}/api/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -51,11 +51,14 @@ export default function GoogleRedirectPage() {
         console.log("구글 사용자 정보:", decoded);
 
         // 백엔드에 소셜 로그인 요청 보내기
-        const loginResponse = await axios.post("http://localhost:8080/api/users/social-login", {
-          email: decoded.email,
-          name: decoded.name,
-          socialType: "GOOGLE",
-        });
+        const loginResponse = await axios.post(
+          "http://localhost/api/users/social-login",
+          {
+            email: decoded.email,
+            name: decoded.name,
+            socialType: "GOOGLE",
+          }
+        );
 
         console.log("로그인 성공:", loginResponse.data);
 

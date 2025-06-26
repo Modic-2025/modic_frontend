@@ -19,10 +19,13 @@ export default function KakaoRedirectPage() {
 
     const sendCodeToBackend = async () => {
       try {
-        const response = await axios.post("http://localhost:8080/api/users/social-login", {
-          code: authorizationCode,
-          socialType: "KAKAO",
-        });
+        const response = await axios.post(
+          "http://localhost/api/users/social-login",
+          {
+            code: authorizationCode,
+            socialType: "KAKAO",
+          }
+        );
 
         const { accessToken, refreshToken } = response.data.data;
 
@@ -40,5 +43,7 @@ export default function KakaoRedirectPage() {
     sendCodeToBackend();
   }, [router]);
 
-  return <div className="text-center mt-40">카카오 로그인 처리 중입니다...</div>;
+  return (
+    <div className="text-center mt-40">카카오 로그인 처리 중입니다...</div>
+  );
 }
