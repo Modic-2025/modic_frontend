@@ -62,12 +62,12 @@ const MasterLayout = ({
 }: {
   children: React.ReactNode;
   option?: Option;
-  headerContents?: Array<HeaderContentType>;
+  headerContents?: Array<HeaderContent>;
 }) => {
   const [cLocalStorage, setCLocalStorage] = useState<Storage | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<MenuType>(MENUS.HOME);
-  const { user, error, isLoading } = useUserMe(accessToken);
+  // const { user, error, isLoading } = useUserMe(accessToken);
 
   useEffect(() => {
     setCLocalStorage(localStorage);
@@ -79,9 +79,9 @@ const MasterLayout = ({
     }
   }, [cLocalStorage]);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
+  // useEffect(() => {
+  //   console.log(user);
+  // }, [user]);
 
   return (
     <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">

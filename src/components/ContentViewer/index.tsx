@@ -2,7 +2,7 @@
 import { Art_thumbnail } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
-import useArts from "@/APIs/useArts";
+import useArts, { sortType } from "@/APIs/useArts";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
 type artsByGridType = Array<Array<Art_thumbnail>>;
@@ -15,7 +15,7 @@ type tab = {
 };
 
 const C_TABS: Array<tab> = [
-  { value: "NEWEST", name: "최신순", selected: true },
+  { value: "LATEST", name: "최신순", selected: true },
   { value: "HOTTEST", name: "인기순" },
   { value: "FOLLOWING", name: "팔로잉" },
 ];
@@ -31,8 +31,9 @@ const ContentViewer = (props: {
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>();
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS);
 
+  const selectedTab = tabs.find((item) => item.selected);
   const { data, error, isLoading } = useArts(
-    tabs.find((item) => item.selected).value,
+    (selectedTab ? selectedTab.value : "LATEST") as sortType,
     0,
     20
   );

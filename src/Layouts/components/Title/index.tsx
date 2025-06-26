@@ -16,8 +16,7 @@ const getTitleFromPath = (path: string): string | null => {
   return null;
 };
 
-const Title = ({ specificValue }: {specificValue: string}) => {
-
+const Title = ({ specificValue }: { specificValue: string }) => {
   const [cWindow, setCWindow] = useState<Window | null>(null);
 
   useEffect(() => {
@@ -29,7 +28,7 @@ const Title = ({ specificValue }: {specificValue: string}) => {
       <h1 className="text-lg font-bold text-center">
         {specificValue
           ? specificValue
-          : getTitleFromPath(cWindow && cWindow.location.pathname)}
+          : getTitleFromPath(cWindow ? cWindow.location.pathname : "")}
       </h1>
     </div>
   );
