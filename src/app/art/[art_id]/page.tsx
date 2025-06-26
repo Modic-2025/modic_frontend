@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
-  const res = await fetch(`http://api.modic.kr:8080/api/posts/${art_id}`);
+  const res = await fetch(`${process.env.API_HOST}:8080/api/posts/${art_id}`);
   const data = await res.json();
   const { status } = data;
   console.log("data :>> ", data);
