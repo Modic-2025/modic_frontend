@@ -39,17 +39,20 @@ export default function PasswordSetupPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${process.env.API_HOST}/api/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/users`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+          }),
+        }
+      );
 
       const result = await response.json();
       console.log("회원가입 응답:", result);

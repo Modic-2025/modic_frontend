@@ -5,7 +5,9 @@ import Link from "next/link";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
-  const res = await fetch(`${process.env.API_HOST}/api/posts/${art_id}`);
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art_id}`
+  );
   const data = await res.json();
   const { status } = data;
   console.log("data :>> ", data);

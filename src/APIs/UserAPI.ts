@@ -1,5 +1,5 @@
 export const getUserMe = async (token: string) => {
-  const res = await fetch(`${process.env.API_HOST}/api/users/me`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/users/me`, {
     // cache: "no-store", // SSR에서 fresh 데이터 원할 때
     headers: {
       Authorization: `Bearer ${token}`,

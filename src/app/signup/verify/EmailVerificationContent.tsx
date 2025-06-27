@@ -31,7 +31,7 @@ export default function EmailVerificationPage() {
   const sendVerificationEmail = async (targetEmail: string) => {
     try {
       const res = await fetch(
-        `${process.env.API_HOST}/api/auth/email/verification?type=sign-up`,
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/auth/email/verification?type=sign-up`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -71,7 +71,7 @@ export default function EmailVerificationPage() {
       console.log("🔐 인증번호 확인 요청:", { email, code: verificationCode });
 
       const res = await fetch(
-        `${process.env.API_HOST}/api/auth/email/verification/check?type=sign-up`,
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/auth/email/verification/check?type=sign-up`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

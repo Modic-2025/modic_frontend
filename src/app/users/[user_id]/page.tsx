@@ -6,7 +6,7 @@ const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   const { user_id } = await params;
   console.log("user_id :>> ", user_id);
   const res = await fetch(
-    `${process.env.API_HOST}/api/profiles?userId=${user_id}`,
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles?userId=${user_id}`,
     { method: "GET" }
   );
   console.log("res :>> ", res);
