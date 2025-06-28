@@ -10,7 +10,9 @@ export interface Art extends Art_thumbnail {
   // updated_at: Date;
   commercialPrice: number;
   nonCommercialPrice: number;
-  user_id: string;
+  userId: number;
+  userName: string;
+  userEmail: string;
   tags: Array<string>;
 }
 

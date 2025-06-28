@@ -15,6 +15,13 @@ import Close from "./components/Close";
 import { HEADER_CONTENTS, HeaderContent, HeaderContentType } from ".";
 import Tickets from "./components/Tickets";
 
+export const defaultHeaderContents: Array<HeaderContent> = [
+  { ...HEADER_CONTENTS.LOGO, goTo: "/art" },
+  { ...HEADER_CONTENTS.COINS, goTo: "/coins" },
+  HEADER_CONTENTS.TICKETS,
+  { ...HEADER_CONTENTS.SEARCH, goTo: "/search" },
+];
+
 const getHeaderComponent = (content: HeaderContent, index: number) => {
   switch (content.value) {
     case HEADER_CONTENTS.LOGO.value:
@@ -58,7 +65,7 @@ type MenuType = (typeof MENUS)[keyof typeof MENUS];
 const MasterLayout = ({
   children,
   option,
-  headerContents,
+  headerContents = defaultHeaderContents,
 }: {
   children: React.ReactNode;
   option?: Option;
