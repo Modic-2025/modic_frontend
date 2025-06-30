@@ -1,4 +1,3 @@
-// app/signup/layout.tsx
 import type { Metadata } from "next";
 import TopBarWrapper from "@/components/Navigation/TopBarWrapper";
 
