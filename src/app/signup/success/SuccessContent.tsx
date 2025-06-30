@@ -7,7 +7,7 @@ import Image from "next/image";
 export default function SuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from"); // 'signup' or 'password'
+  const from = searchParams.get("from"); 
 
   useEffect(() => {
     const timeout = setTimeout(() => {
