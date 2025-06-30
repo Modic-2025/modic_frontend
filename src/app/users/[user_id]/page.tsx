@@ -1,6 +1,13 @@
 import ContentViewer from "@/components/ContentViewer";
 import MasterLayout from "@/Layouts/MasterLayout";
 import UserHeader from "../UserHeader";
+import { HEADER_CONTENTS } from "@/Layouts";
+
+const headerContents = [
+  HEADER_CONTENTS.BACKWARD,
+  HEADER_CONTENTS.TITLE,
+  { ...HEADER_CONTENTS.OPTION_DOTTED, goTo: "/settings" },
+];
 
 const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   const { user_id } = await params;
@@ -22,7 +29,10 @@ const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   const user = custom_response.data;
   console.log("user :>> ", user);
   return (
-    <MasterLayout option={{ title: user.nickname }}>
+    <MasterLayout
+      option={{ title: user.nickname }}
+      headerContents={headerContents}
+    >
       <UserHeader user={user} />
       <section>
         <ContentViewer grid={2} />
