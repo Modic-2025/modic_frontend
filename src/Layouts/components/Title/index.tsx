@@ -16,7 +16,7 @@ const getTitleFromPath = (path: string): string | null => {
   return null;
 };
 
-const Title = ({ specificValue }: { specificValue: string }) => {
+const Title = ({ specificValue }: { specificValue?: string }) => {
   const [cWindow, setCWindow] = useState<Window | null>(null);
 
   useEffect(() => {

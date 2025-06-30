@@ -14,13 +14,20 @@ import Search from "./components/Search";
 import Close from "./components/Close";
 import { HEADER_CONTENTS, HeaderContent, HeaderContentType } from ".";
 import Tickets from "./components/Tickets";
+import Title from "./components/Title";
 
-const getHeaderComponent = (content: HeaderContent, index: number) => {
+const getHeaderComponent = (
+  content: HeaderContent,
+  index: number,
+  title?: string
+) => {
   switch (content.value) {
     case HEADER_CONTENTS.LOGO.value:
       return <Logo key={index} />;
     case HEADER_CONTENTS.BACKWARD.value:
       return <Backward key={index} />;
+    case HEADER_CONTENTS.TITLE.value:
+      return <Title key={index} specificValue={title} />;
     case HEADER_CONTENTS.OPTION_LINED.value:
       return <OptionLined key={index} />;
     case HEADER_CONTENTS.OPTION_DOTTED.value:
@@ -87,7 +94,9 @@ const MasterLayout = ({
     <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
       {!option?.noIcons && (
         <header className="h-12 flex flex-row items-center justify-between px-[16px] pt-[16px] pb-[4px] bg-white">
-          {headerContents?.map((content, i) => getHeaderComponent(content, i))}
+          {headerContents?.map((content, i) =>
+            getHeaderComponent(content, i, option?.title)
+          )}
         </header>
       )}
       <main className="absolute h-[calc(100vh-104px)] w-full overflow-y-auto px-[12px] py-[12px]">
