@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { commonClassNames } from "..";
+import { commonClassNames } from "../..";
 
 const Coins = ({ onClick }: { onClick?: () => void }) => {
   return (

@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
+import MasterLayout from "@/Layouts/MasterLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,8 +21,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  header,
 }: {
   children: React.ReactNode;
+  header: React.ReactNode;
 }) {
   return (
     <html lang="ko">
@@ -42,7 +45,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-gray-100`}
         style={{ fontFamily: "Pretendard, Inter, sans-serif" }}
       >
-        {children}
+        <MasterLayout>{children}</MasterLayout>
       </body>
     </html>
   );

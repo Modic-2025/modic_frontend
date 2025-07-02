@@ -2,7 +2,6 @@ import { User } from "@/types/User";
 import Image from "next/image";
 
 const UserHeader = ({ user }: { user: User }) => {
-  console.log("user :>> ", user);
   return (
     <header className="mb-6">
       <div className="flex flex-row justify-between gap-6 mb-6 px-2">

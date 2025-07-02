@@ -12,12 +12,12 @@ const headerContents: Array<HeaderContent> = [
 
 export default function Home() {
   return (
-    <MasterLayout headerContents={headerContents}>
-      <main className="overflow-y-auto">
-        <section>
-          <ContentViewer grid={2} />
-        </section>
-      </main>
-    </MasterLayout>
+    // <MasterLayout headerContents={headerContents}>
+    <main className="overflow-y-auto">
+      <section>
+        <ContentViewer grid={2} />
+      </section>
+    </main>
+    // </MasterLayout>
   );
 }
