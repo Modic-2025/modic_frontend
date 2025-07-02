@@ -11,7 +11,7 @@ const OptionLined = ({ onClick }: { onClick?: () => void }) => {
       <Image
         src="/IconMenuLined.svg"
         alt="back"
-        className="mr-0"
+        className="ml-auto"
         width={24}
         height={24}
       />
