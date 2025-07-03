@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
-import { commonClassNames } from "..";
+import { commonClassNames } from "../..";
 
-const Close = ({ backToPath }: {backToPath: string}) => {
+const Close = ({ backToPath }: { backToPath: string }) => {
   return (
     <div
       className={`${commonClassNames} basis-1/10`}

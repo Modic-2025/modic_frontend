@@ -1,3 +1,37 @@
+// 전체 header contents map by path
+type SettingHeaderContentsType = {
+  [route: string]: {
+    elements: Array<HeaderContentType>;
+    actions?: HeaderContentActionsType;
+  };
+};
+// element options
+type HeaderContentElementType = {
+  value?: string;
+  goTo?: string;
+};
+// actions map by element
+export type HeaderContentActionsType = {
+  [element: string]: HeaderContentElementType;
+};
+/**
+ * header contents map by path
+ */
+export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
+  "/art": {
+    elements: ["logo", "coins", "tickets", "search"],
+  },
+  "/art/[art_id]": {
+    elements: ["logo", "coins", "tickets", "search"],
+  },
+  "/users/me": {
+    elements: ["logo", "option_lined"],
+  },
+  "/users/[user_id]": {
+    elements: ["logo", "title", "option_dotted"],
+  },
+};
+
 export interface HeaderContent {
   value: string;
   label: string;
@@ -6,14 +40,27 @@ export interface HeaderContent {
   content?: string | null;
 }
 export const HEADER_CONTENTS = {
-  LOGO: { value: "logo", label: "로고"},
-  BACKWARD: { value: "backward", label: "뒤로가기", backTo: null, goTo: null},
-  OPTION_LINED: { value: "option_lined", label: "옵션", backTo: null, goTo: null},
-  OPTION_DOTTED: { value: "option_dotted", label: "옵션", backTo: null, goTo: null},
-  COINS: { value: "coins", label: "코인", backTo: null, goTo: null},
-  TICKETS: { value: "tickets", label: "티켓", backTo: null, goTo: null},
-  SEARCH: { value: "search", label: "검색", backTo: null, goTo: null},
-  CLOSE: { value: "close", label: "닫기", backTo: null, goTo: null},
-}as const;
+  LOGO: { value: "logo", label: "로고" },
+  BACKWARD: { value: "backward", label: "뒤로가기", goTo: null },
+  TITLE: { value: "title", label: "제목" },
+  LIKE: { value: "like", label: "찜목록" },
+  OPTION_LINED: {
+    value: "option_lined",
+    label: "옵션",
 
-export type HeaderContentType = keyof typeof HEADER_CONTENTS;
+    goTo: null,
+  },
+  OPTION_DOTTED: {
+    value: "option_dotted",
+    label: "옵션",
+
+    goTo: null,
+  },
+  COINS: { value: "coins", label: "코인", goTo: null },
+  TICKETS: { value: "tickets", label: "티켓", goTo: null },
+  SEARCH: { value: "search", label: "검색", goTo: null },
+  CLOSE: { value: "close", label: "닫기", goTo: null },
+} as const;
+
+export type HeaderContentType =
+  (typeof HEADER_CONTENTS)[keyof typeof HEADER_CONTENTS]["value"];

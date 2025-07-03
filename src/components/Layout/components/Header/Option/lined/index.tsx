@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { commonClassNames } from "../..";
+import { commonClassNames } from "../../..";
 
 const OptionLined = ({ onClick }: { onClick?: () => void }) => {
   return (
@@ -11,7 +11,7 @@ const OptionLined = ({ onClick }: { onClick?: () => void }) => {
       <Image
         src="/IconMenuLined.svg"
         alt="back"
-        className="mr-0"
+        className="ml-auto"
         width={24}
         height={24}
       />

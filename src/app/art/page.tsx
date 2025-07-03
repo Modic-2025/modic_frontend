@@ -5,12 +5,12 @@ import MasterLayout, { defaultHeaderContents } from "@/Layouts/MasterLayout";
 
 export default function Home() {
   return (
-    <MasterLayout headerContents={defaultHeaderContents}>
-      <main className="overflow-y-auto">
-        <section>
-          <ContentViewer grid={2} />
-        </section>
-      </main>
-    </MasterLayout>
+    // <MasterLayout headerContents={headerContents}>
+    <main className="overflow-y-auto">
+      <section>
+        <ContentViewer grid={2} />
+      </section>
+    </main>
+    // </MasterLayout>
   );
 }

@@ -25,27 +25,17 @@ export default function LoginPage() {
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_HOST}/api/auth/login`,
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
 
       const { accessToken, refreshToken } = response.data.data;
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      Cookies.set("accessToken", accessToken, {
-        path: "/",
-        expires: 1 / 48,
-      });
-      Cookies.set("refreshToken", refreshToken, {
-        expires: 1 / 48,
-      });
-      console.log("로그인 성공:", response.data);
+      Cookies.set("accessToken", accessToken, { path: "/", expires: 1 / 48 });
+      Cookies.set("refreshToken", refreshToken, { expires: 1 / 48 });
 
       router.push("/art");
     } catch (err) {
-      console.error("로그인 실패:", err);
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
@@ -53,18 +43,11 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ID!;
-    const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI!;
-    const SCOPE = process.env.NEXT_PUBLIC_GOOGLE_SCOPE!;
-    const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}`;
-    window.location.href = GOOGLE_AUTH_URL;
+    window.location.href = "/api/auth/google";
   };
 
   const handleKakaoLogin = () => {
-    const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
-    const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
-    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
-    window.location.href = KAKAO_AUTH_URL;
+    window.location.href = "/api/auth/kakao";
   };
 
   return (

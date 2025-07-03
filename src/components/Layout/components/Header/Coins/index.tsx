@@ -1,25 +1,25 @@
 "use client";
 import Image from "next/image";
-import { commonClassNames } from "..";
+import { commonClassNames } from "../..";
 
-const Tickets = ({ onClick }: { onClick?: () => void }) => {
+const Coins = ({ onClick }: { onClick?: () => void }) => {
   return (
     <div
-      className={`${commonClassNames} basis-1/6 inline-flex items-center`}
+      className={`${commonClassNames} basis-1/6 ml-auto inline-flex items-center text-sm font-bold`}
       onClick={onClick ? onClick : () => {}}
     >
       <span className="inline-flex items-center gap-1 ml-auto">
         <Image
-          src="/Ticket.svg"
+          src="/Coin.svg"
           alt="back"
           className="ml-auto"
           width={18}
           height={18}
         />
-        1/3
+        10개
       </span>
     </div>
   );
 };
 
-export default Tickets;
+export default Coins;
