@@ -20,17 +20,19 @@ import { usePathname } from "next/navigation";
 import { User, UserMe } from "@/types/User";
 
 // 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
+// 동적 path일 경우 이 함수를 통해 전처리를 해주어야 합니다.
+// .replace(target_regex, replace_string)
 const convertToRoutePattern = (pathName: string) => {
   return pathName
     .replace(/^\/art\/(\d+)/, "/art/[art_id]")
     .replace(/^\/users\/(\d+)/, "/users/[user_id]");
 };
 
-function getHeaderComponent(
+const getHeaderComponent = (
   content: HeaderContentType,
   index: number,
   actions?: HeaderContentActionsType
-): JSX.Element {
+): JSX.Element => {
   switch (content) {
     case HEADER_CONTENTS.LOGO.value:
       return <Logo key={index} />;
@@ -53,16 +55,18 @@ function getHeaderComponent(
     default:
       return <></>;
   }
-}
+};
 
 const Header = ({ user }: { user?: User | UserMe | null }) => {
   const [_user, setUser] = useState<User | null>(user ?? null);
 
   const pathName = usePathname();
 
+  // actions를 통해 header 요소의 optional한 설정 세팅
   const actions = {
     title: { value: user?.nickname },
   };
+
   return (
     <header className="h-12 flex flex-row items-center justify-between px-[16px] pt-[16px] pb-[4px] bg-white">
       {SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)]?.elements?.map(

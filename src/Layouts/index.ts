@@ -1,16 +1,22 @@
-type HeaderContentElementType = {
-  value?: string;
-  goTo?: string;
-};
-export type HeaderContentActionsType = {
-  [element: string]: HeaderContentElementType;
-};
+// 전체 header contents map by path
 type SettingHeaderContentsType = {
   [route: string]: {
     elements: Array<HeaderContentType>;
     actions?: HeaderContentActionsType;
   };
 };
+// element options
+type HeaderContentElementType = {
+  value?: string;
+  goTo?: string;
+};
+// actions map by element
+export type HeaderContentActionsType = {
+  [element: string]: HeaderContentElementType;
+};
+/**
+ * header contents map by path
+ */
 export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
   "/art": {
     elements: ["logo", "coins", "tickets", "search"],
