@@ -6,7 +6,6 @@ const useUserMe = (token: string | null) => {
       ? [`${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me`, token]
       : null,
     async ([url, token]: [string, string]) => {
-      console.log("token :>> ", token);
       fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,

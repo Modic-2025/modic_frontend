@@ -94,12 +94,10 @@ const Page = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("data :>> ", data);
         const { status, isSuccess } = data;
 
         if (!isSuccess) {
           const { code, message, reason } = data;
-          console.log("code :>> ", code);
           if (code == "C-001") {
             const alertMsg =
               `게시글을 만들 수 없었습니다. (${message})` +

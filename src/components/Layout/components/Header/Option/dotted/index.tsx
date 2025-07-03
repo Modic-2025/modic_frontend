@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { commonClassNames } from "../..";
+import { commonClassNames } from "../../..";
 
 const OptionDotted = ({ onClick }: { onClick?: () => void }) => {
   return (
@@ -9,11 +9,11 @@ const OptionDotted = ({ onClick }: { onClick?: () => void }) => {
       onClick={onClick ? onClick : () => {}}
     >
       <Image
-        src="/IconMenuLined.svg"
+        src="/IconMenuDotted.svg"
         alt="back"
-        className="mr-0"
-        width={24}
-        height={24}
+        className="ml-auto"
+        width={18}
+        height={18}
       />
     </div>
   );

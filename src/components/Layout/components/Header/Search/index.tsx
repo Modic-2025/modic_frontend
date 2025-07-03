@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { commonClassNames } from "../index";
+import { commonClassNames } from "../../index";
 
 const Search = ({ onClick }: { onClick?: () => void }) => {
   return (

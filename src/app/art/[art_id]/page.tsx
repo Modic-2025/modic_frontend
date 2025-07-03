@@ -10,9 +10,7 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   );
   const data = await res.json();
   const { status } = data;
-  console.log("data :>> ", data);
   const artData = data.data;
-  console.log("artData :>> ", artData);
   if (status != 200) {
     return <p> SERVER ERROR! ({status}) </p>;
   }
