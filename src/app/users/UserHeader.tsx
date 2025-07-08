@@ -14,7 +14,7 @@ const UserHeader = ({ user }: { user: User }) => {
           />
         </div>
         <div className="basis-3/4">
-          <p className="mb-2 font-bold text-[gray4]"> {user.email} </p>
+          <p className="mb-2 font-bold text-(--color-gray-4)"> {user.email} </p>
           <ul className="flex flex-row gap-4 text-center">
             <li className="flex-1 mr-8">
               <p className="font-bold">{user.postCount}</p>
@@ -35,7 +35,7 @@ const UserHeader = ({ user }: { user: User }) => {
         <button className="flex-1 py-1 rounded-lg bg-black text-white">
           팔로우
         </button>
-        <button className="flex-1 py-1 rounded-lg border-gray1 border">
+        <button className="flex-1 py-1 rounded-lg border-(--color-gray-1) border">
           메시지
         </button>
       </div>
