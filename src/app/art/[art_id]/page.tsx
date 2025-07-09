@@ -1,8 +1,4 @@
 // import { Navigation } from "swiper/modules";
-import Slider from "@/components/Slider";
-import MasterLayout, { defaultHeaderContents } from "@/Layouts/MasterLayout";
-import Image from "next/image";
-import Link from "next/link";
 import ArtDetailContent from "./ArtDetailContent";
 import { getUserMe } from "@/APIs/UserAPI";
 import { cookies } from "next/headers";
@@ -23,16 +19,8 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
 
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken");
-  const data_getUserMe = await getUserMe(token ? token.value : "");
-  console.log("data_getUserMe :>> ", data_getUserMe);
-  const user = data_getUserMe;
+  const user = await getUserMe(token ? token.value : "");
 
-  if (status == 200) {
-    return (
-      <MasterLayout headerContents={defaultHeaderContents}>
-        <ArtDetailContent art={artData} user={user} />
-      </MasterLayout>
-    );
-  }
+  return <ArtDetailContent art={artData} user={user} />;
 };
 export default Page;

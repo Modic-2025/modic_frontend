@@ -32,7 +32,7 @@ const Slider = (props: {
     <Swiper
       modules={[Navigation]}
       onSlideChange={(e) => setCurrentIndex(e.activeIndex)}
-      className="w-full h-80 bg-gray-200 rounded-lg"
+      className="w-full h-80 rounded-lg"
     >
       {items &&
         items.map((item, index) => (
