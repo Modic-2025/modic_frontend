@@ -2,7 +2,6 @@ import Slider from "@/components/Slider";
 import MetaData from "./MetaData";
 import { cookies } from "next/headers";
 import { getUserMe } from "@/APIs/UserAPI";
-import TabButton from "../../../components/Tab/TabButton";
 import Tab, { UITab } from "@/components/Tab";
 
 const layout = async ({

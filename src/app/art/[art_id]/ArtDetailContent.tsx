@@ -1,8 +1,6 @@
 "use client";
 import BottomButton from "@/components/BottomButton";
 import { Art } from "@/types/Art";
-import { User } from "@/types/User";
-import Link from "next/link";
 
 const ArtDetailContent = ({ art }: { art: Art }) => {
   return (

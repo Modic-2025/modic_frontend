@@ -14,12 +14,14 @@ const Tab = ({ tabs }: { tabs: Array<UITab> }) => {
   const [_tabs, setTabs] = useState<Array<_UITab>>();
 
   useEffect(() => {
+    const { pathname } = window.location;
+
     if (tabs && tabs.length > 0) {
       setTabs(
         tabs.map((tab, i) => ({
           ...tab,
           id: ++i,
-          activated: i == 1,
+          activated: pathname == tab.href,
         }))
       );
     }

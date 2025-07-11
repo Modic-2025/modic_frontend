@@ -1,3 +1,4 @@
+import UserInfo from "@/components/UserInfo";
 import { Art } from "@/types/Art";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +14,12 @@ const MetaData = ({
 }) => {
   return (
     <>
-      <AuthorProfile art={art} />
+      <UserInfo
+        title={art.userName}
+        desc={art.userEmail}
+        href={`/users/${art.userId}`}
+      />
+      {/* <AuthorProfile art={art} /> */}
       {isAuthor ? (
         <button className="h-[24px] cursor-pointer basis-1/10">
           <Image

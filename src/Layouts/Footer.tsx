@@ -66,7 +66,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="absolute h-14 w-full bottom-0 bg-white">
+    <footer className="absolute h-14 w-full bottom-0 bg-white z-1">
       <div className="flex flex-row justify-center items-center h-full">
         {navButtons.map((navButton, i) => (
           <NavButton

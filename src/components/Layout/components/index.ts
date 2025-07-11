@@ -1,1 +1,1 @@
-export const commonClassNames = "cursor-pointer";
+export const commonClassNames = "flex cursor-pointer";
