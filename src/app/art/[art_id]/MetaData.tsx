@@ -21,7 +21,10 @@ const MetaData = ({
       />
       {/* <AuthorProfile art={art} /> */}
       {isAuthor ? (
-        <button className="h-[24px] cursor-pointer basis-1/10">
+        <Link
+          href={`/art/${art.id}/edit`}
+          className="flex h-[24px] cursor-pointer basis-1/10"
+        >
           <Image
             src="/icon-grey-dotted.svg"
             alt="option"
@@ -29,7 +32,7 @@ const MetaData = ({
             width={18}
             height={18}
           />
-        </button>
+        </Link>
       ) : (
         <div className="flex basis-5/10 ml-auto text-center text-[12px]">
           <div className="ml-auto">

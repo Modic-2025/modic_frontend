@@ -1,6 +1,8 @@
+export type ImageType = { imageUrl: string; imageId: string };
+
 export interface Art_thumbnail {
   id: string;
-  images: Array<{ imageUrl: string; imageId: string }>;
+  images: Array<ImageType>;
 }
 
 export interface Art extends Art_thumbnail {

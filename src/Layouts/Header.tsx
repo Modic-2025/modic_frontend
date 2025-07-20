@@ -33,6 +33,9 @@ const getHeaderComponent = (
   index: number,
   actions?: HeaderContentActionsType
 ): JSX.Element => {
+  console.log("content :>> ", content);
+  console.log("index :>> ", index);
+  console.log("actions:>> ", actions);
   switch (content) {
     case HEADER_CONTENTS.LOGO.value:
       return <Logo key={index} />;
@@ -62,15 +65,18 @@ const Header = ({ user }: { user?: User | UserMe | null }) => {
 
   const pathName = usePathname();
 
+  const headerContent =
+    SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)];
+
   // actions를 통해 header 요소의 optional한 설정 세팅
   const actions = {
-    title: { value: user?.nickname },
+    title: { value: user?.nickname || headerContent?.actions?.title?.value },
   };
 
   return (
     <header className="h-12 flex flex-row items-center justify-between px-[16px] pt-[16px] pb-[4px] bg-white">
-      {SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)]?.elements?.map(
-        (item, i) => getHeaderComponent(item, i, actions)
+      {headerContent?.elements?.map((item, i) =>
+        getHeaderComponent(item, i, headerContent?.actions)
       )}
     </header>
   );

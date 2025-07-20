@@ -26,6 +26,22 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
   "/art/[art_id]": HEADER_CONTENTS_DEFAULT,
   "/art/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,
   "/art/[art_id]/reviews": HEADER_CONTENTS_DEFAULT,
+  "/art/edit/[art_id]": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "게시글 수정",
+      },
+    },
+  },
+  "/art/regist": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "게시글 등록",
+      },
+    },
+  },
   "/users/me": {
     elements: ["logo", "option_lined"],
   },

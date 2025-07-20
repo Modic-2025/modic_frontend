@@ -7,7 +7,7 @@ import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ImageType } from "@/app/(title-backward)/art/regist/page";
+import { ImageType } from "@/app/art/regist/page";
 
 type layoutType = "DEFAULT" | "PANORAMA";
 

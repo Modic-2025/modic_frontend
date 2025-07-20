@@ -29,7 +29,7 @@ const UploadImage = async (
       method: "POST",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        "Content-Type": "application/json", // JSON 전송 시 필수
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         imageUsagePurpose: "PROFILE",
@@ -43,7 +43,6 @@ const UploadImage = async (
   }
 
   const data = await res_save_url.json();
-  console.log("data :>> ", data);
   const { imagePath, imageSaveUrl } = data.data;
 
   const res_put_image = await fetch(imageSaveUrl, {
@@ -53,7 +52,6 @@ const UploadImage = async (
       "Content-Type": file.type,
     },
   });
-  console.log("res_put_image :>> ", res_put_image);
 
   // callback API
   if (!res_put_image.ok) {
@@ -65,6 +63,7 @@ const UploadImage = async (
     {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -74,13 +73,18 @@ const UploadImage = async (
       }),
     }
   );
-  console.log("res_callback :>> ", res_callback);
+
   if (res_callback.ok) {
     const data = await res_callback.json();
     const { imageId } = data.data;
     try {
       const res_img_url = await fetch(
-        `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/images/${imageId}/get-url`
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/images/${imageId}/get-url`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
       );
       if (res_img_url.ok) {
         const data = await res_img_url.json();
