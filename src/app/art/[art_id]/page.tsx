@@ -1,18 +1,14 @@
 // import { Navigation } from "swiper/modules";
+import GetArt from "@/APIs/Art/GetArt";
 import ArtDetailContent from "./ArtDetailContent";
 import { getUserMe } from "@/APIs/UserAPI";
 import { cookies } from "next/headers";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art_id}`
-  );
-  const data_getPost = await res.json();
+  const data_getPost = await GetArt(art_id);
   const { status } = data_getPost;
-  console.log("data_getPost :>> ", data_getPost);
   const artData = data_getPost.data;
-  console.log("artData :>> ", artData);
   if (status != 200) {
     return <p> SERVER ERROR! ({status}) </p>;
   }

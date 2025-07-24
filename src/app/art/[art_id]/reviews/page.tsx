@@ -116,7 +116,6 @@ const Reviews = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
 
   const { content } = await getReviews(art_id);
-  console.log("content :>> ", content);
 
   return (
     <>

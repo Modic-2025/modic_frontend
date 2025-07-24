@@ -2,7 +2,6 @@ import Qna from "@/components/Qna";
 import { FAKE_QNA_DATAS, Qna as QnaType } from "@/types/Qna";
 
 const Content = ({ qnas = FAKE_QNA_DATAS }: { qnas: QnaType[] }) => {
-  console.log("qnas :>> ", qnas);
   return (
     <>
       {qnas.map((qna) => (

@@ -3,17 +3,17 @@
 import React from "react";
 import clsx from "clsx";
 
-interface PrimaryButtonProps {
+interface SecondartButtonProps {
   text: string;
   disabled?: boolean;
   onClick?: () => void;
 }
 
-export default function PrimaryButton({
+export default function SecondartButton({
   text,
   disabled = false,
   onClick,
-}: PrimaryButtonProps) {
+}: SecondartButtonProps) {
   return (
     <button
       type="button"
@@ -21,10 +21,10 @@ export default function PrimaryButton({
       disabled={disabled}
       className={clsx(
         "w-full h-[56px] rounded-[8px] transition duration-200 cursor-pointer",
-        disabled ? "bg-[#E5E6EB]" : "bg-[#FF5100] hover:opacity-90"
+        disabled ? "bg-[#E5E6EB]" : "bg-[#FFFFFF] hover:opacity-90"
       )}
       style={{
-        color: disabled ? "var(--Grayscale-400, #9E9FAD)" : "#FFFFFF",
+        color: disabled ? "var(--Grayscale-400, #9E9FAD)" : "#9E9FAD",
         textAlign: "center",
         fontFeatureSettings: "'liga' off, 'clig' off",
         fontFamily: "Pretendard",

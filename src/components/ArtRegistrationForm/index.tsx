@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import ImageList from "../ImageList";
 import { useRouter } from "next/navigation";
+import Confirm from "../Popups/Confirm";
 
 const MAX_IMAGE_NUM = 8;
 const MAX_TITLE_NUM = 20;
@@ -71,25 +72,28 @@ const ArtRegistrationForm = ({
     }
     if (!comCost && !nonComCost) if (!confirm(TEXT_COST_FREE)) return;
 
-    const formData = new FormData();
-    imageUrls.forEach((item) => {
-      formData.append("imageIds", item.imageId);
-    });
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("commercialPrice", comCost?.toString());
-    formData.append("nonCommercialPrice", nonComCost?.toString());
+    // const formData = new FormData();
+    // imageUrls.forEach((item) => {
+    //   formData.append("imageIds", item.imageId);
+    // });
+    // formData.append("title", title);
+    // formData.append("description", description);
+    // formData.append("commercialPrice", comCost || "0");
+    // formData.append("nonCommercialPrice", comCost || "0");
 
     const payload: CreatePostPayload = {
       title: title,
       description: description,
-      commercialPrice: comCost,
-      nonCommercialPrice: nonComCost,
+      commercialPrice: comCost || 0,
+      nonCommercialPrice: nonComCost || 0,
       imageIds: imageUrls.map((item) => item.imageId),
     };
 
-    fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/posts`, {
-      method: "POST",
+    const requestUrl = art
+      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art.id}`
+      : `${process.env.NEXT_PUBLIC_API_HOST}/api/posts`;
+    fetch(requestUrl, {
+      method: art ? "PUT" : "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -103,8 +107,9 @@ const ArtRegistrationForm = ({
         if (!isSuccess) {
           const { code, message, reason } = data;
           if (code == "C-001") {
+            const prefix = art ? "수정할 수" : "만들 수";
             const alertMsg =
-              `게시글을 만들 수 없었습니다. (${message})` +
+              `게시글을 ${prefix} 없었습니다. (${message})` +
               "\n" +
               "- " +
               reason.join("\n- ");
@@ -132,8 +137,6 @@ const ArtRegistrationForm = ({
 
   const onCostChange = (e, type: "COM" | "NONCOM") => {
     const value = Number(e.target.value);
-    console.log("value :>> ", value);
-    console.log("type :>> ", type);
     if (type === "COM") {
       if (value <= 0) {
         // Shows placeholder
@@ -153,7 +156,11 @@ const ArtRegistrationForm = ({
     <>
       {/* 게시글 작성 타이틀 */}
       {/* 이미지 업로드 영역 */}
-      <ImageList enableEdit={true} onChange={onChangeImages} />
+      <ImageList
+        items={imageUrls}
+        enableEdit={true}
+        onChange={onChangeImages}
+      />
 
       {/* 제목 입력란 */}
       <div className="mt-6">
@@ -245,7 +252,7 @@ const ArtRegistrationForm = ({
 
       {/* 작성 완료 버튼 */}
       <button
-        className="fixed bottom-16 w-[calc(50vw+44px)] h-12 rounded-lg bg-[#3E3E3E] text-white text-base"
+        className="fixed bottom-16 w-[calc(384px-22px)] h-12 rounded-lg bg-[#3E3E3E] text-white text-base"
         onClick={onClickCreatePost}
       >
         <p className="font-bold">{confirmText ? confirmText : "작성 완료"}</p>

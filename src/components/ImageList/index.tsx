@@ -4,7 +4,6 @@ import "swiper/css";
 import { ImageType } from "@/types/Art";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import useIsMounted from "@/hooks/UseIsMounted";
 import {
   closestCenter,
   DndContext,
@@ -25,39 +24,6 @@ import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 
 const DEFAULT_MAX_IMAGES = 8;
 
-// const FAKE_IMAGES_DATA: ImageType[] = [
-//   {
-//     imageUrl:
-//       "https://modic-main.s3.ap-northeast-2.amazonaws.com/profile/452c5f09-5379-46ee-941c-61deebf7f4ab-%E1%84%86%E1%85%A1%E1%86%BC%E1%84%80%E1%85%A9%E1%86%B7.jpeg",
-//     imageId: "1",
-//   },
-//   {
-//     imageUrl:
-//       "https://syncspotmain.s3.amazonaws.com/post/2ac8443f-38a4-42ad-a593-584e98974cc9-ruined-boy.png",
-//     imageId: "2",
-//   },
-//   {
-//     imageUrl:
-//       "https://modic-main.s3.ap-northeast-2.amazonaws.com/profile/65507a26-fa1a-4881-9478-06824ee397c9-17897e7bcc221abee.jpeg",
-//     imageId: "3",
-//   },
-//   {
-//     imageUrl:
-//       "https://modic-main.s3.ap-northeast-2.amazonaws.com/profile/452c5f09-5379-46ee-941c-61deebf7f4ab-%E1%84%86%E1%85%A1%E1%86%BC%E1%84%80%E1%85%A9%E1%86%B7.jpeg",
-//     imageId: "4",
-//   },
-//   {
-//     imageUrl:
-//       "https://modic-main.s3.ap-northeast-2.amazonaws.com/profile/452c5f09-5379-46ee-941c-61deebf7f4ab-%E1%84%86%E1%85%A1%E1%86%BC%E1%84%80%E1%85%A9%E1%86%B7.jpeg",
-//     imageId: "5",
-//   },
-//   {
-//     imageUrl:
-//       "https://syncspotmain.s3.amazonaws.com/post/2ac8443f-38a4-42ad-a593-584e98974cc9-ruined-boy.png",
-//     imageId: "6",
-//   },
-// ];
-
 type ImageListProps = enableEditType & {
   items?: ImageType[]; // for init
   max?: number;
@@ -71,7 +37,6 @@ const ImageList = ({
   onChange,
 }: ImageListProps) => {
   const [images, setImages] = useState<ImageType[]>(items || []);
-  // const [images, setImages] = useState<ImageType[]>(items || FAKE_IMAGES_DATA);
 
   // Trigging onChange callback
   useEffect(() => {
@@ -141,7 +106,6 @@ const ImageList = ({
   };
 
   const onDelete = (id: number) => () => {
-    console.log("onDelete id :>> ", id);
     setImages((prev) => prev.filter((item) => Number(item.imageId) !== id));
   };
 

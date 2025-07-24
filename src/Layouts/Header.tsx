@@ -25,6 +25,7 @@ import { User, UserMe } from "@/types/User";
 const convertToRoutePattern = (pathName: string) => {
   return pathName
     .replace(/^\/art\/(\d+)/, "/art/[art_id]")
+    .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
     .replace(/^\/users\/(\d+)/, "/users/[user_id]");
 };
 
@@ -33,9 +34,6 @@ const getHeaderComponent = (
   index: number,
   actions?: HeaderContentActionsType
 ): JSX.Element => {
-  console.log("content :>> ", content);
-  console.log("index :>> ", index);
-  console.log("actions:>> ", actions);
   switch (content) {
     case HEADER_CONTENTS.LOGO.value:
       return <Logo key={index} />;

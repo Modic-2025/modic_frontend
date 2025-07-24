@@ -3,6 +3,7 @@ import MetaData from "./MetaData";
 import { cookies } from "next/headers";
 import { getUserMe } from "@/APIs/UserAPI";
 import Tab, { UITab } from "@/components/Tab";
+import GetArt from "@/APIs/Art/GetArt";
 
 const layout = async ({
   children,
@@ -11,12 +12,8 @@ const layout = async ({
   children: React.ReactNode;
   params: Promise<{ art_id: number }>;
 }) => {
-  console.log("params :>> ", await params);
   const { art_id } = await params;
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art_id}`
-  );
-  const data_getPost = await res.json();
+  const data_getPost = await GetArt(art_id);
   const { status } = data_getPost;
   const artData = data_getPost.data;
   if (status != 200) {

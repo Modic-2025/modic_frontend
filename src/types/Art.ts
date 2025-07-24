@@ -1,7 +1,7 @@
 export type ImageType = { imageUrl: string; imageId: string };
 
 export interface Art_thumbnail {
-  id: string;
+  id: number;
   images: Array<ImageType>;
 }
 

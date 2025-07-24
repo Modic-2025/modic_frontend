@@ -4,7 +4,6 @@ import { User } from "@/types/User";
 import { useEffect, useState } from "react";
 
 const Title = ({ specificValue }: { specificValue?: string }) => {
-  console.log("specificValue :>> ", specificValue);
   const [title, setTitle] = useState<string>(specificValue ?? "");
   const [userId, setUserId] = useState<string>(); // long -> string으로 관리
   const [user, setUser] = useState<User>();

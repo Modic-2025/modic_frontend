@@ -1,7 +1,12 @@
+"use client";
+import DeleteArt from "@/APIs/Art/DeleteArt";
+import OverlayOption, { Option } from "@/components/Popups/OptionButtons";
+import Confirm from "@/components/Popups/Confirm";
 import UserInfo from "@/components/UserInfo";
 import { Art } from "@/types/Art";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const MetaData = ({
   art,
@@ -12,8 +17,52 @@ const MetaData = ({
   isAuthor: boolean;
   isLogined: boolean;
 }) => {
+  const [showOption, setShowOption] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const router = useRouter();
+
+  // On delete
+  const onClickArtDelete = async (e) => {
+    setShowConfirm(true);
+  };
+
+  // On confirm ok
+  const onClickConfirmOk = async () => {
+    const isFailed = await DeleteArt(art.id);
+    if (!isFailed) router.back();
+  };
+
+  // On confirm cancel
+  const onClickConfirmCancel = () => {
+    setShowOption(false);
+    setShowConfirm(false);
+  };
+
+  // UI
+  const onCloseOverlayOption = () => {
+    setShowOption(false);
+  };
+
   return (
     <>
+      {showOption && (
+        <OverlayOption onClose={onCloseOverlayOption}>
+          <Option href={`/art/edit/${art.id}`}>수정</Option>
+          <Option onClick={onClickArtDelete} type="warn">
+            삭제
+          </Option>
+        </OverlayOption>
+      )}
+      {showConfirm && (
+        <Confirm
+          title="게시글을 정말 삭제하시겠어요?"
+          desc="한 번 삭제하면 되돌릴 수 없습니다."
+          confirmText="네, 삭제할게요"
+          noBg={true}
+          onConfirm={onClickConfirmOk}
+          onCancel={onClickConfirmCancel}
+        />
+      )}
       <UserInfo
         title={art.userName}
         desc={art.userEmail}
@@ -21,8 +70,8 @@ const MetaData = ({
       />
       {/* <AuthorProfile art={art} /> */}
       {isAuthor ? (
-        <Link
-          href={`/art/${art.id}/edit`}
+        <div
+          onClick={() => setShowOption(true)}
           className="flex h-[24px] cursor-pointer basis-1/10"
         >
           <Image
@@ -32,7 +81,7 @@ const MetaData = ({
             width={18}
             height={18}
           />
-        </Link>
+        </div>
       ) : (
         <div className="flex basis-5/10 ml-auto text-center text-[12px]">
           <div className="ml-auto">
@@ -53,31 +102,5 @@ const MetaData = ({
     </>
   );
 };
-
-const AuthorProfile = ({ art }: { art: Art }) => {
-  return (
-    <>
-      <div className="flex basis-3/10">
-        <Link href={`/users/${art.userId}`} className="flex">
-          <Image
-            src="/temporary/anonymous.svg"
-            alt="Profile image"
-            width={32}
-            height={32}
-            className="rounded-full inline"
-          />
-          <span className="ml-[12px] inline">
-            <div className="text-sm font-medium leading-tight">
-              {art.userName}
-            </div>
-            <div className="text-xs text-gray-400">{art.userEmail}</div>
-          </span>
-        </Link>
-      </div>
-    </>
-  );
-};
-
-const Coins = () => {};
 
 export default MetaData;

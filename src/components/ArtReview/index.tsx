@@ -15,7 +15,7 @@ const ArtReview = ({
 }) => {
   const imagesExist = images && images.length > 0;
   return (
-    <section className="pt-4">
+    <section className="pt-4 pb-2">
       <div className="flex justify-between mb-[10px]">
         <UserInfo
           className="basis-3/10"
