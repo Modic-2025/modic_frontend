@@ -2,75 +2,44 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-
-interface GoogleUserInfo {
-  email: string;
-  name: string;
-  picture?: string;
-  sub: string;
-}
+import api from "@/libs/axiosInstance";
 
 export default function GoogleRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const authorizationCode = params.get("code");
+    const code = params.get("code");
 
-    if (!authorizationCode) {
-      console.error("인증 코드 없음");
+    if (!code) {
+      console.error("구글 로그인 실패: code 없음");
       router.push("/login");
       return;
     }
 
-    const tokenEndpoint = "https://oauth2.googleapis.com/token";
-
-    const data = {
-      code: authorizationCode,
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_ID || "",
-      client_secret: process.env.NEXT_PUBLIC_GOOGLE_SECRET || "",
-      redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "",
-      grant_type: "authorization_code",
-    };
-
-    const formBody = new URLSearchParams(data).toString();
-
-    const fetchTokens = async () => {
+    const loginWithGoogle = async () => {
       try {
-        const res = await axios.post(tokenEndpoint, formBody, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
+        await api.post("/api/auth/google", { code });
 
-        const idToken = res.data.id_token;
+        const response = await api.post("/api/auth/reissue");
+        const accessToken = response.data.data.accessToken;
 
-        const decoded: GoogleUserInfo = jwtDecode(idToken);
-        console.log("구글 사용자 정보:", decoded);
-
-        // 백엔드에 소셜 로그인 요청 보내기
-        const loginResponse = await axios.post(
-          "http://localhost/api/users/social-login",
-          {
-            email: decoded.email,
-            name: decoded.name,
-            socialType: "GOOGLE",
-          }
-        );
-
-        console.log("로그인 성공:", loginResponse.data);
-
-        router.push("/welcome");
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          router.push("/art");
+        } else {
+          throw new Error("accessToken 없음");
+        }
       } catch (error) {
-        console.error("로그인 처리 중 오류 발생:", error);
+        console.error("구글 로그인 처리 실패:", error);
         router.push("/login");
       }
     };
 
-    fetchTokens();
+    loginWithGoogle();
   }, [router]);
 
-  return <div className="text-center mt-40">구글 로그인 처리 중입니다...</div>;
+  return (
+    <div className="text-center mt-40">구글 로그인 처리 중입니다...</div>
+  );
 }

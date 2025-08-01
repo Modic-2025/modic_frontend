@@ -2,45 +2,28 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/libs/axiosInstance";
 
 export default function KakaoRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const authorizationCode = params.get("code");
-
-    if (!authorizationCode) {
-      console.error("카카오 인가 코드 없음");
-      router.push("/login");
-      return;
-    }
-
-    const sendCodeToBackend = async () => {
+    (async () => {
       try {
-        const response = await axios.post(
-          "http://localhost/api/users/social-login",
-          {
-            code: authorizationCode,
-            socialType: "KAKAO",
-          }
-        );
+        const response = await api.post("/api/auth/reissue");
+        const accessToken = response.data.data.accessToken;
 
-        const { accessToken, refreshToken } = response.data.data;
-
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-
-        console.log("카카오 로그인 성공:", response.data);
-        router.push("/welcome");
-      } catch (error) {
-        console.error("카카오 로그인 실패:", error);
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          router.push("/art");
+        } else {
+          throw new Error("토큰 없음");
+        }
+      } catch (err) {
+        console.error("카카오 로그인 처리 실패:", err);
         router.push("/login");
       }
-    };
-
-    sendCodeToBackend();
+    })();
   }, [router]);
 
   return (
