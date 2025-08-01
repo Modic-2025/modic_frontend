@@ -89,7 +89,7 @@ export default function EmailVerificationPage() {
 
       console.log("✅ 인증 성공, 다음 페이지로 이동");
       router.push(
-        `/signup/password?email=${encodeURIComponent(email ?? "")}&name=${encodeURIComponent(name ?? "")}`
+        `/signup/password?email=${encodeURIComponent(email ?? "")}&name=${encodeURIComponent(name ?? "")}&code=${encodeURIComponent(verificationCode)}`
       );
     } catch (err) {
       console.error("❌ 인증번호 확인 실패:", err);
