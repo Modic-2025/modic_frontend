@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import axios from "axios";
+import api from "@/libs/axiosInstance";
 import PrimaryButton from "@/components/Button/PrimaryButton";
-import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -23,16 +22,12 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_HOST}/api/auth/login`,
-        { email, password }
-      );
+      const res = await api.post("/api/auth/login", { email, password });
+      const { accessToken } = res.data.data;
 
-      const { accessToken, refreshToken } = response.data.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      Cookies.set("accessToken", accessToken, { path: "/", expires: 1 / 48 });
-      Cookies.set("refreshToken", refreshToken, { expires: 1 / 48 });
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+      }
 
       router.push("/art");
     } catch (err) {
@@ -43,11 +38,11 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "/api/auth/google";
+    window.location.href = "https://api.modic.kr/oauth2/authorization/google";
   };
 
   const handleKakaoLogin = () => {
-    window.location.href = "/api/auth/kakao";
+    window.location.href = "https://api.modic.kr/oauth2/authorization/kakao";
   };
 
   return (
@@ -63,21 +58,23 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="flex flex-col items-center gap-4 w-full max-w-xs"
       >
+        {/* 이메일 입력 */}
         <input
           type="email"
           placeholder="이메일을 입력해주세요"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full h-[58px] px-[16px] rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
+          className="w-full h-[58px] px-[16px] rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-[#9E9FAD] focus:outline-none"
         />
 
+        {/* 비밀번호 입력 */}
         <div className="relative w-full mt-[16px]">
           <input
             type={showPassword ? "text" : "password"}
             placeholder="비밀번호를 입력해주세요"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-[58px] px-[16px] pr-10 rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-gray4 focus:outline-none"
+            className="w-full h-[58px] px-[16px] pr-10 rounded-[8px] border border-[#9E9FAD] bg-white text-black text-[18px] font-medium font-[Pretendard] placeholder-[#9E9FAD] focus:outline-none"
           />
           <button
             type="button"
@@ -86,13 +83,14 @@ export default function LoginPage() {
           >
             <Image
               src={showPassword ? "/icon_close_eye.svg" : "/icon_eye.svg"}
-              alt="toggle password"
+              alt="비밀번호 표시 전환"
               width={20}
               height={20}
             />
           </button>
         </div>
 
+        {/* 로그인 버튼 */}
         <div className="mt-[24px] w-full">
           <PrimaryButton
             text={loading ? "로그인 중..." : "로그인"}
@@ -104,6 +102,7 @@ export default function LoginPage() {
         </div>
       </form>
 
+      {/* 비밀번호 찾기 / 회원가입 */}
       <div className="mt-[40px] mb-[48px] flex justify-center items-center gap-[8px] text-sm text-black font-sans">
         <button onClick={() => router.push("/signup/password/code")}>
           비밀번호 찾기
@@ -114,6 +113,7 @@ export default function LoginPage() {
         <button onClick={() => router.push("/signup")}>회원가입</button>
       </div>
 
+      {/* 간편 로그인 */}
       <div className="w-full max-w-xs flex flex-col items-center">
         <div className="flex items-center w-full mb-[16px]">
           <div className="flex-1 h-px bg-gray-300" />
@@ -130,7 +130,7 @@ export default function LoginPage() {
           >
             <Image
               src="/google-logo.svg"
-              alt="Google login"
+              alt="Google 로그인"
               width={24}
               height={24}
             />
@@ -142,7 +142,7 @@ export default function LoginPage() {
           >
             <Image
               src="/kakao-logo.svg"
-              alt="Kakao login"
+              alt="Kakao 로그인"
               width={24}
               height={24}
             />

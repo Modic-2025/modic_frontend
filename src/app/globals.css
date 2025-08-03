@@ -93,3 +93,15 @@ h6 {
 #__next {
   isolation: isolate;
 }
+/*
+* TailwindCSS Custom variables
+*/
+
+@theme {
+  --color-gray-1: #f3f4f6;
+  --color-gray-4: #9e9fad;
+  --color-gray-8: #28282e;
+  --color-gray-9: #1a1b1e;
+  --color-main: #ff5100;
+  --color-point-red: #eb003b;
+}
