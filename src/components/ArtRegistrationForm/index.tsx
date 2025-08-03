@@ -72,15 +72,6 @@ const ArtRegistrationForm = ({
     }
     if (!comCost && !nonComCost) if (!confirm(TEXT_COST_FREE)) return;
 
-    // const formData = new FormData();
-    // imageUrls.forEach((item) => {
-    //   formData.append("imageIds", item.imageId);
-    // });
-    // formData.append("title", title);
-    // formData.append("description", description);
-    // formData.append("commercialPrice", comCost || "0");
-    // formData.append("nonCommercialPrice", comCost || "0");
-
     const payload: CreatePostPayload = {
       title: title,
       description: description,
@@ -154,7 +145,6 @@ const ArtRegistrationForm = ({
 
   return (
     <>
-      {/* 게시글 작성 타이틀 */}
       {/* 이미지 업로드 영역 */}
       <ImageList
         items={imageUrls}

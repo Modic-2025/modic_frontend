@@ -34,11 +34,19 @@ const Confirm = ({
         <h1 className="mb-4 font-bold text-lg font-[--color-gray-4]">
           {title}
         </h1>
-        <p>{desc}</p>
-        <p className="mb-6"></p>
-        <PrimaryButton text={confirmText} onClick={onConfirm} />
-        <p className="mb-2"></p>
-        <SecondartButton text={cancelText} onClick={onCancel} />
+        {desc && <p>{desc}</p>}
+        {confirmText && (
+          <>
+            <p className="mb-6"></p>
+            <PrimaryButton text={confirmText} onClick={onConfirm} />
+          </>
+        )}
+        {cancelText && (
+          <>
+            <p className="mb-2"></p>
+            <SecondartButton text={cancelText} onClick={onCancel} />
+          </>
+        )}
       </PopupWrapper>
     </Background>
   );

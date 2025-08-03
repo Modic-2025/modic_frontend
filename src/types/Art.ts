@@ -8,14 +8,14 @@ export interface Art_thumbnail {
 export interface Art extends Art_thumbnail {
   title: string;
   description: string;
-  // created_at: Date;
-  // updated_at: Date;
   commercialPrice: number;
   nonCommercialPrice: number;
   userId: number;
   userName: string;
   userEmail: string;
   tags: Array<string>;
+  likeCount: number;
+  isLikedByCurrentUser: boolean;
 }
 
 // export class Art_thumbnail {
