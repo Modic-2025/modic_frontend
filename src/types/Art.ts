@@ -1,17 +1,21 @@
+export type ImageType = { imageUrl: string; imageId: string };
+
 export interface Art_thumbnail {
-  id: string;
-  images: Array<{ imageUrl: string; imageId: string }>;
+  id: number;
+  images: Array<ImageType>;
 }
 
 export interface Art extends Art_thumbnail {
   title: string;
   description: string;
-  // created_at: Date;
-  // updated_at: Date;
   commercialPrice: number;
   nonCommercialPrice: number;
-  user_id: string;
+  userId: number;
+  userName: string;
+  userEmail: string;
   tags: Array<string>;
+  likeCount: number;
+  isLikedByCurrentUser: boolean;
 }
 
 // export class Art_thumbnail {

@@ -16,15 +16,15 @@ module.exports = {
         black: "#000000",
         white: "#FFFFFF",
 
-        gray1: "#F3F4F6",
-        gray4: "#9E9FAD",
-        gray8: "#28282E",
-        gray9: "#1A1B1E",
+        "gray-1": "#F3F4F6",
+        "gray-4": "#9E9FAD",
+        "gray-8": "#28282E",
+        "gray-9": "#1A1B1E",
 
         main: "#FF5100",
         point_red: "#EB003B",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-motion")],
 };

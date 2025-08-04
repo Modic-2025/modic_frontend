@@ -9,8 +9,8 @@ const OptionDotted = ({ onClick }: { onClick?: () => void }) => {
       onClick={onClick ? onClick : () => {}}
     >
       <Image
-        src="/IconMenuDotted.svg"
-        alt="back"
+        src="/icon-grey-dotted.svg"
+        alt="option"
         className="ml-auto"
         width={18}
         height={18}

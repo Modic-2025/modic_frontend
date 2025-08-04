@@ -1,9 +1,12 @@
+import { HEADER_CONTENTS_DEFAULT } from "./presets";
+
+export type SettingHeaderContentElementsType = {
+  elements: Array<HeaderContentType>;
+  actions?: HeaderContentActionsType;
+};
 // 전체 header contents map by path
-type SettingHeaderContentsType = {
-  [route: string]: {
-    elements: Array<HeaderContentType>;
-    actions?: HeaderContentActionsType;
-  };
+export type SettingHeaderContentsType = {
+  [route: string]: SettingHeaderContentElementsType;
 };
 // element options
 type HeaderContentElementType = {
@@ -14,15 +17,30 @@ type HeaderContentElementType = {
 export type HeaderContentActionsType = {
   [element: string]: HeaderContentElementType;
 };
+
 /**
  * header contents map by path
  */
 export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
-  "/art": {
-    elements: ["logo", "coins", "tickets", "search"],
+  "/art": HEADER_CONTENTS_DEFAULT,
+  "/art/[art_id]": HEADER_CONTENTS_DEFAULT,
+  "/art/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,
+  "/art/[art_id]/reviews": HEADER_CONTENTS_DEFAULT,
+  "/art/edit/[art_id]": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "게시글 수정",
+      },
+    },
   },
-  "/art/[art_id]": {
-    elements: ["logo", "coins", "tickets", "search"],
+  "/art/regist": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "게시글 등록",
+      },
+    },
   },
   "/users/me": {
     elements: ["logo", "option_lined"],

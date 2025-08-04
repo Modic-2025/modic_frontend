@@ -25,6 +25,7 @@ import { User, UserMe } from "@/types/User";
 const convertToRoutePattern = (pathName: string) => {
   return pathName
     .replace(/^\/art\/(\d+)/, "/art/[art_id]")
+    .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
     .replace(/^\/users\/(\d+)/, "/users/[user_id]");
 };
 
@@ -62,15 +63,18 @@ const Header = ({ user }: { user?: User | UserMe | null }) => {
 
   const pathName = usePathname();
 
+  const headerContent =
+    SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)];
+
   // actions를 통해 header 요소의 optional한 설정 세팅
   const actions = {
-    title: { value: user?.nickname },
+    title: { value: user?.nickname || headerContent?.actions?.title?.value },
   };
 
   return (
     <header className="h-12 flex flex-row items-center justify-between px-[16px] pt-[16px] pb-[4px] bg-white">
-      {SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)]?.elements?.map(
-        (item, i) => getHeaderComponent(item, i, actions)
+      {headerContent?.elements?.map((item, i) =>
+        getHeaderComponent(item, i, actions)
       )}
     </header>
   );

@@ -46,13 +46,7 @@ const Chat = ({ artId }: { artId: number }) => {
     }
   };
 
-  // On page load
   useEffect(() => {
-    console.log("Chat component mounted");
-  }, []);
-
-  useEffect(() => {
-    console.log("data :>> ", data);
     if (data) {
       const art: Art = data.data;
       const { images } = art;
@@ -72,7 +66,6 @@ const Chat = ({ artId }: { artId: number }) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setInputImage(e.target?.result as string);
-        console.log("e.target?.result :>> ", e.target?.result);
       };
       reader.readAsDataURL(inputFile);
     }
@@ -81,8 +74,6 @@ const Chat = ({ artId }: { artId: number }) => {
   // Input image changed
   useEffect(() => {
     if (inputImage) {
-      console.log("Input image changed");
-      console.log("inputImage :>> ", inputImage);
       setShowConfirmWindow(true);
     }
   }, [inputImage]);
@@ -127,8 +118,6 @@ const Chat = ({ artId }: { artId: number }) => {
   }, [confirmState]);
 
   const callbackGenerateImage = async (res: Response, error: Error) => {
-    console.log("res :>> ", res);
-
     if (error) {
       console.error("ERROR");
       setChatStack((prev) => [
@@ -143,7 +132,6 @@ const Chat = ({ artId }: { artId: number }) => {
     if (res.status == 200) {
       const data = await res.json();
 
-      console.log("chatStack :>> ", chatStack);
       // Remove NOW_LOADING_MSG
       setChatStack((prev) => [
         ...prev.filter((item) => item.text !== NOW_LOADING_MSG),

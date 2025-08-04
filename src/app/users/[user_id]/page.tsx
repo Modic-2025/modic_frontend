@@ -1,5 +1,4 @@
 import ContentViewer from "@/components/ContentViewer";
-import MasterLayout from "@/Layouts/MasterLayout";
 import UserHeader from "../UserHeader";
 import { HEADER_CONTENTS } from "@/Layouts";
 
