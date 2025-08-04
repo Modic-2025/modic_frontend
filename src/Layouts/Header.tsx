@@ -74,7 +74,7 @@ const Header = ({ user }: { user?: User | UserMe | null }) => {
   return (
     <header className="h-12 flex flex-row items-center justify-between px-[16px] pt-[16px] pb-[4px] bg-white">
       {headerContent?.elements?.map((item, i) =>
-        getHeaderComponent(item, i, headerContent?.actions)
+        getHeaderComponent(item, i, actions)
       )}
     </header>
   );

@@ -71,7 +71,7 @@ const Slider = (props: {
           {children}
         </SwiperSlide>
       )}
-      <div className="absolute right-2 bottom-2 bg-(--color-gray-1) rounded-lg px-3 text-stone-400 font-medium z-1">
+      <div className="absolute right-2 bottom-2 bg-(--color-gray-1) rounded-lg px-3 text-stone-400 font-medium z-10">
         {currentIndex + 1}/{maxItemNum}
       </div>
     </Swiper>

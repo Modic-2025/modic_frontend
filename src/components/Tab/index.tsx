@@ -1,5 +1,6 @@
 "use client";
 import TabButton from "@/components/Tab/TabButton";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export type UITab = {
@@ -12,10 +13,9 @@ export type _UITab = UITab & {
 };
 const Tab = ({ tabs }: { tabs: Array<UITab> }) => {
   const [_tabs, setTabs] = useState<Array<_UITab>>();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const { pathname } = window.location;
-
     if (tabs && tabs.length > 0) {
       setTabs(
         tabs.map((tab, i) => ({
@@ -25,7 +25,7 @@ const Tab = ({ tabs }: { tabs: Array<UITab> }) => {
         }))
       );
     }
-  }, []);
+  });
 
   const tabOnClickListener = (id: number) => {
     setTabs(_tabs?.map((tab) => ({ ...tab, activated: tab.id == id })));

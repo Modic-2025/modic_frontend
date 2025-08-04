@@ -11,7 +11,7 @@ export const Background = ({
 }) =>
   createPortal(
     <div
-      className={`fixed max-w-sm mx-auto inset-x-0 h-full flex justify-center items-center ${!noBg && "bg-[#2B2B2B]/60"} z-1`}
+      className={`fixed max-w-sm mx-auto inset-x-0 h-full flex justify-center items-center ${!noBg && "bg-[#2B2B2B]/60"} z-50`}
       onClick={onClick}
     >
       {children}

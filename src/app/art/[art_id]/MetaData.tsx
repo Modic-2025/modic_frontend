@@ -73,12 +73,14 @@ const MetaData = ({
           setTimeout(() => {
             router.push("/login");
           }, 3000);
+          break;
         case 404:
           setFailTitle(ALERT_404_TEXT_TITLE);
           setFailDesc(ALERT_404_TEXT_DESC);
           setTimeout(() => {
             router.push("/art");
           }, 3000);
+          break;
         default:
           // case 500:
           setFailTitle(ALERT_500_TEXT_TITLE);

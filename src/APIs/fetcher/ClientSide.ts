@@ -8,8 +8,6 @@ const _fetch = async (url: string, useAuth: boolean, options?: RequestInit) => {
       }),
       "Content-Type": "application/json",
     },
-  }).then(async (res) => {
-    return res;
   });
 };
 

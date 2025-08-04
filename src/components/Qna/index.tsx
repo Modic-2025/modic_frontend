@@ -12,7 +12,7 @@ const Qna = (data: Qna) => {
         <p className="text-sm">
           <span className="text-(--color-gray-4)">
             답변 예정 <span className="text-(--color-gray-1)">|</span>{" "}
-            {`${data.createdAt.getFullYear()}.${data.createdAt.getMonth()}.${data.createdAt.getDate()}`}
+            {`${data.createdAt.getFullYear()}.${data.createdAt.getMonth() + 1}.${data.createdAt.getDate()}`}
           </span>
         </p>
       </div>

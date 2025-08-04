@@ -47,7 +47,7 @@ const layout = async ({
   return (
     <>
       <Slider items={artData.images} />
-      <div className="flex items-center justify-between gap-1 py-4 border-b-1 border-gray-200">
+      <div className="flex items-center justify-between gap-1 py-4 border-b border-gray-200">
         <MetaData art={artData} isAuthor={isAuthor} isLogined={Boolean(user)} />
       </div>
 

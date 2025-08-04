@@ -8,7 +8,7 @@ const useIsMounted = () => {
     return () => {
       setIsMounted(false);
     };
-  });
+  }, []);
 
   return isMounted;
 };

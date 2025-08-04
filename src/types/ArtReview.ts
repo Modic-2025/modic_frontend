@@ -1,6 +1,6 @@
 export type Review = {
   userName: string;
-  hasUserImage: Boolean;
+  hasUserImage: boolean;
   userImageUrl: string;
   createdAt: Date;
   postReviewId: number;

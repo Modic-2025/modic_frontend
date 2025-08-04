@@ -20,7 +20,7 @@ const ArtReview = ({
         <UserInfo
           className="basis-3/10"
           title={userName}
-          desc={`${date.getFullYear()}.${date.getMonth()}.${date.getDate()}`}
+          desc={`${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`}
         />
         <OptionDotted />
       </div>
