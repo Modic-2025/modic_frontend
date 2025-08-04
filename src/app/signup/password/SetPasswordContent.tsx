@@ -17,6 +17,8 @@ export default function PasswordSetupPage() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const name = searchParams.get("name");
+  const code = searchParams.get("code");
+
 
   const isPasswordValid =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]{8,20}$/.test(
@@ -28,6 +30,7 @@ export default function PasswordSetupPage() {
 
   const togglePassword = () => setShowPassword((prev) => !prev);
   const toggleConfirm = () => setShowConfirm((prev) => !prev);
+  
 
   const handleSignup = async () => {
     if (!email || !name) {
@@ -50,6 +53,7 @@ export default function PasswordSetupPage() {
             name,
             email,
             password,
+            code
           }),
         }
       );

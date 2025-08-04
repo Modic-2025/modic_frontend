@@ -13,7 +13,7 @@ const MyPage = async () => {
     return (
       <>
         <div className="flex h-full items-center flex-col justify-center text-center">
-          <p className="text-center text-[gray8] my-8 text-[18px] font-bold">
+          <p className="text-center text-(--color-gray-8) my-8 text-[18px] font-bold">
             로그인 후 이용할 수 있는 기능입니다.
             <br />
             지금 로그인하시겠어요?

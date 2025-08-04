@@ -9,7 +9,7 @@ export const getReviews = async (
   const params = new URLSearchParams();
   params.append("postId", postId.toString());
   params.append("page", (page || 1).toString());
-  params.append("page", (size || 10).toString());
+  params.append("size", (size || 10).toString());
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_HOST}/api/post-reviews?${params.toString()}`

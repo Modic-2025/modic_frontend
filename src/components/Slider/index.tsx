@@ -71,11 +71,9 @@ const Slider = (props: {
           {children}
         </SwiperSlide>
       )}
-      {!isPANORAMA && (
-        <div className="absolute right-2 bottom-2 bg-white rounded-lg px-3 text-stone-400 font-medium z-1">
-          {currentIndex + 1}/{maxItemNum}
-        </div>
-      )}
+      <div className="absolute right-2 bottom-2 bg-(--color-gray-1) rounded-lg px-3 text-stone-400 font-medium z-1">
+        {currentIndex + 1}/{maxItemNum}
+      </div>
     </Swiper>
   );
 };
