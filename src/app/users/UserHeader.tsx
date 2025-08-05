@@ -14,7 +14,7 @@ const UserHeader = ({ user }: { user: User }) => {
           />
         </div>
         <div className="basis-3/4">
-          <p className="mb-2 font-bold text-(--color-gray-4)"> {user.email} </p>
+          <p className="mb-2 font-bold"> {user.email} </p>
           <ul className="flex flex-row gap-4 text-center">
             <li className="flex-1 mr-8">
               <p className="font-bold">{user.postCount}</p>

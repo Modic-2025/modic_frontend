@@ -5,11 +5,14 @@ export const getUserMe = async (token: string): Promise<UserMe | null> => {
     // cancel request
     return null;
   }
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/users/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   if (!res.ok) {
     // 에러 처리
     throw new Error("Failed to fetch user info");
