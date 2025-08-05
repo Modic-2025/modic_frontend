@@ -12,7 +12,7 @@ const Settings = async () => {
 
   return (
     <>
-      <div className="py-6 flex gap-6 border-b border-(--color-gray-4)">
+      <div className="py-6 mb-4 flex gap-6 border-b border-(--color-gray-4)">
         <Image
           src="/temporary/anonymous.svg"
           alt="Profile image"
@@ -25,7 +25,6 @@ const Settings = async () => {
           <p className="text-(--color-gray-4)"> {me?.email} </p>
         </div>
       </div>
-      <div className="mb-4"></div>
       <List>
         <Item href="/users/me/created-images" name="생성한 이미지 관리">
           <Image src="/icon-image.svg" alt="아이콘" width={24} height={24} />
