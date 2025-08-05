@@ -23,6 +23,7 @@ const C_TABS: Array<tab> = [
 const ContentViewer = (props: {
   grid: gridType;
   arts?: Array<Art_thumbnail>;
+  showTabs?: boolean;
 }) => {
   const [arts, setArts] = useState<Array<Art_thumbnail>>(
     props.arts ? props.arts : []
@@ -83,13 +84,17 @@ const ContentViewer = (props: {
     );
   };
 
+  const isRenderTabs = typeof props.showTabs == "boolean" && props.showTabs;
+
   return (
     <>
+        {isRenderTabs &&
       <nav className="flex flex-row pb-4 font-semibold">
-        {tabs.map((item, idx) => (
-          <Tab key={idx} item={item} onClick={tabOnClickListener} />
-        ))}
+          tabs.map((item, idx) => (
+            <Tab key={idx} item={item} onClick={tabOnClickListener} />
+          ))
       </nav>
+      }
       {isLoading ? (
         <p> 작품 가져오는 중 .. </p>
       ) : (

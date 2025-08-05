@@ -32,7 +32,7 @@ const MyPage = async () => {
     <>
       <UserHeader user={user} />
       <section>
-        <ContentViewer grid={2} />
+        <ContentViewer grid={2} showTabs={false} />
       </section>
     </>
   );
