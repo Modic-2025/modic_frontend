@@ -25,7 +25,7 @@ const Tab = ({ tabs }: { tabs: Array<UITab> }) => {
         }))
       );
     }
-  });
+  }, []);
 
   const tabOnClickListener = (id: number) => {
     setTabs(_tabs?.map((tab) => ({ ...tab, activated: tab.id == id })));
