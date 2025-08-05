@@ -44,6 +44,19 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
   },
   "/users/me": {
     elements: ["logo", "option_lined"],
+    actions: {
+      option_lined: {
+        goTo: "/users/me/settings",
+      },
+    },
+  },
+  "/users/me/settings": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "계정 및 설정",
+      },
+    },
   },
   "/users/[user_id]": {
     elements: ["logo", "title", "option_dotted"],

@@ -8,7 +8,6 @@ import Link from "next/link";
 const MyPage = async () => {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("accessToken")?.value || "";
-
   if (jwt === "") {
     return (
       <>
