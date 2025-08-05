@@ -42,7 +42,7 @@ const getHeaderComponent = (
     case HEADER_CONTENTS.TITLE.value:
       return <Title key={index} specificValue={actions?.title.value} />;
     case HEADER_CONTENTS.OPTION_LINED.value:
-      return <OptionLined key={index} />;
+      return <OptionLined key={index} goTo={actions?.option_lined.goTo} />;
     case HEADER_CONTENTS.OPTION_DOTTED.value:
       return <OptionDotted key={index} />;
     case HEADER_CONTENTS.COINS.value:
@@ -68,6 +68,7 @@ const Header = ({ user }: { user?: User | UserMe | null }) => {
 
   // actions를 통해 header 요소의 optional한 설정 세팅
   const actions = {
+    ...headerContent?.actions,
     title: { value: user?.nickname || headerContent?.actions?.title?.value },
   };
 
