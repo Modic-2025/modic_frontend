@@ -40,7 +40,7 @@ const Settings = async () => {
             height={24}
           />
         </Item>
-        <Item href="/users/me/purchase" name="구매 내역">
+        <Item href="/users/me/purchases" name="구매 내역">
           <Image src="/receipt.svg" alt="아이콘" width={24} height={24} />
         </Item>
       </List>
@@ -50,7 +50,7 @@ const Settings = async () => {
         </Item>
       </List>
       <List>
-        <Item href="/users/me/block-users" name="개인정보 처리방침">
+        <Item href="/privacy-policy" name="개인정보 처리방침">
           <Image
             src="/information-circle.svg"
             alt="아이콘"
@@ -58,7 +58,7 @@ const Settings = async () => {
             height={24}
           />
         </Item>
-        <Item href="/users/me/block-users" name="이용 약관">
+        <Item href="/terms" name="이용 약관">
           <Image
             src="/information-circle.svg"
             alt="아이콘"
