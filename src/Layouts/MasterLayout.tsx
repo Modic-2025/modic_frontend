@@ -14,7 +14,7 @@ const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
       <Header user={user} />
-      <main className="absolute h-[calc(100vh-48px)] w-full overflow-y-auto px-[12px] py-[12px] pb-[132px]">
+      <main className="absolute h-[calc(100vh-48px)] w-full overflow-y-auto px-[16px] py-[12px] pb-[132px]">
         {children}
       </main>
       <Footer />
