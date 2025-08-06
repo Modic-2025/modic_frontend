@@ -15,7 +15,7 @@ const OptionLined = ({
   const isUseGoTo = !onClick && goTo && !isUseOnClick;
   return (
     <div
-      className={`${commonClassNames} basis-1/10`}
+      className={`${commonClassNames} basis-1/10 justify-end`}
       onClick={isUseOnClick ? onClick : () => {}}
     >
       {isUseGoTo ? (
