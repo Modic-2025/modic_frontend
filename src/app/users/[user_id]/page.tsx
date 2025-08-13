@@ -1,6 +1,8 @@
 import ContentViewer from "@/components/ContentViewer";
 import UserHeader from "../UserHeader";
 import { HEADER_CONTENTS } from "@/Layouts";
+import { User } from "@/types/User";
+import _fetch from "@/APIs/fetcher/ServerSide";
 
 const headerContents = [
   HEADER_CONTENTS.BACKWARD,
@@ -10,9 +12,10 @@ const headerContents = [
 
 const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   const { user_id } = await params;
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles?userId=${user_id}`,
-    { method: "GET" }
+  const safeUserId = user_id && Number(user_id);
+  const res = await _fetch(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles?userId=${safeUserId}`,
+    false
   );
   if (!res.ok) {
     // 에러 처리
@@ -20,12 +23,12 @@ const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   }
   const custom_response = await res.json();
   if (!custom_response.isSuccess) {
-    return <p> failed to load user {user_id}</p>;
+    return <p> failed to load user {safeUserId}</p>;
   }
-  const user = custom_response.data;
+  const user: User = { ...custom_response.data, id: safeUserId };
   return (
     <>
-      <UserHeader user={user} />
+      <UserHeader user={user} except={["coin"]} />
       <section>
         <ContentViewer grid={2} />
       </section>

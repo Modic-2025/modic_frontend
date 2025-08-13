@@ -58,6 +58,22 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/users/me/followings": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "팔로잉",
+      },
+    },
+  },
+  "/users/me/followers": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "팔로워",
+      },
+    },
+  },
   "/users/[user_id]": {
     elements: ["logo", "title", "option_dotted"],
   },
