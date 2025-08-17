@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import api from "@/libs/axiosInstance";
 import PrimaryButton from "@/components/Button/PrimaryButton";
+import { setCookie } from "cookies-next/client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -23,10 +24,12 @@ export default function LoginPage() {
       setLoading(true);
 
       const res = await api.post("/api/auth/login", { email, password });
+      console.log("res :>> ", res);
       const { accessToken } = res.data.data;
 
       if (accessToken) {
-        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("accessToken", accessToken); // FOR DEVELOP
+        setCookie("accessToken", accessToken); // FOR DEVELOP
       }
 
       router.push("/art");
