@@ -3,6 +3,7 @@ import { Art_thumbnail } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
 import useArts, { sortType } from "@/APIs/useArts";
+import { getCookie } from "cookies-next";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
 type artsByGridType = Array<Array<Art_thumbnail>>;
@@ -24,19 +25,25 @@ const ContentViewer = (props: {
   grid: gridType;
   arts?: Array<Art_thumbnail>;
   showTabs?: boolean;
+  userId?: number; // Get arts by user
+  me?: boolean; // Get arts by own session
 }) => {
+  const safeUserId =
+    typeof props.me === "boolean" && props.me ? -1 : props.userId;
   const [arts, setArts] = useState<Array<Art_thumbnail>>(
     props.arts ? props.arts : []
-  );
-  const [grid, setGrid] = useState<gridType>(props.grid);
-  const [artsByGrid, setArtsByGrid] = useState<artsByGridType>();
-  const [tabs, setTabs] = useState<Array<tab>>(C_TABS);
+  ); // prop arts
+  const [grid, setGrid] = useState<gridType>(props.grid); // grid number
+  const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
+  const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
 
   const selectedTab = tabs.find((item) => item.selected);
   const { data, error, isLoading } = useArts(
     (selectedTab ? selectedTab.value : "LATEST") as sortType,
     0,
-    20
+    20,
+    safeUserId,
+    getCookie("accessToken")?.toString()
   );
 
   useEffect(() => {
@@ -58,6 +65,7 @@ const ContentViewer = (props: {
   }, [arts, grid]);
 
   useEffect(() => {
+    console.log("data :>> ", data);
     if (!error && data) {
       const { content } = data.data;
       if (content) {
@@ -88,13 +96,13 @@ const ContentViewer = (props: {
 
   return (
     <>
-        {isRenderTabs &&
-      <nav className="flex flex-row pb-4 font-semibold">
-          tabs.map((item, idx) => (
+      {isRenderTabs && (
+        <nav className="flex flex-row pb-4 font-semibold">
+          {tabs.map((item, idx) => (
             <Tab key={idx} item={item} onClick={tabOnClickListener} />
-          ))
-      </nav>
-      }
+          ))}{" "}
+        </nav>
+      )}
       {isLoading ? (
         <p> 작품 가져오는 중 .. </p>
       ) : (

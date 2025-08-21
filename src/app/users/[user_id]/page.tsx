@@ -10,6 +10,14 @@ const headerContents = [
 
 const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   const { user_id } = await params;
+  let safeUserId = -1;
+  try {
+    safeUserId = Number(user_id);
+  } catch (e) {
+    console.error(
+      `Path '/users/[user_id]' 에서 user_id를 number 형으로 변환하지 못했습니다.\nuser_id: ${user_id}, safeUserId: ${safeUserId}`
+    );
+  }
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles?userId=${user_id}`,
     { method: "GET" }
@@ -23,11 +31,12 @@ const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
     return <p> failed to load user {user_id}</p>;
   }
   const user = custom_response.data;
+
   return (
     <>
       <UserHeader user={user} />
       <section>
-        <ContentViewer grid={2} />
+        <ContentViewer grid={2} userId={safeUserId} />
       </section>
     </>
   );
