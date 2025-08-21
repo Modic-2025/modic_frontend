@@ -27,7 +27,6 @@ const MyPage = async () => {
     );
   }
 
-  const user = await getUserMe(jwt);
   return (
     <>
       <UserHeader user={user} isAboutMe={true} />
