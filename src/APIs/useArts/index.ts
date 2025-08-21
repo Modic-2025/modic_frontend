@@ -19,7 +19,6 @@ const useArts = (
   userId?: number, // number -1 for own(session) arts
   authToken?: string // FOR DEVELOP
 ) => {
-  console.log("authToken :>> ", authToken);
   if (typeof userId === "number") {
     if (userId === -1) {
       // get by me

@@ -24,7 +24,6 @@ export default function LoginPage() {
       setLoading(true);
 
       const res = await api.post("/api/auth/login", { email, password });
-      console.log("res :>> ", res);
       const { accessToken } = res.data.data;
 
       if (accessToken) {

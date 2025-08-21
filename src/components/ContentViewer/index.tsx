@@ -1,12 +1,12 @@
 "use client";
-import { Art_thumbnail } from "@/types/Art";
+import { Art_thumbnail, Art_thumbnail_profiles } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
 import useArts, { sortType } from "@/APIs/useArts";
 import { getCookie } from "cookies-next";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
-type artsByGridType = Array<Array<Art_thumbnail>>;
+type artsByGridType = Array<Array<Art_thumbnail | Art_thumbnail_profiles>>;
 
 type tab = {
   value: string;
@@ -23,16 +23,16 @@ const C_TABS: Array<tab> = [
 
 const ContentViewer = (props: {
   grid: gridType;
-  arts?: Array<Art_thumbnail>;
+  arts?: Array<Art_thumbnail | Art_thumbnail_profiles>;
   showTabs?: boolean;
   userId?: number; // Get arts by user
   me?: boolean; // Get arts by own session
 }) => {
   const safeUserId =
     typeof props.me === "boolean" && props.me ? -1 : props.userId;
-  const [arts, setArts] = useState<Array<Art_thumbnail>>(
-    props.arts ? props.arts : []
-  ); // prop arts
+  const [arts, setArts] = useState<
+    Array<Art_thumbnail | Art_thumbnail_profiles>
+  >(props.arts ? props.arts : []); // prop arts
   const [grid, setGrid] = useState<gridType>(props.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
@@ -65,10 +65,17 @@ const ContentViewer = (props: {
   }, [arts, grid]);
 
   useEffect(() => {
-    console.log("data :>> ", data);
     if (!error && data) {
-      const { content } = data.data;
+      let { content } = data.data;
       if (content) {
+        // for /api/profile/posts API (임시)
+        if (content.length > 0 && typeof content[0].postId === "number") {
+          console.log("captured");
+          content = content.map((item) => ({
+            id: item.postId,
+            images: [{ imageUrl: item.imageUrl }],
+          }));
+        }
         setArts(content);
       }
     }
@@ -111,7 +118,7 @@ const ContentViewer = (props: {
             artsByGrid.map((_, index) => (
               <div key={index} className="basis-1/2">
                 {_.map((art, index) => (
-                  <div key={art.id} className="mb-4">
+                  <div key={art.id ? art.id : art.postId} className="mb-4">
                     <ArtCard key={index} data={art} />
                   </div>
                 ))}
