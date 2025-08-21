@@ -119,7 +119,7 @@ const ContentViewer = (props: {
               <div key={index} className="basis-1/2">
                 {_.map((art, index) => (
                   <div key={art.id ? art.id : art.postId} className="mb-4">
-                    <ArtCard key={index} data={art} />
+                    <ArtCard data={art} />
                   </div>
                 ))}
               </div>
