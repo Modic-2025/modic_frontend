@@ -33,7 +33,7 @@ const useArts = (
     // get by user
     return useSWR(
       `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/posts?userId=${userId}&page=${page || 0}&size=${size || 20}`,
-      (url: string) => fetch(url).then((res) => res.json())
+      (url: string) => _fetch(url, false).then((res) => res.json())
     );
   }
   return useSWR(
