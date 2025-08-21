@@ -27,11 +27,12 @@ const MyPage = async () => {
     );
   }
 
+  const user = await getUserMe(jwt);
   return (
     <>
       <UserHeader user={user} isAboutMe={true} />
       <section>
-        <ContentViewer grid={2} showTabs={false} />
+        <ContentViewer grid={2} showTabs={false} me={true} />
       </section>
     </>
   );

@@ -10,9 +10,16 @@ const headerContents = [
   { ...HEADER_CONTENTS.OPTION_DOTTED, goTo: "/settings" },
 ];
 
-const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
-  const { user_id } = await params;
-  const safeUserId = user_id && Number(user_id);
+const Page = async ({ params }: { params: { user_id: string } }) => {
+  const { user_id } = params;
+  let safeUserId = -1;
+  try {
+    safeUserId = Number(user_id);
+  } catch (e) {
+    console.error(
+      `Path '/users/[user_id]' 에서 user_id를 number 형으로 변환하지 못했습니다.\nuser_id: ${user_id}, safeUserId: ${safeUserId}`
+    );
+  }
   const res = await _fetch(
     `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles?userId=${safeUserId}`,
     false
@@ -24,13 +31,13 @@ const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   const custom_response = await res.json();
   if (!custom_response.isSuccess) {
     return <p> failed to load user {safeUserId}</p>;
-  }
+
   const user: User = { ...custom_response.data, id: safeUserId };
   return (
     <>
       <UserHeader user={user} except={["coin"]} />
       <section>
-        <ContentViewer grid={2} />
+        <ContentViewer grid={2} userId={safeUserId} />
       </section>
     </>
   );

@@ -18,6 +18,12 @@ export interface Art extends Art_thumbnail {
   isLikedByCurrentUser: boolean;
 }
 
+// /api/profiles 컨트롤러에서 반환하는 post 객체 (임시)
+export interface Art_thumbnail_profiles {
+  postId: number;
+  imageUrl: string;
+}
+
 // export class Art_thumbnail {
 //   id: string;
 //   img_urls: Array<string>;
