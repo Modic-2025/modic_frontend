@@ -38,7 +38,7 @@ const useArts = (
   }
   return useSWR(
     `${process.env.NEXT_PUBLIC_API_HOST}/api/posts?sort=${sort || "LATEST"}&page=${page || 0}&size=${size || 20}`,
-    (url: string) => fetch(url).then((res) => res.json())
+    (url: string) => _fetch(url, false).then((res) => res.json())
   );
 };
 
