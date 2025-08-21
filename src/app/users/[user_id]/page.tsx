@@ -31,7 +31,7 @@ const Page = async ({ params }: { params: { user_id: string } }) => {
   const custom_response = await res.json();
   if (!custom_response.isSuccess) {
     return <p> failed to load user {safeUserId}</p>;
-
+  }
   const user: User = { ...custom_response.data, id: safeUserId };
   return (
     <>
