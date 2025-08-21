@@ -8,7 +8,9 @@ import Link from "next/link";
 const MyPage = async () => {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("accessToken")?.value || "";
-  if (jwt === "") {
+
+  const user = await getUserMe(jwt);
+  if (!user) {
     return (
       <>
         <div className="flex h-full items-center flex-col justify-center text-center">
@@ -28,7 +30,7 @@ const MyPage = async () => {
   const user = await getUserMe(jwt);
   return (
     <>
-      <UserHeader user={user} />
+      <UserHeader user={user} isAboutMe={true} />
       <section>
         <ContentViewer grid={2} showTabs={false} me={true} />
       </section>

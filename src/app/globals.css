@@ -60,7 +60,7 @@ svg {
 }
 
 input,
-button,
+/* button, */
 textarea,
 select {
   font: inherit;
@@ -99,6 +99,7 @@ h6 {
 
 @theme {
   --color-gray-1: #f3f4f6;
+  --color-gray-2: #e5e5e5;
   --color-gray-4: #9e9fad;
   --color-gray-8: #28282e;
   --color-gray-9: #1a1b1e;

@@ -16,7 +16,7 @@ type UserInfoProp = CommonProp & {
 };
 
 const UserInfo = (prop: UserInfoProp) => (
-  <div className={`flex ${prop.className && prop.className}`}>
+  <div className={`flex ${prop.className || ""}`}>
     {prop.href ? (
       <Link href={prop.href || "#"} className="flex">
         <Commons {...prop} />
@@ -37,8 +37,8 @@ const Commons = ({ title, desc, src }: CommonProp) => (
       className="rounded-full inline"
     />
     <span className="inline-flex flex-col justify-center ml-[12px] h-[48px]">
-      <div className="text-sm font-medium leading-tight">{title}</div>
-      <div className="text-xs text-gray-400">{desc}</div>
+      <p className="text-[16px] font-bold leading-tight mb-1">{title}</p>
+      <p className="text-sm text-gray-400">{desc}</p>
     </span>
   </>
 );
