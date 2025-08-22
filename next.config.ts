@@ -6,9 +6,11 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      new URL("https://syncspotmain.s3.amazonaws.com/post/**"),
-      new URL("https://modic-main.s3.ap-northeast-2.amazonaws.com/**"),
-      new URL("https://images.unsplash.com/**"),
+      {
+        protocol: "https",
+        hostname: "cdn.modic.kr",
+        pathname: "**",
+      },
     ],
   },
 };
