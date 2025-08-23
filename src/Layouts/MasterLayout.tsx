@@ -4,6 +4,8 @@ import Footer from "./Footer";
 import Header from "./Header";
 import { cookies } from "next/headers";
 
+const NO_FOOTER_PATHS = ["/art/ai/[art_id]"];
+
 const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
@@ -17,7 +19,7 @@ const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
       <main className="absolute h-[calc(100vh-48px)] w-full overflow-y-auto px-[16px] py-[12px] pb-[132px]">
         {children}
       </main>
-      <Footer />
+      <Footer excepts={NO_FOOTER_PATHS} />
     </main>
   );
 };

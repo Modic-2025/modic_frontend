@@ -77,6 +77,25 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
   "/users/[user_id]": {
     elements: ["logo", "title", "option_dotted"],
   },
+  "/art/ai/[art_id]": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "이미지 생성하기",
+      },
+    },
+  },
+};
+
+// 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
+// 동적 path일 경우 이 함수를 통해 전처리를 해주어야 합니다.
+// .replace(target_regex, replace_string)
+export const convertToRoutePattern = (pathName: string) => {
+  return pathName
+    .replace(/^\/art\/(\d+)/, "/art/[art_id]")
+    .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
+    .replace(/^\/users\/(\d+)/, "/users/[user_id]")
+    .replace(/^\/art\/ai\/(\d+)/, "/art/ai/[art_id]");
 };
 
 export interface HeaderContent {

@@ -1,7 +1,9 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { convertToRoutePattern } from ".";
 
 // Footer 메뉴들의 constants
 const MENUS = {
@@ -56,14 +58,18 @@ const NAV_BUTTONS: Array<NavButtonType> = [
   },
 ];
 
-const Footer = () => {
+// excepts: 랜더링 하지 않을 경로를 지정합니다.
+const Footer = ({ excepts }: { excepts: string[] }) => {
   const [selectedTab, setSelectedTab] = useState<MenuType>(MENUS.HOME);
   const [navButtons, setNavButtons] =
     useState<Array<NavButtonType>>(NAV_BUTTONS);
+  const pathname = usePathname();
 
-  const debugOnClick = (value: string) => {
-    setSelectedTab(value);
-  };
+  if (
+    excepts &&
+    excepts.find((item) => item === convertToRoutePattern(pathname))
+  )
+    return null;
 
   return (
     <footer className="absolute h-14 w-full bottom-0 bg-white z-1">
