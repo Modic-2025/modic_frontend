@@ -5,6 +5,8 @@ import Image from "next/image";
 import ImageList from "../ImageList";
 import { useRouter } from "next/navigation";
 import Confirm from "../Popups/Confirm";
+import FormInput from "../Inputs/FormInput";
+import InputSet from "../Inputs/InputSet";
 
 const MAX_IMAGE_NUM = 8;
 const MAX_TITLE_NUM = 20;
@@ -154,14 +156,12 @@ const ArtRegistrationForm = ({
 
       {/* 제목 입력란 */}
       <div className="mt-6">
-        <label className="block text-md font-semibold mb-2">제목</label>
-        <input
-          type="text"
+        <InputSet
+          title={"제목"}
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
           }}
-          className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black px-4 py-3 text-sm outline-none placeholder-gray-400"
           placeholder="제목을 입력해주세요"
         />
         <p className="text-right font-[--color-gray-4] text-xs mt-1">
