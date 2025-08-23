@@ -129,9 +129,9 @@ const UserHeader = ({
           <p className="mb-2 font-bold"> {user.email} </p>
           <ul className="flex flex-row gap-4 text-center">
             {counters.map(
-              (item) =>
+              (item, i) =>
                 !except?.find((_item) => _item == item.key) && (
-                  <Counter {...item} />
+                  <Counter {...item} key={item.key} />
                 )
             )}
           </ul>

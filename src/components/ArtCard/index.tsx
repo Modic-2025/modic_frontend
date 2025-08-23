@@ -11,19 +11,13 @@ const ArtCard = (props: {
       <figure>
         <Image
           src={props.data.images[0].imageUrl}
+          alt={props.data.images[0].imageUrl}
           // layout="fill"
           width={200}
           height={200}
           className="rounded-xl bg-gray-200 w-full"
-          alt={props.data.images[0].imageId}
           title={String(props.data.id)}
         />
-        {/* <img
-          src={props.data.images[0].imageUrl}
-          className="rounded-xl bg-gray-200"
-          alt={props.data.images[0].imageUrl}
-          title={props.data.id}
-        /> */}
       </figure>
     </Link>
   );
