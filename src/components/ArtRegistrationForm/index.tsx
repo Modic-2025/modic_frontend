@@ -158,6 +158,7 @@ const ArtRegistrationForm = ({
       <div className="mt-6">
         <InputSet
           title={"제목"}
+          inputLayout="NORMAL"
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
