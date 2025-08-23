@@ -62,19 +62,23 @@ const ImageList = ({
 
       const { length } = newFiles;
       for (let i = 0; i < length; i++) {
-        UploadImage(newFiles[i], ([imageUrl, imageId], e) => {
-          if (e) {
-            console.error("Error occured");
-            return;
-          }
-          setImages((prev) => [
-            ...prev,
-            {
-              imageUrl: imageUrl,
-              imageId: imageId,
-            },
-          ]);
-        });
+        UploadImage(
+          newFiles[i],
+          ([imageUrl, imageId], e) => {
+            if (e) {
+              console.error("Error occured");
+              return;
+            }
+            setImages((prev) => [
+              ...prev,
+              {
+                imageUrl: imageUrl,
+                imageId: imageId,
+              },
+            ]);
+          },
+          "POST"
+        );
       }
     }
   };

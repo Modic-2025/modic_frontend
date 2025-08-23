@@ -1,3 +1,5 @@
+import _fetch from "../fetcher/ClientSide";
+
 interface SaveUrlResponse {
   data: {
     imagePath: string;
@@ -17,14 +19,30 @@ interface GetUrlResponse {
   };
 }
 
+type UploadType = "PROFILE" | "AI_REQUEST" | "POST";
+
 const UploadImage = async (
   file: File,
-  callback: (r: [string, string], e?: unknown) => void
+  callback: (r: [string, string], e?: unknown) => void,
+  type: UploadType
 ): Promise<SaveUrlResponse | false> => {
   const { name } = file;
-
+  let pathByType = "";
+  switch (pathByType) {
+    case "PROFILE":
+      pathByType = "?";
+      break;
+    case "POST":
+      pathByType = "posts";
+      break;
+    case "AI":
+      pathByType = "ai";
+      break;
+    default:
+      pathByType = "posts";
+  }
   const res_save_url = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/images/save-url`,
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/${pathByType}/images/save-url`,
     {
       method: "POST",
       headers: {
@@ -32,7 +50,7 @@ const UploadImage = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        imageUsagePurpose: "PROFILE",
+        imageUsagePurpose: type,
         fileName: name,
       }),
     }
@@ -59,7 +77,7 @@ const UploadImage = async (
     return false;
   }
   const res_callback = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/images/save-url/callback`,
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/${pathByType}/images/save-url/callback`,
     {
       method: "POST",
       headers: {
@@ -69,7 +87,7 @@ const UploadImage = async (
       body: JSON.stringify({
         fileName: name,
         imagePath: imagePath,
-        imageUsagePurpose: "PROFILE",
+        imageUsagePurpose: type,
       }),
     }
   );
@@ -79,7 +97,7 @@ const UploadImage = async (
     const { imageId } = data.data;
     try {
       const res_img_url = await fetch(
-        `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/images/${imageId}/get-url`,
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/${pathByType}/images/${imageId}/get-url`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -98,6 +116,25 @@ const UploadImage = async (
   }
 
   return data;
+};
+
+const UploadImageAI = (
+  file: File,
+  callback: (r: [string, string], e?: unknown) => void,
+  type: UploadType
+): Promise<{ r: [string, string]; e?: unknown } | false> => {
+  const response_saveUrl = _fetch(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/save-url`,
+    true,
+    {
+      body: JSON.stringify({
+        imageUsagePurpose: type,
+        fileName: name,
+      }),
+    }
+  );
+
+  return false;
 };
 
 export default UploadImage;
