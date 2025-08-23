@@ -4,11 +4,10 @@ import { FormInputProps } from ".";
 
 // `props.type`은 무시됩니다.
 const BlindInput = ({ value, onChange, placeholder }: FormInputProps) => {
-  // const [value, setValue] = useState<string>("");
   const [showValue, setShowValue] = useState<boolean>(false);
 
   return (
-    <>
+    <div className="relative w-full">
       <input
         type={showValue ? "text" : "password"}
         placeholder={placeholder}
@@ -28,7 +27,7 @@ const BlindInput = ({ value, onChange, placeholder }: FormInputProps) => {
           height={20}
         />
       </button>
-    </>
+    </div>
   );
 };
 

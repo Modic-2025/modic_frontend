@@ -5,20 +5,21 @@ import BlindInput from "./BlindInput";
 import FormInput from "./FormInput";
 
 // Inputs/InputSet, Inputs/BlindInput 을 사용합니다.
-const InputSet = (
-  props: FormInputProps & {
-    title: string;
-    inputLayout: "NORMAL" | "BLIND";
-  }
-) => {
-  const inputLayout = props.inputLayout || "NORMAL";
+const InputSet = ({
+  title,
+  inputLayout = "NORMAL",
+  ...rest
+}: FormInputProps & {
+  title: string;
+  inputLayout: "NORMAL" | "BLIND";
+}) => {
   return (
     <>
-      <label className="block text-md font-semibold mb-2">{props.title}</label>
+      <label className="block text-md font-semibold mb-2">{title}</label>
       {inputLayout === "NORMAL" ? (
-        <FormInput {...props} />
+        <FormInput {...rest} />
       ) : (
-        <BlindInput {...props} />
+        <BlindInput {...rest} />
       )}
     </>
   );
