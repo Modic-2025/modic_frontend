@@ -8,6 +8,7 @@ const BlindInput = ({ value, onChange, placeholder }: FormInputProps) => {
 
   return (
     <div className="relative w-full">
+
       <input
         type={showValue ? "text" : "password"}
         placeholder={placeholder}
