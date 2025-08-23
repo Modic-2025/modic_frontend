@@ -2,6 +2,7 @@
 
 import Logo from "@/components/Layout/components/Header/Logo";
 import {
+  convertToRoutePattern,
   HEADER_CONTENTS,
   HeaderContentActionsType,
   HeaderContentType,
@@ -18,16 +19,6 @@ import Close from "@/components/Layout/components/Header/Close";
 import { JSX, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { User, UserMe } from "@/types/User";
-
-// 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
-// 동적 path일 경우 이 함수를 통해 전처리를 해주어야 합니다.
-// .replace(target_regex, replace_string)
-const convertToRoutePattern = (pathName: string) => {
-  return pathName
-    .replace(/^\/art\/(\d+)/, "/art/[art_id]")
-    .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
-    .replace(/^\/users\/(\d+)/, "/users/[user_id]");
-};
 
 const getHeaderComponent = (
   content: HeaderContentType,
