@@ -2,13 +2,7 @@
 "use client";
 
 import React from "react";
-
-interface FormInputProps {
-  type?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder: string;
-}
+import { FormInputProps } from ".";
 
 export default function FormInput({
   type = "text",
