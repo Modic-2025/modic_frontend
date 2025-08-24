@@ -6,7 +6,7 @@ const Content = ({ qnas = FAKE_QNA_DATAS }: { qnas: QnaType[] }) => {
     <>
       {qnas.map((qna) => (
         <div className="py-4 border-b-[0.5] border-(--color-gray-1)">
-          <Qna key={qna.id} {...qna} />
+          <Qna key={qna.postId} {...qna} />
         </div>
       ))}
     </>

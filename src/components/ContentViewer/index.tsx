@@ -68,14 +68,6 @@ const ContentViewer = (props: {
     if (!error && data) {
       let { content } = data.data;
       if (content) {
-        // for /api/profile/posts API (임시)
-        if (content.length > 0 && typeof content[0].postId === "number") {
-          console.log("captured");
-          content = content.map((item) => ({
-            id: item.postId,
-            images: [{ imageUrl: item.imageUrl }],
-          }));
-        }
         setArts(content);
       }
     }
@@ -118,7 +110,7 @@ const ContentViewer = (props: {
             artsByGrid.map((_, index) => (
               <div key={index} className="basis-1/2">
                 {_.map((art, index) => (
-                  <div key={art.id ? art.id : art.postId} className="mb-4">
+                  <div key={art.postId} className="mb-4">
                     <ArtCard data={art} />
                   </div>
                 ))}

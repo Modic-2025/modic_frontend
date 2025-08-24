@@ -78,7 +78,7 @@ const UserHeader = ({
 
   // onClick handlers
   const onClickFollowBtn = async (_isFollow: boolean) => {
-    const response = await toggleFollowState(user.id, !isFollow);
+    const response = await toggleFollowState(user.userId, !isFollow);
     if (typeof response === "boolean" && response) {
       setIsFollow(!_isFollow);
 
@@ -146,7 +146,7 @@ const UserHeader = ({
         ) : (
           <>
             <FollowButton isFollow={isFollow} onClick={onClickFollowBtn} />
-            <GrayBorderButton href={`/users/${user.id}/dm`}>
+            <GrayBorderButton href={`/users/${user.userId}/dm`}>
               메시지
             </GrayBorderButton>
           </>

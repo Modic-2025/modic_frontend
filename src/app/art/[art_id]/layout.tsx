@@ -24,7 +24,7 @@ const layout = async ({
   const token = cookieStore.get("accessToken");
   const user = await getUserMe(token ? token.value : "");
 
-  const isAuthor: boolean = Boolean(user && artData.userId == user.id);
+  const isAuthor: boolean = Boolean(user && artData.userId == user.postId);
 
   /**
    * UI datas
@@ -32,15 +32,15 @@ const layout = async ({
   const tabs: Array<UITab> = [
     {
       name: "정보",
-      href: `/art/${artData.id}`,
+      href: `/art/${artData.postId}`,
     },
     {
       name: "후기",
-      href: `/art/${artData.id}/reviews`,
+      href: `/art/${artData.postId}/reviews`,
     },
     {
       name: "문의",
-      href: `/art/${artData.id}/qnas`,
+      href: `/art/${artData.postId}/qnas`,
     },
   ];
 

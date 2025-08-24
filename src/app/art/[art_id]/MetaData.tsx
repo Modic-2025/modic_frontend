@@ -42,7 +42,7 @@ const MetaData = ({
 
   // On confirm ok
   const onClickConfirmOk = async () => {
-    const isFailed = await DeleteArt(art.id);
+    const isFailed = await DeleteArt(art.postId);
     if (!isFailed) router.back();
   };
 
@@ -58,7 +58,7 @@ const MetaData = ({
   };
 
   const onClickLikeButton = async () => {
-    const response = await LikeArt(art.id);
+    const response = await LikeArt(art.postId);
     if (typeof response == "boolean" && response) {
       setArtLike(!artLike);
       return;
@@ -101,7 +101,7 @@ const MetaData = ({
       )}
       {showOption && (
         <OverlayOption onClose={onCloseOverlayOption}>
-          <Option href={`/art/edit/${art.id}`}>수정</Option>
+          <Option href={`/art/edit/${art.postId}`}>수정</Option>
           <Option onClick={onClickArtDelete} type="warn">
             삭제
           </Option>

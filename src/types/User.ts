@@ -15,7 +15,7 @@ export type FollowUser = {
 };
 
 export type UserMe = {
-  id: number;
+  userId: number;
   email: string;
   nickname: string;
 };
