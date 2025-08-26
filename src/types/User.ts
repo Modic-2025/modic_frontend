@@ -1,4 +1,5 @@
 export type User = UserMe & {
+  userId: number; // tech dept
   profileImageUrl?: string;
   postCount?: number;
   followerCount?: number;
@@ -15,7 +16,7 @@ export type FollowUser = {
 };
 
 export type UserMe = {
-  userId: number;
-  email: string;
-  nickname: string;
+  id: number;
+  userEmail: string;
+  userName: string;
 };
