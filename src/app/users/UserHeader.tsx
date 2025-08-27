@@ -126,7 +126,10 @@ const UserHeader = ({
           />
         </div>
         <div className="basis-3/4">
-          <p className="mb-2 font-bold"> {user.email} </p>
+          <p className="mb-2 font-bold">
+            {" "}
+            {isAboutMe ? user.userName : user.userEmail}{" "}
+          </p>
           <ul className="flex flex-row gap-4 text-center">
             {counters.map(
               (item, i) =>

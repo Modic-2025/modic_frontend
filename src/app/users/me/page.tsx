@@ -29,7 +29,7 @@ const MyPage = async () => {
 
   return (
     <>
-      <UserHeader user={user} isAboutMe={true} />
+      <UserHeader user={user} isAboutMe={true} showsName={true} />
       <section>
         <ContentViewer grid={2} showTabs={false} me={true} />
       </section>

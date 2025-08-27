@@ -24,7 +24,7 @@ const layout = async ({
   const token = cookieStore.get("accessToken");
   const user = await getUserMe(token ? token.value : "");
 
-  const isAuthor: boolean = Boolean(user && artData.userId == user.postId);
+  const isAuthor: boolean = Boolean(user && artData.userId == user.userId);
 
   /**
    * UI datas
