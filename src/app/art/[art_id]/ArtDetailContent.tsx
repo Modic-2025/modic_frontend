@@ -11,9 +11,7 @@ const ArtDetailContent = ({ art }: { art: Art }) => {
       </div>
 
       {/* 컴포넌트 구조적 문제로 fixed 사용함, safari같은 브라우저의 경우 하단 스크롤 시 nav-bar에 이 버튼이 가려지는 현상 발생 */}
-      <BottomButton href={`/art/${art.postId}/chat`}>
-        작품 사용하기
-      </BottomButton>
+      <BottomButton href={`/art/ai/${art.postId}`}>작품 사용하기</BottomButton>
     </>
   );
 };

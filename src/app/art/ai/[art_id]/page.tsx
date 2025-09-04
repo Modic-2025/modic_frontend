@@ -1,3 +1,4 @@
+import GetArt from "@/APIs/Art/GetArt";
 import Chat from "@/components/Chat";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {

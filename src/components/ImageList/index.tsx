@@ -64,7 +64,7 @@ const ImageList = ({
       for (let i = 0; i < length; i++) {
         UploadImage(
           newFiles[i],
-          ([imageUrl, imageId], e) => {
+          ([imageUrl, imagePath, imageId], e) => {
             if (e) {
               console.error("Error occured");
               return;
