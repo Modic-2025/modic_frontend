@@ -289,7 +289,7 @@ const Chat = ({ artId }: { artId: number }) => {
             ]);
           }
           // Starts pooling
-          if (status == 201) {
+          if (status === 201) {
             const { requestId } = data;
             // setAiRequestId(requestId);
             const token = localStorage.getItem("accessToken");
