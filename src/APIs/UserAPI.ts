@@ -13,10 +13,6 @@ export const getUserMe = async (token: string): Promise<UserMe | null> => {
       },
     }
   );
-  if (!res.ok) {
-    // 에러 처리
-    throw new Error("Failed to fetch user info");
-  }
   const custom_response = await res.json();
   if (!custom_response.isSuccess) {
     throw new Error("Failed to load user info");

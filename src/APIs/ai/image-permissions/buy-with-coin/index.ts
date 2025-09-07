@@ -9,37 +9,34 @@ export const BUY_PERMISSION_COIN_500 =
 const buyPermissionWithCoin = async (
   postId: number
 ): Promise<true | APIFailureMsg> => {
-  const response = await (
-    await _fetch(
-      `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/image-permissions/buy-with-coin`,
-      true,
-      {
-        body: JSON.stringify({
-          postId: postId,
-        }),
-        method: "POST",
-      }
-    )
-  ).json();
-  const { status, isSuccess, data } = response;
-  if (!isSuccess) {
-    let failureMsg: APIFailureMsg = {
-      code: status,
-      title: "",
-    };
-    if (status === 400) {
-      failureMsg = { ...failureMsg, title: BUY_PERMISSION_COIN_400 };
+  const response = await _fetch(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/image-permissions/buy-with-coin`,
+    true,
+    {
+      body: JSON.stringify({
+        postId: postId,
+      }),
+      method: "POST",
     }
-    if (status === 404) {
-      failureMsg = { ...failureMsg, title: BUY_PERMISSION_COIN_404 };
-    }
-    if (status === 500) {
-      failureMsg = { ...failureMsg, title: BUY_PERMISSION_COIN_500 };
-    }
-    return failureMsg;
+  );
+  const { status } = response;
+  if (status === 200) {
+    return true;
   }
-
-  return true;
+  let failureMsg: APIFailureMsg = {
+    code: status,
+    title: "",
+  };
+  if (status === 400) {
+    failureMsg = { ...failureMsg, title: BUY_PERMISSION_COIN_400 };
+  }
+  if (status === 404) {
+    failureMsg = { ...failureMsg, title: BUY_PERMISSION_COIN_404 };
+  }
+  if (status === 500) {
+    failureMsg = { ...failureMsg, title: BUY_PERMISSION_COIN_500 };
+  }
+  return failureMsg;
 };
 
 export default buyPermissionWithCoin;

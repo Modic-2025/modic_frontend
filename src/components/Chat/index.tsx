@@ -10,7 +10,7 @@ import useRemainGens from "@/hooks/UseRemainGens";
 import { Art } from "@/types/Art";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import useSWR, { SWRResponse } from "swr";
+import useSWR, { SWRResponse, useSWRConfig } from "swr";
 import ClickableImage from "../ClickableImage";
 import Confirm from "../Popups/Confirm";
 import buyPermissionWithCoin from "@/APIs/ai/image-permissions/buy-with-coin";
@@ -18,6 +18,8 @@ import Error from "next/error";
 import UseCoins from "@/hooks/UseCoins";
 import usePrevious from "@/hooks/UsePrevious";
 import Fail from "../Popups/Fail";
+import { subscribeAIRequestEvent } from "@/APIs/ai/image-permissions/images/sse";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 
 // 임시로 로딩 메시지 판별의 기준
 const NOW_LOADING_MSG = "이미지 생성중...";
@@ -66,8 +68,9 @@ const Chat = ({ artId }: { artId: number }) => {
     error: errorRemainingGen,
     isLoading: isLoadingRemainingGen,
   } = useRemainGens(Number(safeArtId));
-  const prevCount: number = usePrevious<Number>(remainingGen);
   const { data: coins, error: error_coins } = UseCoins();
+
+  const { mutate } = useSWRConfig();
 
   // Refs
   const chatRef = useRef<HTMLDivElement>(null);
@@ -88,12 +91,7 @@ const Chat = ({ artId }: { artId: number }) => {
     ([url, requestId]: [string, string]) => {
       return requestId
         ? _fetch(url, true).then(async (response) => response.json())
-        : // ? _fetch(url, true).then(async (response) => {
-          //     const { status } = (await response.json()).data;
-          //     console.log("status :>> ", status);
-          //     return status;
-          //   })
-          null;
+        : null;
     },
     {
       refreshInterval: 1000,
@@ -155,13 +153,13 @@ const Chat = ({ artId }: { artId: number }) => {
   const onClickBuy = async () => {
     const response = await buyPermissionWithCoin(safeArtId);
     setShowBuyWindow(false);
-    console.log("response :>> ", response);
+    // On success
     if (typeof response === "boolean" && response) {
-      console.log("inputFile :>> ", inputFile);
-      inputFile && readFileAndSetImage(inputFile); // on success, read file and run the process
+      mutate([`remaining-generations`, art?.postId]);
+      inputFile && readFileAndSetImage(inputFile); // read file and run the process
       return;
     }
-    const { code, title } = response;
+    const { title } = response;
     setShowBuyFailWindow(true);
     setBuyFailTitle(title);
   };
@@ -295,16 +293,28 @@ const Chat = ({ artId }: { artId: number }) => {
           // Starts pooling
           if (status == 201) {
             const { requestId } = data;
-            setAiRequestId(requestId);
-            // // Remove NOW_LOADING_MSG
-            // setChatStack((prev) => [
-            //   ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
-            //   {
-            //     type: 0 as 0,
-            //     // text: "요청하신 이미지를 그림체기반으로 재생성하였습니다.",
-            //     image: `data:${data.mime_type};base64,${data.image_base64}`,
-            //   } as ChatType,
-            // ]);
+            // setAiRequestId(requestId);
+            const token = localStorage.getItem("accessToken");
+            await fetchEventSource(
+              `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/sse/${requestId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+                async onmessage(e) {
+                  const { data } = e;
+                  const { imageUrl } = await JSON.parse(data);
+                  setChatStack((prev) => [
+                    ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
+                    {
+                      type: 0 as 0,
+                      // text: "요청하신 이미지를 그림체기반으로 재생성하였습니다.",
+                      image: imageUrl,
+                    } as ChatType,
+                  ]);
+                },
+              }
+            );
           }
 
           setConfirmState(false);
@@ -347,7 +357,6 @@ const Chat = ({ artId }: { artId: number }) => {
           <Fail
             title={buyFailTitle}
             onCancel={() => {
-              console.log("asdfasdf");
               setShowBuyFailWindow(false);
             }}
           />

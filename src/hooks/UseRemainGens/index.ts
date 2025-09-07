@@ -10,11 +10,15 @@ const useRemainGens = (postId: number) => {
   }
   return useSWR(
     shouldFetch
-      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/image-permissions/remaining-generations?${searchParams.toString()}`
-      : null,
+      ? [`remaining-generations`, postId]
+      : // ? `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/image-permissions/remaining-generations?${searchParams.toString()}`
+        null,
     shouldFetch
-      ? (url: string) =>
-          _fetch(url, true).then(async (res) => {
+      ? ([, postId]: [url: string, postId: number]) =>
+          _fetch(
+            `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/image-permissions/remaining-generations?postId=${postId}`,
+            true
+          ).then(async (res) => {
             const { status, isSuccess, code, remainingGenerations } =
               await res.json();
             if (status === 404) return 0;
