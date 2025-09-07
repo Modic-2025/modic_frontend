@@ -1,7 +1,6 @@
 "use client";
 import { APIFailureMsg } from "@/APIs";
 import getAiUrl from "@/APIs/ai/image-permissions/images/requests/get-url";
-import getRemainGens from "@/APIs/ai/image-permissions/remaining-generations";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
@@ -16,7 +15,6 @@ import Confirm from "../Popups/Confirm";
 import buyPermissionWithCoin from "@/APIs/ai/image-permissions/buy-with-coin";
 import Error from "next/error";
 import UseCoins from "@/hooks/UseCoins";
-import usePrevious from "@/hooks/UsePrevious";
 import Fail from "../Popups/Fail";
 import { subscribeAIRequestEvent } from "@/APIs/ai/image-permissions/images/sse";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
