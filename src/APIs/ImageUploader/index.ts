@@ -23,7 +23,7 @@ type UploadType = "PROFILE" | "AI_REQUEST" | "POST";
 
 const UploadImage = async (
   file: File,
-  callback: (r: [string, string], e?: unknown) => void,
+  callback: (r: [string, string, string], e?: unknown) => void,
   type: UploadType
 ): Promise<SaveUrlResponse | false> => {
   const { name } = file;
@@ -107,11 +107,11 @@ const UploadImage = async (
       if (res_img_url.ok) {
         const data = await res_img_url.json();
         const { imageGetUrl } = data.data;
-        callback([imageGetUrl, imageId]);
+        callback([imageGetUrl, imagePath, imageId]);
       } else {
       }
     } catch (e: unknown) {
-      callback(["", ""], e);
+      callback(["", "", ""], e);
     }
   }
 

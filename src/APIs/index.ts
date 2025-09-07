@@ -11,5 +11,5 @@ export const APIFailureMsg_500 = {
 export type APIFailureMsg = {
   code: number;
   title: string;
-  desc: string;
+  desc?: string;
 };

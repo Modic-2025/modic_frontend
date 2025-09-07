@@ -22,6 +22,7 @@ type CreatePostPayload = {
   description: string;
   commercialPrice: number;
   nonCommercialPrice: number;
+  ticketPrice: number;
   imageIds: string[];
 };
 
@@ -80,6 +81,8 @@ const ArtRegistrationForm = ({
       commercialPrice: comCost || 0,
       nonCommercialPrice: nonComCost || 0,
       imageIds: imageUrls.map((item) => item.imageId),
+      // FOR DEVELOP
+      ticketPrice: 10,
     };
 
     const requestUrl = art

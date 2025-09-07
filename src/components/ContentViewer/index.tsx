@@ -58,7 +58,6 @@ const ContentViewer = (props: {
             artsByGrid[gridIndex] = [art];
           }
         });
-
         setArtsByGrid(artsByGrid);
       }
     }

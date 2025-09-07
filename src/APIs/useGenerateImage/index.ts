@@ -1,47 +1,31 @@
 import useSWR from "swr";
-
-const AI_SERVER_HOST = "https://046c-121-131-111-122.ngrok-free.app/";
-
-const useGenerateImage = () => {
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
-  const { data, error, isLoading, mutate } = useSWR(AI_SERVER_HOST, fetcher);
-
-  return {
-    user: data,
-    isLoading,
-    isError: error,
-    mutate,
-  };
-};
+import _fetch from "../fetcher/ClientSide";
 
 export const generateImage = async (
-  style: string,
-  image: string,
-  callback: Function
+  name: string,
+  path: string,
+  postId: number,
+  useTicket: boolean
 ) => {
-  const formData = new FormData();
-  formData.append("style", style);
-  formData.append("content", image);
-  try {
-    const res = await fetch(AI_SERVER_HOST, {
+  const res = await _fetch(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/requests`,
+    true,
+    {
       method: "POST",
-      // headers: {
-      //   "Content-Type": "application/json",
-      // },
-      body: formData,
-    });
-
-    if (!res.ok) {
-      // HTTP 에러 처리
-      const error = new Error(`HTTP error! status: ${res.status}`);
-      callback(null, error);
-      return;
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fileName: name,
+        imagePath: path,
+        imageUsagePurpose: "AI_REQUEST",
+        postId: postId,
+        useTicket: useTicket,
+      }),
     }
+  );
 
-    callback(res);
-  } catch (e) {
-    callback(null, e as Error);
-  }
+  return res;
 };
 
-export default useGenerateImage;
+export default generateImage;
