@@ -192,7 +192,7 @@ const CellWrapper = ({
         >
           <Image
             src={imageUrl}
-            alt={imageId}
+            alt={imageUrl}
             fill={true}
             style={{ objectFit: "cover" }}
             className={`rounded-lg`}
