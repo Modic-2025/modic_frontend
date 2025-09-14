@@ -1,4 +1,4 @@
-export type ImageType = { imageUrl: string; imageId: string };
+export type ImageType = { imageUrl: string; imageId: number };
 
 export interface Art_thumbnail {
   postId: number;
