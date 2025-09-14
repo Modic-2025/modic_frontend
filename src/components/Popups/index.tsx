@@ -1,14 +1,11 @@
 import { createPortal } from "react-dom";
 
-export const Background = ({
-  children,
-  onClick,
-  noBg = false,
-}: {
+type BgPropType = {
   children: React.ReactNode;
   onClick: () => void;
   noBg?: boolean;
-}) =>
+};
+export const Background = ({ children, onClick, noBg = false }: BgPropType) =>
   createPortal(
     <div
       className={`fixed max-w-sm mx-auto inset-x-0 h-full flex justify-center items-center ${!noBg && "bg-[#2B2B2B]/60"} z-50`}
@@ -35,4 +32,11 @@ export const PopupWrapper = ({
   >
     {children}
   </div>
+);
+
+// onClick -> on background click
+export const Popup = ({ children, ...rest }: BgPropType) => (
+  <Background {...rest}>
+    <PopupWrapper>{children}</PopupWrapper>
+  </Background>
 );

@@ -21,8 +21,8 @@ const Settings = async () => {
           height={64}
         />
         <div className="basis-4/5 flex flex-col justify-center text-sm">
-          <h1 className=" text-(--color-main) font-bold">{me?.nickname}</h1>
-          <p className="text-(--color-gray-4)"> {me?.email} </p>
+          <h1 className=" text-(--color-main) font-bold">{me?.userName}</h1>
+          <p className="text-(--color-gray-4)"> {me?.userEmail} </p>
         </div>
       </div>
       <List>
