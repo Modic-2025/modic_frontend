@@ -42,6 +42,14 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/art/regist/[image_id]": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "2차 창작물 등록",
+      },
+    },
+  },
   "/users/me": {
     elements: ["logo", "option_lined"],
     actions: {
@@ -85,6 +93,14 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/users/me/created-images": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "생성한 이미지",
+      },
+    },
+  },
 };
 
 // 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
@@ -95,7 +111,8 @@ export const convertToRoutePattern = (pathName: string) => {
     .replace(/^\/art\/(\d+)/, "/art/[art_id]")
     .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
     .replace(/^\/users\/(\d+)/, "/users/[user_id]")
-    .replace(/^\/art\/ai\/(\d+)/, "/art/ai/[art_id]");
+    .replace(/^\/art\/ai\/(\d+)/, "/art/ai/[art_id]")
+    .replace(/^\/art\/regist\/(\d+)/, "/art/regist/[image_id]");
 };
 
 export interface HeaderContent {

@@ -50,17 +50,20 @@ const getHeaderComponent = (
 };
 
 const Header = ({ user }: { user?: User | UserMe | null }) => {
-  const [_user, setUser] = useState<User | null>(user ?? null);
-
   const pathName = usePathname();
 
   const headerContent =
     SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)];
 
+  // User 프로필 페이지 flag
+  const isUserPage = /^\/users\/(\d+)/.test(pathName);
   // actions를 통해 header 요소의 optional한 설정 세팅
   const actions = {
     ...headerContent?.actions,
-    title: { value: user?.nickname || headerContent?.actions?.title?.value },
+    title: {
+      value: isUserPage ? user?.userName : headerContent?.actions?.title?.value,
+    },
+    coins: { value: user?.coin },
   };
 
   return (

@@ -11,7 +11,7 @@ const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
   const token = cookieStore.get("accessToken")?.value;
   let user = null;
   if (token) {
-    user = getUserMe(token);
+    user = await getUserMe(token);
   }
   return (
     <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
