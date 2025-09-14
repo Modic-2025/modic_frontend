@@ -5,10 +5,7 @@ import Link from "next/link";
 
 const Settings = async () => {
   const _cookies = await cookies();
-  const me = await getUserMe(_cookies.get("accessToken")?.value || "");
-
-  if (!me) {
-  }
+  const me = await getUserMe();
 
   return (
     <>
