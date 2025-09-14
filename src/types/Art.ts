@@ -16,6 +16,8 @@ export interface Art extends Art_thumbnail {
   tags: Array<string>;
   likeCount: number;
   isLikedByCurrentUser: boolean;
+  isAiDerivedPost: boolean;
+  derivedPosts: Art_thumbnail_profiles[];
 }
 
 // /api/profiles 컨트롤러에서 반환하는 post 객체 (임시)
