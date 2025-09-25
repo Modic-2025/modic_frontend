@@ -1,16 +1,18 @@
-import useSWR from "swr";
+import { UserMe } from "@/types/User";
+import useSWR, { SWRResponse } from "swr";
 
-const useUserMe = (token: string | null) => {
-  return useSWR(
+const useUserMe = (token: string | null): SWRResponse<UserMe> => {
+  return useSWR<UserMe>(
     token
       ? [`${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me`, token]
       : null,
     async ([url, token]: [string, string]) => {
-      fetch(url, {
+      const res = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }).then((res) => res.json());
+      });
+      return res.json() as Promise<UserMe>;
     }
   );
 };

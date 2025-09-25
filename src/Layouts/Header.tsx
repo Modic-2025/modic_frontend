@@ -19,6 +19,8 @@ import Close from "@/components/Layout/components/Header/Close";
 import { JSX, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { User, UserMe } from "@/types/User";
+import { getCookie } from "cookies-next";
+import useUserMe from "@/hooks/UseUserMe";
 
 const getHeaderComponent = (
   content: HeaderContentType,
@@ -49,8 +51,11 @@ const getHeaderComponent = (
   }
 };
 
-const Header = ({ user }: { user?: User | UserMe | null }) => {
+const Header = () => {
   const pathName = usePathname();
+
+  const token = getCookie("accessToken")?.toString();
+  const { data: user }: { data: UserMe | undefined } = useUserMe(token || "");
 
   const headerContent =
     SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)];

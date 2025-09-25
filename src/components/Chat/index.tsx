@@ -1,6 +1,6 @@
 "use client";
 import { APIFailureMsg } from "@/APIs";
-import getAiUrl from "@/APIs/ai/image-permissions/images/requests/get-url";
+import getAiUrl from "@/APIs/ai/images/requests/get-url";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
