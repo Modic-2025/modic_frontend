@@ -1,9 +1,13 @@
 "use client";
-import { Art_thumbnail, Art_thumbnail_profiles } from "@/types/Art";
+import { Art, Art_thumbnail, Art_thumbnail_profiles } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
 import useArts, { sortType } from "@/APIs/useArts";
 import { getCookie } from "cookies-next";
+import { Popup } from "../Popups";
+import Image from "next/image";
+import PrimaryButton from "../Button/PrimaryButton";
+import Link from "next/link";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
 type artsByGridType = Array<Array<Art_thumbnail | Art_thumbnail_profiles>>;
@@ -21,29 +25,40 @@ const C_TABS: Array<tab> = [
   { value: "FOLLOWING", name: "팔로잉" },
 ];
 
-const ContentViewer = (props: {
+const ContentViewer = ({
+  mode = "NORMAL",
+  showTabs = true,
+  ...rest
+}: {
+  mode?: "NORMAL" | "POPUP"; // NORMAL: default, POPUP: use in my image gen page
   grid: gridType;
-  arts?: Array<Art_thumbnail | Art_thumbnail_profiles>;
+  arts?: Array<Art_thumbnail | Art_thumbnail_profiles>; // If set `arts`, component do not fetch arts
   showTabs?: boolean;
   userId?: number; // Get arts by user
   me?: boolean; // Get arts by own session
 }) => {
-  const safeUserId =
-    typeof props.me === "boolean" && props.me ? -1 : props.userId;
+  const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
   const [arts, setArts] = useState<
     Array<Art_thumbnail | Art_thumbnail_profiles>
-  >(props.arts ? props.arts : []); // prop arts
-  const [grid, setGrid] = useState<gridType>(props.grid); // grid number
+  >(rest.arts ?? undefined); // prop arts
+  const [grid, setGrid] = useState<gridType>(rest.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
 
+  // Popup states
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [selectedArt, setSelectedArt] = useState<
+    Art | Art_thumbnail | Art_thumbnail_profiles | null
+  >(null);
+
   const selectedTab = tabs.find((item) => item.selected);
   const { data, error, isLoading } = useArts(
-    (selectedTab ? selectedTab.value : "LATEST") as sortType,
+    rest.arts
+      ? null
+      : ((selectedTab ? selectedTab.value : "LATEST") as sortType),
     0,
     20,
-    safeUserId,
-    getCookie("accessToken")?.toString()
+    safeUserId
   );
 
   useEffect(() => {
@@ -81,6 +96,10 @@ const ContentViewer = (props: {
     );
   }
 
+  /**
+   * Event listeners
+   */
+  // On click tabs
   const tabOnClickListener = (tabValue: string) => {
     setTabs(
       tabs.map((item) => ({
@@ -89,11 +108,61 @@ const ContentViewer = (props: {
       }))
     );
   };
+  // On click ArtCard
+  const onClickArtCard = (
+    data: Art | Art_thumbnail | Art_thumbnail_profiles
+  ) => {
+    setShowPopup(true);
+    setSelectedArt(data);
+  };
+  // On click create derived art
+  const onClickRegistDerivedArt = () => {};
 
-  const isRenderTabs = typeof props.showTabs == "boolean" && props.showTabs;
+  /**
+   * Intuitive rendering flags
+   */
+  // Rendering tabs
+  const isRenderTabs = typeof showTabs == "boolean" && showTabs;
+  // Rendering popups
+  // currently, used to created-images page
+  // this flag decides property of `ArtCard` Div's key
+  const usesPopup = mode === "POPUP";
+
+  /**
+   * Presentational rendering content
+   */
+  const safeImageUrl =
+    selectedArt && encodeURIComponent(selectedArt.images[0].imageUrl);
 
   return (
     <>
+      {/* Popups */}
+      {usesPopup && showPopup && selectedArt && (
+        <Popup onClick={() => setShowPopup(false)}>
+          {selectedArt && (
+            <>
+              <Image
+                src={selectedArt.images[0].imageUrl}
+                alt={selectedArt.images[0].imageUrl}
+                layout="responsive"
+                className="mb-4 rounded-xl"
+                width={200}
+                height={200}
+              />
+              <Link
+                href={`/art/regist/${selectedArt.images[0].imageId}?imageUrl=${safeImageUrl}`}
+              >
+                <PrimaryButton
+                  text="2차 창작물 등록하기"
+                  onClick={onClickRegistDerivedArt}
+                />
+              </Link>
+            </>
+          )}
+        </Popup>
+      )}
+
+      {/* Tab */}
       {isRenderTabs && (
         <nav className="flex flex-row pb-4 font-semibold">
           {tabs.map((item, idx) => (
@@ -101,6 +170,8 @@ const ContentViewer = (props: {
           ))}{" "}
         </nav>
       )}
+
+      {/* Content */}
       {isLoading ? (
         <p> 작품 가져오는 중 .. </p>
       ) : (
@@ -109,8 +180,14 @@ const ContentViewer = (props: {
             artsByGrid.map((_, index) => (
               <div key={index} className="basis-1/2">
                 {_.map((art, index) => (
-                  <div key={art.postId} className="mb-4">
-                    <ArtCard data={art} />
+                  <div
+                    key={usesPopup ? art.images[0].imageId : art.postId}
+                    className="mb-4"
+                  >
+                    <ArtCard
+                      data={art}
+                      onClick={usesPopup ? onClickArtCard : undefined}
+                    />
                   </div>
                 ))}
               </div>

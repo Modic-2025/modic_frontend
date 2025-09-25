@@ -1,6 +1,6 @@
 "use client";
 import { APIFailureMsg } from "@/APIs";
-import getAiUrl from "@/APIs/ai/image-permissions/images/requests/get-url";
+import getAiUrl from "@/APIs/ai/images/requests/get-url";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
@@ -16,7 +16,6 @@ import buyPermissionWithCoin from "@/APIs/ai/image-permissions/buy-with-coin";
 import Error from "next/error";
 import UseCoins from "@/hooks/UseCoins";
 import Fail from "../Popups/Fail";
-import { subscribeAIRequestEvent } from "@/APIs/ai/image-permissions/images/sse";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 
 // 임시로 로딩 메시지 판별의 기준

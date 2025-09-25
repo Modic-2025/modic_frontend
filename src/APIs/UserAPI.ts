@@ -1,4 +1,5 @@
 import { User, UserMe } from "@/types/User";
+import _fetch from "./fetcher/ServerSide";
 
 export const getUserMe = async (token: string): Promise<UserMe | null> => {
   if (!token) {
