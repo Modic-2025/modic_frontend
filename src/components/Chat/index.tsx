@@ -6,7 +6,7 @@ import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
 import generateImage from "@/APIs/useGenerateImage";
 import useRemainGens from "@/hooks/UseRemainGens";
-import { Art } from "@/types/Art";
+import { Art, ImageType } from "@/types/Art";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import useSWR, { SWRResponse, useSWRConfig } from "swr";
@@ -16,19 +16,16 @@ import buyPermissionWithCoin from "@/APIs/ai/image-permissions/buy-with-coin";
 import Error from "next/error";
 import UseCoins from "@/hooks/UseCoins";
 import Fail from "../Popups/Fail";
-import { subscribeAIRequestEvent } from "@/APIs/ai/image-permissions/images/sse";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
+import ImageList from "../ImageList";
 
 // 임시로 로딩 메시지 판별의 기준
 const NOW_LOADING_MSG = "이미지 생성중...";
 
-// 한 번에 충전될 이미지 편집 권한 개수 (추후 백엔드에서 줘야 함)
-const APPLY_PERMISSION_COUNT_AT_ONCE = 20;
-
 type ChatType = {
   type: 0 | 1; // 0: opponent, 1: me
   text: string;
-  image?: string;
+  image?: ImageType;
   isLoading?: boolean;
 };
 
@@ -53,19 +50,23 @@ const Chat = ({ artId }: { artId: number }) => {
   /**
    * UI states
    */
-  const [chatDisabled, setChatDisabled] = useState<boolean>(true);
-  const [showConfirmWindow, setShowConfirmWindow] = useState<boolean>(false);
-  const [showBuyWindow, setShowBuyWindow] = useState<boolean>(false);
-  // Window that failed to buy permissions
-  const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false);
-  const [buyFailTitle, setBuyFailTitle] = useState<string>("");
-  const [confirmState, setConfirmState] = useState<boolean>(false);
+  const [chatDisabled, setChatDisabled] = useState<boolean>(true); // For disable input text
+  // Popup window that failed to buy permissions
+  // const [showConfirmWindow, setShowConfirmWindow] = useState<boolean>(false); // Confirm window
+  const [showBuyWindow, setShowBuyWindow] = useState<boolean>(false); // Confirm window
+  const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false); // Fail window
+  const [buyFailTitle, setBuyFailTitle] = useState<string>(""); // Fail window
+  // // Confirm AI request state
+  // const [confirmState, setConfirmState] = useState<boolean>(false);
+  // Chat stack states
   const [chatStack, setChatStack] = useState<Array<ChatType>>([]);
+  // Remain generations of posts
   const {
     data: remainingGen,
     error: errorRemainingGen,
     isLoading: isLoadingRemainingGen,
   } = useRemainGens(Number(safeArtId));
+  // Coins of account
   const { data: coins, error: error_coins } = UseCoins();
 
   const { mutate } = useSWRConfig();
@@ -75,40 +76,45 @@ const Chat = ({ artId }: { artId: number }) => {
 
   // For pooling
   const [aiRequestId, setAiRequestId] = useState<string>("");
-  const {
-    data: aiStatusResponse,
-    error: error_aiStatus,
-    isLoading: isLoading_aiStatus,
-  } = useSWR(
-    aiRequestId
-      ? [
-          `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/requests/${aiRequestId}/status`,
-          aiRequestId,
-        ]
-      : null,
-    ([url, requestId]: [string, string]) => {
-      return requestId
-        ? _fetch(url, true).then(async (response) => response.json())
-        : null;
-    },
-    {
-      refreshInterval: 1000,
-      onSuccess: (data) => {
-        if (data && data.data.status === "DONE") {
-          getAiGeneratedImage(aiRequestId);
-          setAiRequestId("");
-        }
-      },
-    }
-  );
+  // const {
+  //   data: aiStatusResponse,
+  //   error: error_aiStatus,
+  //   isLoading: isLoading_aiStatus,
+  // } = useSWR(
+  //   aiRequestId
+  //     ? [
+  //         `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${artId}/chat/sse/${aiRequestId}`,
+  //         // `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/requests/${aiRequestId}/status`, // deprecated
+  //         aiRequestId,
+  //       ]
+  //     : null,
+  //   ([url, requestId]: [string, string]) => {
+  //     return requestId
+  //       ? _fetch(url, true).then(async (response) => response.json())
+  //       : null;
+  //   },
+  //   {
+  //     refreshInterval: 1000,
+  //     onSuccess: (data) => {
+  //       console.log("data :>> ", data);
+  //       if (data && data.data.status === "DONE") {
+  //         getAiGeneratedImage(aiRequestId);
+  //         setAiRequestId("");
+  //       }
+  //     },
+  //     onError: (err) => {
+  //       console.log("err :>> ", err);
+  //     },
+  //   }
+  // );
 
-  // Stop pooling when aiStatus === "DONE"
-  useEffect(() => {
-    if (aiStatusResponse && aiStatusResponse.data.status === "DONE") {
-      getAiGeneratedImage(aiRequestId);
-      setAiRequestId("");
-    }
-  }, [aiStatusResponse, aiRequestId]);
+  // [DEPRECATED] // Stop pooling when aiStatus === "DONE"
+  // useEffect(() => {
+  //   if (aiStatusResponse && aiStatusResponse.data.status === "DONE") {
+  //     getAiGeneratedImage(aiRequestId);
+  //     setAiRequestId("");
+  //   }
+  // }, [aiStatusResponse, aiRequestId]);
 
   const getAiGeneratedImage = async (requestId: string) => {
     const imageUrl: string | APIFailureMsg = await getAiUrl(requestId);
@@ -117,7 +123,7 @@ const Chat = ({ artId }: { artId: number }) => {
       {
         type: 0 as 0,
         // text: "요청하신 이미지를 그림체기반으로 재생성하였습니다.",
-        image: imageUrl,
+        image: { imageUrl },
       } as ChatType,
     ]);
   };
@@ -125,7 +131,7 @@ const Chat = ({ artId }: { artId: number }) => {
   // Form data
   const [inputText, setInputText] = useState<string>("");
   const [inputFile, setInputFile] = useState<File | null>(null);
-  const [inputImage, setInputImage] = useState<string>("");
+  const [inputImage, setInputImage] = useState<ImageType | null>(null);
 
   /**
    * Events
@@ -137,13 +143,14 @@ const Chat = ({ artId }: { artId: number }) => {
       return;
     }
     if (e.key === "Enter") {
-      setChatStack((prev) => [
-        ...prev,
-        { type: 1, text: inputText, image: inputImage },
-      ]);
-      setInputText("");
-      setInputImage("");
-      // setChatDisabled(true);
+      sendMsg();
+      // setChatStack((prev) => [
+      //   ...prev,
+      //   { type: 1, text: inputText, image: inputImage || undefined },
+      // ]);
+      // setInputText("");
+      // setInputImage(null);
+      // // setChatDisabled(true);
     }
   };
 
@@ -154,12 +161,78 @@ const Chat = ({ artId }: { artId: number }) => {
     // On success
     if (typeof response === "boolean" && response) {
       mutate([`remaining-generations`, art?.postId]);
-      inputFile && readFileAndSetImage(inputFile); // read file and run the process
+      // inputFile && readFileAndSetImage(inputFile); // read file and run the process
       return;
     }
     const { title } = response;
     setShowBuyFailWindow(true);
     setBuyFailTitle(title);
+  };
+
+  // on-click event on message send button
+  const onClickMsgSendBtn = (e) => {
+    sendMsg();
+  };
+
+  /**
+   * Methods
+   */
+  const sendMsg = async () => {
+    if (!inputImage && !inputText) return;
+    setChatStack((prev) => [
+      ...prev,
+      { type: 1, text: inputText, image: inputImage ?? undefined },
+      {
+        type: 0,
+        text: NOW_LOADING_MSG,
+        isLoading: true,
+      },
+    ]);
+    setInputText("");
+    setInputImage(null);
+    setChatDisabled(true);
+    const responseGenerateImage = await (
+      await generateImage(artId, inputText, inputImage?.imageId)
+    ).json();
+    const { status, isSuccess, data } = responseGenerateImage;
+    if (!isSuccess) {
+      console.error("ERROR");
+      setChatStack((prev) => [
+        ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
+        {
+          type: 0 as 0,
+          text: `생성중 에러가 발생하였습니다. 잠시 후 다시 시도해주세요 (${status})`,
+        } as ChatType,
+      ]);
+    }
+    // Starts pooling
+    if (status === 200) {
+      const { requestId } = data;
+      // setAiRequestId(requestId);
+      const token = localStorage.getItem("accessToken");
+      await fetchEventSource(
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${artId}/chat/sse/${requestId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          async onmessage(e) {
+            console.log("e :>> ", e);
+            const { data } = e;
+            console.log("data :>> ", data);
+            const { textContent } = await JSON.parse(data);
+            setChatStack((prev) => [
+              ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
+              {
+                type: 0 as 0,
+                text: textContent,
+                // image: imageUrl,
+              } as ChatType,
+            ]);
+          },
+        }
+      );
+    }
   };
 
   /**
@@ -195,7 +268,7 @@ const Chat = ({ artId }: { artId: number }) => {
       setChatStack([
         {
           type: 0,
-          image: images[0].imageUrl,
+          image: images[0],
           text: "이 그림체로 어떤 작품을 만들어볼까요?",
         },
       ]);
@@ -204,123 +277,39 @@ const Chat = ({ artId }: { artId: number }) => {
     }
   }, [art]);
 
-  useEffect(() => {
-    if (error) console.error("ERROR OCCURED: ", error);
-  }, [error]);
-
   /**
    * PROCESSING INPUT FILE
    */
-  // 1: Check remaining permissions & Read file
   useEffect(() => {
     if (remainingGen <= 0) {
       setShowBuyWindow(true);
       return;
     }
     if (inputFile) {
-      readFileAndSetImage(inputFile);
+      UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
     }
   }, [inputFile]);
 
-  // input file을 읽고, inputImage state에 이미지를 저장합니다.
-  const readFileAndSetImage = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setInputImage(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+  const imageOnUpload = async (r, e) => {
+    if (e) {
+      console.error("Error occured in image upload");
+      return;
+    }
+    const [imageUrl, imagePath, imageId] = r;
+
+    setInputImage({
+      imageUrl,
+      imageId,
+    });
   };
 
-  // 2: Input image changed
-  useEffect(() => {
-    if (inputImage) {
-      setShowConfirmWindow(true);
-    }
-  }, [inputImage]);
+  // For ImageList component
+  const onDeleteImageList = (id: number) => {
+    setInputImage(null);
+  };
 
-  // 3: On confirm window close
-  useEffect(() => {
-    if (!showConfirmWindow) {
-      setInputImage("");
-      setInputFile(null);
-      setChatDisabled(false);
-    }
-  }, [showConfirmWindow]);
-
-  // 4: Upload image for ai works
-  useEffect(() => {
-    if (confirmState && inputFile) {
-      UploadImage(
-        inputFile,
-        async (r, e) => {
-          if (e) {
-            console.error("Error occured in image upload");
-            return;
-          }
-          setChatStack((prev) => [
-            ...prev,
-            { type: 1, text: inputText, image: r[0] },
-            {
-              type: 0,
-              text: NOW_LOADING_MSG,
-              isLoading: true,
-            },
-          ]);
-          setInputText("");
-          setInputImage("");
-          setChatDisabled(true);
-          const responseGenerateImage = await (
-            await generateImage(
-              inputFile.name,
-              r[1], // Uploaded image path
-              safeArtId,
-              false
-            )
-          ).json();
-          const { status, isSuccess, data } = responseGenerateImage;
-          if (!isSuccess) {
-            console.error("ERROR");
-            setChatStack((prev) => [
-              ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
-              {
-                type: 0 as 0,
-                text: `생성중 에러가 발생하였습니다. 잠시 후 다시 시도해주세요 (${status})`,
-              } as ChatType,
-            ]);
-          }
-          // Starts pooling
-          if (status === 201) {
-            const { requestId } = data;
-            // setAiRequestId(requestId);
-            const token = localStorage.getItem("accessToken");
-            await fetchEventSource(
-              `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/sse/${requestId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-                async onmessage(e) {
-                  const { data } = e;
-                  const { imageUrl } = await JSON.parse(data);
-                  setChatStack((prev) => [
-                    ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
-                    {
-                      type: 0 as 0,
-                      // text: "요청하신 이미지를 그림체기반으로 재생성하였습니다.",
-                      image: imageUrl,
-                    } as ChatType,
-                  ]);
-                },
-              }
-            );
-          }
-
-          setConfirmState(false);
-        },
-        "AI_REQUEST"
-      );
-    }
-  }, [confirmState]);
+  // Classnames
+  const inputarea_classname = `fixed bottom-4 inset-x-0 mx-auto max-w-sm ${inputImage ? "h-36" : "h-12"}`;
 
   return (
     <>
@@ -360,8 +349,8 @@ const Chat = ({ artId }: { artId: number }) => {
           />
         )}
 
-        {/* Confirm window */}
-        {showConfirmWindow && (
+        {/* [DEPRECATED] Confirm window */}
+        {/* {showConfirmWindow && (
           <div className="fixed flex items-center justify-center align-text inset-0 w-full h-full bg-white/60">
             <div className="flex items-center flex-col text-center">
               <Image
@@ -381,6 +370,7 @@ const Chat = ({ artId }: { artId: number }) => {
                   onClick={() => {
                     setConfirmState(false);
                     setShowConfirmWindow(false);
+                    setInputImage("");
                   }}
                 >
                   다시 선택할게요
@@ -397,7 +387,7 @@ const Chat = ({ artId }: { artId: number }) => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Chat history */}
         {chatStack.map((chat, index) =>
@@ -420,7 +410,7 @@ const Chat = ({ artId }: { artId: number }) => {
               <div className="chat-area basis-9/10">
                 {chat.image && (
                   <ClickableImage
-                    src={chat.image}
+                    src={chat.image.imageUrl}
                     alt="origin_image"
                     // layout="intrinsic"
                     width={240}
@@ -440,7 +430,7 @@ const Chat = ({ artId }: { artId: number }) => {
               <div className="chat-area">
                 {chat.image && (
                   <ClickableImage
-                    src={chat.image}
+                    src={chat.image.imageUrl}
                     alt="origin_image"
                     // layout="intrinsic"
                     width={240}
@@ -458,28 +448,24 @@ const Chat = ({ artId }: { artId: number }) => {
           )
         )}
 
-        <div className="fixed bottom-4 inset-x-0 mx-auto max-w-sm px-4 h-12 gap-2">
-          <div className="flex flex-row px-4 h-full bg-white rounded-full shadow-2xl">
-            {" "}
-            {/* wraper */}
-            <input
-              className="w-full h-full inset-0 flex-9/10"
-              placeholder={
-                remainingGen <= 0
-                  ? "그림체를 변환하기 위해 구매가 필요해요"
-                  : `앞으로 ${remainingGen}번 그림체 변환 가능합니다!`
-              }
-              value={inputText}
-              disabled={true}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={textInputKeydownCheck}
-            />
-            <label className="flex-1/10 flex justify-center cursor-pointer">
+        <div className={inputarea_classname}>
+          {inputImage && (
+            <div className="pb-2 px-4">
+              <ImageList
+                items={[inputImage]}
+                max={1}
+                mode={"ONLY-ONE"}
+                onDelete={onDeleteImageList}
+              />
+            </div>
+          )}
+          <div className="flex flex-row h-12 bg-white gap-2 px-2">
+            <label className="flex flex-1/10 justify-center cursor-pointer">
               <Image
                 src="/gallery-add.svg"
                 alt="Select image"
-                width={36}
-                height={36}
+                width={32}
+                height={32}
               />
               <input
                 type="file"
@@ -489,6 +475,26 @@ const Chat = ({ artId }: { artId: number }) => {
                 }}
               />
             </label>
+            <input
+              className="w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md"
+              placeholder={
+                remainingGen <= 0
+                  ? "그림체를 변환하기 위해 구매가 필요해요"
+                  : `앞으로 ${remainingGen}번 그림체 변환 가능합니다!`
+              }
+              value={inputText}
+              // disabled={true}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={textInputKeydownCheck}
+            />
+            <button className="cursor-pointer" onClick={onClickMsgSendBtn}>
+              <Image
+                src="/send-button.svg"
+                width="36"
+                height="36"
+                alt="보내기"
+              />
+            </button>
           </div>
         </div>
       </div>
