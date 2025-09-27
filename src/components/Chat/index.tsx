@@ -1,6 +1,6 @@
 "use client";
 import { APIFailureMsg } from "@/APIs";
-import getAiUrl from "@/APIs/ai/images/requests/get-url";
+import getAiUrl from "@/APIs/ai/image-permissions/images/requests/get-url";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
@@ -9,7 +9,7 @@ import useRemainGens from "@/hooks/UseRemainGens";
 import { Art, ImageType } from "@/types/Art";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import useSWR, { SWRResponse, useSWRConfig } from "swr";
+import { SWRResponse, useSWRConfig } from "swr";
 import ClickableImage from "../ClickableImage";
 import Confirm from "../Popups/Confirm";
 import buyPermissionWithCoin from "@/APIs/ai/image-permissions/buy-with-coin";
@@ -20,7 +20,7 @@ import { fetchEventSource } from "@microsoft/fetch-event-source";
 import ImageList from "../ImageList";
 
 // 임시로 로딩 메시지 판별의 기준
-const NOW_LOADING_MSG = "이미지 생성중...";
+const NOW_LOADING_MSG = "응답 대기중 ..";
 
 type ChatType = {
   type: 0 | 1; // 0: opponent, 1: me
@@ -39,94 +39,42 @@ const Chat = ({ artId }: { artId: number }) => {
   } catch (e) {
     console.error(`artId: ${artId}를 Number 형으로 변환하지 못하였습니다.`);
   }
-  // Component UI state
-  const [isUIInitialized, setInit] = useState<boolean>(false);
-  const {
-    data: art,
-    error,
-    isLoading,
-  }: SWRResponse<Art, Error> = useArt(safeArtId);
-
   /**
    * UI states
    */
-  const [chatDisabled, setChatDisabled] = useState<boolean>(true); // For disable input text
-  // Popup window that failed to buy permissions
-  // const [showConfirmWindow, setShowConfirmWindow] = useState<boolean>(false); // Confirm window
+  // Component initialized state
+  const [isUIInitialized, setInit] = useState<boolean>(false);
+  // Current art state
+  const { data: art }: SWRResponse<Art, Error> = useArt(safeArtId);
+  // Disable input text UI state
+  const [chatDisabled, setChatDisabled] = useState<boolean>(false); // For disable input text
+  // Popup window that buy permissions
   const [showBuyWindow, setShowBuyWindow] = useState<boolean>(false); // Confirm window
+  // Popup window that failed to buy permissions
   const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false); // Fail window
   const [buyFailTitle, setBuyFailTitle] = useState<string>(""); // Fail window
-  // // Confirm AI request state
-  // const [confirmState, setConfirmState] = useState<boolean>(false);
   // Chat stack states
   const [chatStack, setChatStack] = useState<Array<ChatType>>([]);
   // Remain generations of posts
-  const {
-    data: remainingGen,
-    error: errorRemainingGen,
-    isLoading: isLoadingRemainingGen,
-  } = useRemainGens(Number(safeArtId));
+  const { data: remainingGen } = useRemainGens(Number(safeArtId));
   // Coins of account
-  const { data: coins, error: error_coins } = UseCoins();
+  const { data: coins } = UseCoins();
+  /**
+   * [Compoent using state]
+   * For managing callback works at two cases
+   * - Image upload: Uploads image and staging image (no sent)
+   * - Message sent: send message with staged images
+   * if this state true, then run `Image upload` case
+   * false, run `Message sent` case
+   * this state controlled when no-permissions state
+   */
+  const [buyPermCallbackState, setBuyPermCBState] = useState<boolean>(false);
 
+  // Mutate SWR state
   const { mutate } = useSWRConfig();
 
   // Refs
   const chatRef = useRef<HTMLDivElement>(null);
-
-  // For pooling
-  const [aiRequestId, setAiRequestId] = useState<string>("");
-  // const {
-  //   data: aiStatusResponse,
-  //   error: error_aiStatus,
-  //   isLoading: isLoading_aiStatus,
-  // } = useSWR(
-  //   aiRequestId
-  //     ? [
-  //         `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${artId}/chat/sse/${aiRequestId}`,
-  //         // `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/requests/${aiRequestId}/status`, // deprecated
-  //         aiRequestId,
-  //       ]
-  //     : null,
-  //   ([url, requestId]: [string, string]) => {
-  //     return requestId
-  //       ? _fetch(url, true).then(async (response) => response.json())
-  //       : null;
-  //   },
-  //   {
-  //     refreshInterval: 1000,
-  //     onSuccess: (data) => {
-  //       console.log("data :>> ", data);
-  //       if (data && data.data.status === "DONE") {
-  //         getAiGeneratedImage(aiRequestId);
-  //         setAiRequestId("");
-  //       }
-  //     },
-  //     onError: (err) => {
-  //       console.log("err :>> ", err);
-  //     },
-  //   }
-  // );
-
-  // [DEPRECATED] // Stop pooling when aiStatus === "DONE"
-  // useEffect(() => {
-  //   if (aiStatusResponse && aiStatusResponse.data.status === "DONE") {
-  //     getAiGeneratedImage(aiRequestId);
-  //     setAiRequestId("");
-  //   }
-  // }, [aiStatusResponse, aiRequestId]);
-
-  const getAiGeneratedImage = async (requestId: string) => {
-    const imageUrl: string | APIFailureMsg = await getAiUrl(requestId);
-    setChatStack((prev) => [
-      ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
-      {
-        type: 0 as 0,
-        // text: "요청하신 이미지를 그림체기반으로 재생성하였습니다.",
-        image: { imageUrl },
-      } as ChatType,
-    ]);
-  };
 
   // Form data
   const [inputText, setInputText] = useState<string>("");
@@ -142,15 +90,14 @@ const Chat = ({ artId }: { artId: number }) => {
     if (inputText.trim() === "") {
       return;
     }
+    // console.log("e :>> ", e);
+    // console.log("inputText :>> ", inputText);
+    if (e.nativeEvent.isComposing) {
+      // console.log("composing disable");
+      return;
+    }
     if (e.key === "Enter") {
       sendMsg();
-      // setChatStack((prev) => [
-      //   ...prev,
-      //   { type: 1, text: inputText, image: inputImage || undefined },
-      // ]);
-      // setInputText("");
-      // setInputImage(null);
-      // // setChatDisabled(true);
     }
   };
 
@@ -161,8 +108,13 @@ const Chat = ({ artId }: { artId: number }) => {
     // On success
     if (typeof response === "boolean" && response) {
       mutate([`remaining-generations`, art?.postId]);
-      // inputFile && readFileAndSetImage(inputFile); // read file and run the process
+      if (buyPermCallbackState) {
+        UploadCurrentImage();
+        return;
+      }
+      sendMsg();
       return;
+      // inputFile && readFileAndSetImage(inputFile); // read file and run the process
     }
     const { title } = response;
     setShowBuyFailWindow(true);
@@ -171,6 +123,7 @@ const Chat = ({ artId }: { artId: number }) => {
 
   // on-click event on message send button
   const onClickMsgSendBtn = (e) => {
+    console.log("onClickMsgSendBtn");
     sendMsg();
   };
 
@@ -178,6 +131,10 @@ const Chat = ({ artId }: { artId: number }) => {
    * Methods
    */
   const sendMsg = async () => {
+    if (!remainingGen || remainingGen <= 0) {
+      setShowBuyWindow(true);
+      return;
+    }
     if (!inputImage && !inputText) return;
     setChatStack((prev) => [
       ...prev,
@@ -205,10 +162,9 @@ const Chat = ({ artId }: { artId: number }) => {
         } as ChatType,
       ]);
     }
-    // Starts pooling
+    // Assign SSE
     if (status === 200) {
       const { requestId } = data;
-      // setAiRequestId(requestId);
       const token = localStorage.getItem("accessToken");
       await fetchEventSource(
         `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${artId}/chat/sse/${requestId}`,
@@ -229,6 +185,7 @@ const Chat = ({ artId }: { artId: number }) => {
                 // image: imageUrl,
               } as ChatType,
             ]);
+            setChatDisabled(false);
           },
         }
       );
@@ -242,12 +199,10 @@ const Chat = ({ artId }: { artId: number }) => {
   const chatScrollToEnd = () => {
     const { current } = chatRef;
     if (current) {
-      setTimeout(() => {
-        current.scrollTo({
-          top: current.scrollHeight,
-          behavior: "smooth",
-        });
-      }, 200);
+      current.scrollTo({
+        top: current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -257,9 +212,20 @@ const Chat = ({ artId }: { artId: number }) => {
   // Scroll to end when chat stack changed
   useEffect(() => {
     if (chatStack) {
-      chatScrollToEnd();
+      setTimeout(() => {
+        chatScrollToEnd();
+      }, 400);
     }
   }, [chatStack]);
+
+  /**
+   * Managing callback state
+   */
+  useEffect(() => {
+    if ((inputFile && !remainingGen) || remainingGen <= 0) {
+      setBuyPermCBState(true);
+    }
+  }, [inputFile]);
 
   // Initialize UI
   useEffect(() => {
@@ -286,9 +252,13 @@ const Chat = ({ artId }: { artId: number }) => {
       return;
     }
     if (inputFile) {
-      UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
+      UploadCurrentImage();
     }
   }, [inputFile]);
+  // Uploads current selected image
+  const UploadCurrentImage = () => {
+    inputFile && UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
+  };
 
   const imageOnUpload = async (r, e) => {
     if (e) {
@@ -301,6 +271,8 @@ const Chat = ({ artId }: { artId: number }) => {
       imageUrl,
       imageId,
     });
+    // initialize callback state
+    setBuyPermCBState(false);
   };
 
   // For ImageList component
@@ -335,7 +307,10 @@ const Chat = ({ artId }: { artId: number }) => {
             title={`코인 ${art?.nonCommercialPrice}개로 그림체 변환 20번을 구매 하시겠습니까?`}
             desc={`현재 보유한 코인: ${coins}개`}
             onConfirm={onClickBuy}
-            onCancel={() => setShowBuyWindow(false)}
+            onCancel={() => {
+              setShowBuyWindow(false);
+              setInputFile(null); // also cancel input files
+            }}
           />
         )}
 
@@ -426,24 +401,27 @@ const Chat = ({ artId }: { artId: number }) => {
               </div>
             </div>
           ) : (
-            <div key={index} className="me flex justify-end gap-2 mb-4">
-              <div className="chat-area">
-                {chat.image && (
-                  <ClickableImage
-                    src={chat.image.imageUrl}
-                    alt="origin_image"
-                    // layout="intrinsic"
-                    width={240}
-                    height={180}
-                    className="mb-4 shadow-lg rounded-2xl cursor-grab"
-                  />
-                )}
-                {chat.text && (
-                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-bl-none">
-                    {chat.text}
-                  </p>
-                )}
-              </div>
+            <div
+              key={index}
+              className="me flex flex-col justify-end mb-4 items-end"
+            >
+              {/* <div className="chat-area text-right"> */}
+              {chat.image && (
+                <ClickableImage
+                  src={chat.image.imageUrl}
+                  alt="origin_image"
+                  // layout="intrinsic"
+                  width={240}
+                  height={180}
+                  className="mb-4 shadow-lg rounded-2xl cursor-grab"
+                />
+              )}
+              {chat.text && (
+                <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-br-none">
+                  {chat.text}
+                </p>
+              )}
+              {/* </div> */}
             </div>
           )
         )}
@@ -483,13 +461,17 @@ const Chat = ({ artId }: { artId: number }) => {
                   : `앞으로 ${remainingGen}번 그림체 변환 가능합니다!`
               }
               value={inputText}
-              // disabled={true}
+              disabled={chatDisabled}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={textInputKeydownCheck}
             />
             <button className="cursor-pointer" onClick={onClickMsgSendBtn}>
               <Image
-                src="/send-button.svg"
+                src={
+                  inputText.trim() !== "" || inputImage
+                    ? "/send-primary.svg"
+                    : "/send-button.svg"
+                }
                 width="36"
                 height="36"
                 alt="보내기"
