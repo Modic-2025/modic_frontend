@@ -34,7 +34,7 @@ type ArtRegistrationFormProps = {
 const ArtRegistrationForm = ({
   art,
   confirmText,
-  isDerived,
+  isDerived = false,
 }: ArtRegistrationFormProps) => {
   const router = useRouter();
 
@@ -77,7 +77,6 @@ const ArtRegistrationForm = ({
 
     // Confirmation of no-cost post
     if (!comCost && !nonComCost) if (!confirm(TEXT_COST_FREE)) return;
-    console.log("isDerived :>> ", isDerived);
     // Create derived post case
     if (isDerived) {
       // Derived post cannot set
@@ -98,9 +97,11 @@ const ArtRegistrationForm = ({
 
       const { code } = response;
       switch (code) {
-        case 403:
+        case 403: // no access to ai created image
+          alert("해당 AI 이미지에 대한 권한이 없습니다.");
           break;
-        case 404:
+        case 404: // cannot find ai created image
+          alert("해당 AI 이미지를 찾을 수 없습니다.");
           break;
         default:
       }
@@ -114,13 +115,13 @@ const ArtRegistrationForm = ({
       description: description,
       commercialPrice: comCost || 0,
       nonCommercialPrice: nonComCost || 0,
-      imageIds: imageUrls.map((item) => item.imageId),
+      imageIds: imageUrls.map((item) => String(item.imageId)),
       // FOR DEVELOP
       ticketPrice: 10,
     };
 
     const requestUrl = art
-      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art.id}`
+      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art.postId}`
       : `${process.env.NEXT_PUBLIC_API_HOST}/api/posts`;
     fetch(requestUrl, {
       method: art ? "PUT" : "POST",
@@ -181,10 +182,18 @@ const ArtRegistrationForm = ({
       } else setNonComCost(value);
     }
   };
+
+  // only-one image allowed in regist derived post
+  const imageListMode = isDerived ? "ONLY-ONE" : "EDIT";
+
   return (
     <>
       {/* 이미지 업로드 영역 */}
-      <ImageList items={imageUrls} onChange={onChangeImages} />
+      <ImageList
+        items={imageUrls}
+        mode={imageListMode}
+        onChange={onChangeImages}
+      />
 
       {/* 제목 입력란 */}
       <div className="mt-6">

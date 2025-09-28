@@ -4,7 +4,7 @@ import _fetch from "@/APIs/fetcher/ClientSide";
 const CREATE_DERIVED_POST_403 = "해당 이미지에 대한 권한이 없습니다.";
 const CREATE_DERIVED_POST_404 = "해당 이미지를 찾을 수 없습니다.";
 export const createDerivedPost = async (
-  aiImageId: number,
+  createdAiImageId: number,
   title: string,
   description: string,
   commercialPrice: number,
@@ -17,7 +17,7 @@ export const createDerivedPost = async (
       true,
       {
         body: JSON.stringify({
-          createdAiImageId: aiImageId,
+          createdAiImageId,
           title,
           description,
           commercialPrice,
@@ -28,7 +28,6 @@ export const createDerivedPost = async (
       }
     )
   ).json();
-  console.log("response :>> ", response);
 
   const { status, isSuccess } = response;
 
@@ -55,6 +54,5 @@ export const createDerivedPost = async (
 
   // Success
   let { postId } = response.data;
-  console.log("postId :>> ", postId);
   return postId;
 };
