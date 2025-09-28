@@ -2,11 +2,12 @@ export type ImageType = { imageUrl: string; imageId: number };
 
 export interface Art_thumbnail {
   postId: number;
-  images: Array<ImageType>;
+  title: string;
+  images: ImageType[];
+  likeCount: number;
 }
 
 export interface Art extends Art_thumbnail {
-  title: string;
   description: string;
   commercialPrice: number;
   nonCommercialPrice: number;
