@@ -7,7 +7,6 @@ import Link from "next/link";
 
 const MyPage = async () => {
   const cookieStore = await cookies();
-  const jwt = cookieStore.get("accessToken")?.value || "";
 
   const user = await getUserMe();
   if (!user) {
