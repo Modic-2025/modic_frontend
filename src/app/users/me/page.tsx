@@ -9,7 +9,7 @@ const MyPage = async () => {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("accessToken")?.value || "";
 
-  const user = await getUserMe(jwt);
+  const user = await getUserMe();
   if (!user) {
     return (
       <>

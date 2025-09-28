@@ -35,7 +35,11 @@ const UploadImage = async (
     case "POST":
       pathByType = "posts";
       break;
-    case "AI":
+    case "AI_REQUEST":
+      if (!postId) {
+        console.log("stuck!!");
+        return false;
+      } // AI purpose upload는 postId parameter가 필요합니다.
       pathByType = "ai";
       break;
     default:

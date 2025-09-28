@@ -8,11 +8,7 @@ const NO_FOOTER_PATHS = ["/art/ai/[art_id]"];
 
 const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
   const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value;
-  let user = null;
-  if (token) {
-    user = await getUserMe(token);
-  }
+  let user = await getUserMe();
   return (
     <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
       <Header user={user} />

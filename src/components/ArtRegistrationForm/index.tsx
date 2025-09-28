@@ -4,11 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import ImageList from "../ImageList";
 import { useRouter } from "next/navigation";
-import Confirm from "../Popups/Confirm";
-import FormInput from "../Inputs/FormInput";
 import InputSet from "../Inputs/InputSet";
+import { createDerivedPost } from "@/APIs/ai/derived-posts";
+import { APIFailureMsg } from "@/APIs";
 
-const MAX_IMAGE_NUM = 8;
 const MAX_TITLE_NUM = 20;
 const MAX_DESCRIPTION_LENGTH = 800;
 const TEXT_IMAGE_RESTRICTION = `최소 1개 이상의 그림을 등록해주세요.`;
@@ -29,11 +28,13 @@ type CreatePostPayload = {
 type ArtRegistrationFormProps = {
   art?: Art;
   confirmText?: string;
+  isDerived?: boolean;
 };
 
 const ArtRegistrationForm = ({
   art,
   confirmText,
+  isDerived = false,
 }: ArtRegistrationFormProps) => {
   const router = useRouter();
 
@@ -50,7 +51,7 @@ const ArtRegistrationForm = ({
     art?.description || ""
   );
   const [descriptionLength, setDescriptionLength] = useState<number>(
-    art?.description.length || 0
+    art?.description?.length || 0
   );
 
   const onChangeDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -60,7 +61,7 @@ const ArtRegistrationForm = ({
     setDescriptionLength(value.length);
   };
 
-  const onClickCreatePost = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onClickCreatePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (imageUrls.length < 1) {
       alert(TEXT_IMAGE_RESTRICTION);
       return;
@@ -73,20 +74,54 @@ const ArtRegistrationForm = ({
       alert(TEXT_DESC_RESTRICTION);
       return;
     }
-    if (!comCost && !nonComCost) if (!confirm(TEXT_COST_FREE)) return;
 
+    // Confirmation of no-cost post
+    if (!comCost && !nonComCost) if (!confirm(TEXT_COST_FREE)) return;
+    // Create derived post case
+    if (isDerived) {
+      // Derived post cannot set
+      const response: Number | APIFailureMsg = await createDerivedPost(
+        imageUrls[0].imageId,
+        title,
+        description,
+        comCost || 0,
+        nonComCost || 0,
+        10
+      );
+
+      // Success
+      if (typeof response === "number") {
+        router.push(`/art/${response}`);
+        return;
+      }
+
+      const { code } = response;
+      switch (code) {
+        case 403: // no access to ai created image
+          alert("해당 AI 이미지에 대한 권한이 없습니다.");
+          break;
+        case 404: // cannot find ai created image
+          alert("해당 AI 이미지를 찾을 수 없습니다.");
+          break;
+        default:
+      }
+
+      return;
+    }
+
+    // Create/Editing original post
     const payload: CreatePostPayload = {
       title: title,
       description: description,
       commercialPrice: comCost || 0,
       nonCommercialPrice: nonComCost || 0,
-      imageIds: imageUrls.map((item) => item.imageId),
+      imageIds: imageUrls.map((item) => String(item.imageId)),
       // FOR DEVELOP
       ticketPrice: 10,
     };
 
     const requestUrl = art
-      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art.id}`
+      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art.postId}`
       : `${process.env.NEXT_PUBLIC_API_HOST}/api/posts`;
     fetch(requestUrl, {
       method: art ? "PUT" : "POST",
@@ -148,12 +183,15 @@ const ArtRegistrationForm = ({
     }
   };
 
+  // only-one image allowed in regist derived post
+  const imageListMode = isDerived ? "ONLY-ONE" : "EDIT";
+
   return (
     <>
       {/* 이미지 업로드 영역 */}
       <ImageList
         items={imageUrls}
-        enableEdit={true}
+        mode={imageListMode}
         onChange={onChangeImages}
       />
 
