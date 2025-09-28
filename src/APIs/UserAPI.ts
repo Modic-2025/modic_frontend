@@ -1,17 +1,13 @@
 import { User, UserMe } from "@/types/User";
-import _fetch from "./fetcher/ServerSide";
 
-export const getUserMe = async (token: string): Promise<UserMe | null> => {
-  if (!token) {
-    // cancel request
-    return null;
-  }
+import serverFetch from "./fetcher/ServerSide";
+
+export const getUserMe = async (): Promise<UserMe | null> => {
   const res = await (
-    await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    await serverFetch(
+      `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me`,
+      true
+    )
   ).json();
 
   const { isSuccess, status, data } = res;
@@ -25,8 +21,7 @@ export const getUserMe = async (token: string): Promise<UserMe | null> => {
     // throw new Error("Failed to load user info");
   }
 
-  const user = data;
-  return user;
+  return data;
 };
 
 export const getUser = async (userId: string): Promise<User | null> => {

@@ -31,11 +31,9 @@ const GetGeneratedImages = async (
     true
   );
   if (!response.ok) {
-    console.log("error:>> ", response);
     throw new Error(`Failed to fetch generated images ${response.status}`);
   }
 
-  console.log("response :>> ", response);
   const body = await response.json();
   const { status, data } = body;
   if (status === 400) {

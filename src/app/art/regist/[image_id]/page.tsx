@@ -8,8 +8,6 @@ const Page = async ({
   params: { image_id: number };
   searchParams: { imageUrl: string };
 }) => {
-  console.log("params :>> ", await params);
-  console.log("searchParams :>> ", await searchParams);
   const { image_id } = await params;
   const { imageUrl } = await searchParams;
   const safeImageUrl = decodeURIComponent(imageUrl);
