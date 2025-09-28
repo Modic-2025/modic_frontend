@@ -1,4 +1,4 @@
-import { Art_thumbnail, Art, Art_thumbnail_profiles } from "@/types/Art";
+import { Art_thumbnail } from "@/types/Art";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,14 +6,13 @@ const ArtCard = ({
   data,
   onClick,
 }: {
-  data: Art | Art_thumbnail | Art_thumbnail_profiles;
-  onClick?: (art: Art | Art_thumbnail | Art_thumbnail_profiles) => void; // for display detail popups
+  data: Art_thumbnail;
+  onClick?: (art: Art_thumbnail) => void; // for display detail popups
 }) => {
   const isWrapImage = Boolean(!onClick);
 
-  const { postId, images, imageUrl } = data;
-  const safeThumbnailUrl =
-    images && images.length > 0 ? images[0].imageUrl : imageUrl;
+  const { postId, images } = data;
+  const safeThumbnailUrl = images[0].imageUrl;
 
   // on click card
   const onClickCard = (e) => {

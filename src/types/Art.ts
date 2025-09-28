@@ -1,5 +1,10 @@
 export type ImageType = { imageUrl: string; imageId: number };
 
+export interface DerivedPost {
+  postId: number;
+  imageUrl: string;
+}
+
 export interface Art_thumbnail {
   postId: number;
   title: string;
@@ -18,11 +23,5 @@ export interface Art extends Art_thumbnail {
   likeCount: number;
   isLikedByCurrentUser: boolean;
   isAiDerivedPost: boolean;
-  derivedPosts: Art_thumbnail_profiles[];
-}
-
-// /api/profiles 컨트롤러에서 반환하는 post 객체 (임시)
-export interface Art_thumbnail_profiles {
-  postId: number;
-  imageUrl: string;
+  derivedPosts: DerivedPost[];
 }
