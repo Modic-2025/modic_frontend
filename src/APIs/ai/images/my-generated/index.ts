@@ -31,7 +31,11 @@ const GetGeneratedImages = async (
     true
   );
   if (!response.ok) {
-    throw new Error(`Failed to fetch generated images ${response.status}`);
+    return {
+      code: response.status,
+      title: `생성된 이미지를 가져오지 못했습니다. (${response.status})`,
+    };
+    // throw new Error(`Failed to fetch generated images ${response.status}`);
   }
 
   const body = await response.json();

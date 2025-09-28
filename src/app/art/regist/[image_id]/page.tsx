@@ -17,7 +17,7 @@ const Page = async ({
     imageUrl: safeImageUrl,
   };
 
-  const art: Art = {
+  const art: Partial<Art> = {
     images: [derivedImage],
   };
 
