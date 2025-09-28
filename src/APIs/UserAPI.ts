@@ -1,4 +1,5 @@
 import { User, UserMe } from "@/types/User";
+
 import serverFetch from "./fetcher/ServerSide";
 
 export const getUserMe = async (): Promise<UserMe | null> => {
@@ -19,6 +20,7 @@ export const getUserMe = async (): Promise<UserMe | null> => {
     }
     // throw new Error("Failed to load user info");
   }
+
   return data;
 };
 

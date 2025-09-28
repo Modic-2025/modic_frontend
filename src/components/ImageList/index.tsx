@@ -24,19 +24,43 @@ import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 
 const DEFAULT_MAX_IMAGES = 8;
 
+// READ-ONLY: Only reads
+// EDIT: Full editable mode
+// ONLY-ONE: Appends independently, and only one image
+type Mode = "READ-ONLY" | "EDIT" | "ONLY-ONE";
+
 type ImageListProps = enableEditType & {
   items?: ImageType[]; // for init
   max?: number;
   onChange?: (images: ImageType[]) => void;
+  onDelete?: (id: number) => void;
 };
 
+/**
+ * ImageList
+ * mode: "ONLY-ONE"
+ * - component works as a presentational component, fetch & sync items from parent component
+ */
 const ImageList = ({
   items,
-  enableEdit,
+  mode = "READ-ONLY",
   max = DEFAULT_MAX_IMAGES,
   onChange,
+  onDelete,
 }: ImageListProps) => {
   const [images, setImages] = useState<ImageType[]>(items || []);
+
+  // Flags
+  const editMode = mode === "EDIT";
+  const readonlyMode = mode === "READ-ONLY";
+  const onlyoneMode = mode === "ONLY-ONE";
+
+  // Only fetch in mode === "ONLY-ONE"
+  useEffect(() => {
+    if (mode === "ONLY-ONE" && items) {
+      setImages(items);
+    }
+  }, [items]);
 
   // Trigging onChange callback
   useEffect(() => {
@@ -109,24 +133,31 @@ const ImageList = ({
     }
   };
 
-  const onDelete = (id: number) => () => {
+  // On delete Cell
+  const _onDelete = (id: number) => () => {
+    if (onlyoneMode && onDelete) {
+      // ONLY-ONE
+      onDelete(id);
+      return;
+    }
     setImages((prev) => prev.filter((item) => Number(item.imageId) !== id));
   };
 
-  // Render as read-only
-  if (!enableEdit) {
+  // Render as read-only mode
+  if (readonlyMode) {
     return (
       <CellWrapper
         images={images}
         onChangeImage={onChangeImage}
         max={max}
-        enableEdit={enableEdit}
+        mode={mode}
       />
     );
   }
 
-  return (
-    <>
+  // Render as only-one, append independently mode
+  if (onlyoneMode) {
+    return (
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -139,14 +170,37 @@ const ImageList = ({
         >
           <CellWrapper
             images={images}
-            max={max}
-            enableEdit={enableEdit}
             onChangeImage={onChangeImage}
-            onDelete={onDelete}
+            max={max}
+            mode={mode}
+            onDelete={_onDelete}
           />
         </SortableContext>
       </DndContext>
-    </>
+    );
+  }
+
+  // Render as full-edit mode
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+      modifiers={[restrictToHorizontalAxis]}
+    >
+      <SortableContext
+        items={images.map((item) => Number(item.imageId))}
+        strategy={horizontalListSortingStrategy}
+      >
+        <CellWrapper
+          images={images}
+          onChangeImage={onChangeImage}
+          max={max}
+          mode={mode}
+          onDelete={_onDelete}
+        />
+      </SortableContext>
+    </DndContext>
   );
 };
 
@@ -160,14 +214,18 @@ const CellWrapper = ({
   images,
   onChangeImage,
   max,
-  enableEdit,
+  mode,
   onDelete,
 }: CellWrapperProps) => {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  // Rendering image upload button when "EDIT" mode
+  const isRenderUploadCell = mode === "EDIT";
+  const isOnlyoneMode = mode === "ONLY-ONE";
+
   return (
     <div className="w-full h-[90px] overflow-x-auto pt-[9px] flex">
-      {enableEdit && (
+      {isRenderUploadCell && (
         <Cell key={0} id={0}>
           <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
             <CameraIcon />
@@ -187,7 +245,7 @@ const CellWrapper = ({
         <Cell
           key={imageId}
           id={Number(imageId)}
-          enableEdit={enableEdit}
+          isEdit={isRenderUploadCell || isOnlyoneMode}
           onDelete={onDelete}
         >
           <Image
@@ -210,8 +268,9 @@ type CellProps = enableEditType &
   onDeleteType & {
     id: number;
     children: React.ReactNode;
+    isEdit: boolean;
   };
-const Cell = ({ id, children, enableEdit, onDelete }: CellProps) => {
+const Cell = ({ id, children, isEdit, onDelete }: CellProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: id });
 
@@ -227,7 +286,7 @@ const Cell = ({ id, children, enableEdit, onDelete }: CellProps) => {
       {...attributes}
       className="relative inline-flex w-[80px] h-[80px] flex-col items-center justify-center rounded-lg content-center text-center bg-gray-200 cursor-pointer flex-shrink-0 flex-grow-0 mr-3"
     >
-      {enableEdit && (
+      {isEdit && (
         <Image
           src="/X.svg"
           alt="delete"
@@ -249,7 +308,7 @@ type onDeleteType = {
 
 // common type for components
 type enableEditType = {
-  enableEdit?: boolean;
+  mode?: Mode;
 };
 
 // Icon

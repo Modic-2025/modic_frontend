@@ -24,13 +24,14 @@ type UploadType = "PROFILE" | "AI_REQUEST" | "POST";
 const UploadImage = async (
   file: File,
   callback: (r: [string, string, string], e?: unknown) => void,
-  type: UploadType
+  type: UploadType,
+  postId?: number // For AI purpose upload
 ): Promise<SaveUrlResponse | false> => {
   const { name } = file;
   let pathByType = "";
-  switch (pathByType) {
+  switch (type) {
     case "PROFILE":
-      pathByType = "?";
+      pathByType = "users";
       break;
     case "POST":
       pathByType = "posts";
@@ -80,8 +81,11 @@ const UploadImage = async (
     console.error("Error on callback API");
     return false;
   }
+
+  const queryParamsOfCallback = new URLSearchParams();
+  queryParamsOfCallback.append("postId", String(postId));
   const res_callback = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/${pathByType}/images/save-url/callback`,
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/${pathByType}/images/save-url/callback?${queryParamsOfCallback.toString()}`,
     {
       method: "POST",
       headers: {

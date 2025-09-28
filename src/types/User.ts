@@ -19,4 +19,10 @@ export type UserMe = {
   userId: number;
   userEmail: string;
   userName: string;
+  hasUserImage: boolean;
+  userImageUrl: string;
+  postCount: number;
+  followerCount: number;
+  followingCount: number;
+  coin: number;
 };
