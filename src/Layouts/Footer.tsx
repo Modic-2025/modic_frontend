@@ -2,14 +2,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { convertToRoutePattern } from ".";
 
 // Footer 메뉴들의 constants
 const MENUS = {
   HOME: "home",
+  VOTE: "vote",
   MESSAGE: "message",
-  CREATE_ART: "create_art",
+  // CREATE_ART: "create_art",
   NOTIFICATION: "notification",
   PROFILE: "profile",
 } as const;
@@ -33,13 +34,21 @@ const NAV_BUTTONS: Array<NavButtonType> = [
     selectedIcon: "/IconMessageSelected.svg",
   },
   {
-    value: MENUS.CREATE_ART,
-    href: "/art/regist",
-    alt: "그림체 등록",
+    value: MENUS.VOTE,
+    href: "/vote",
+    alt: "티켓 파밍하기",
     selected: false,
-    icon: "/IconCreateArt.svg",
-    selectedIcon: "/IconCreateArt.svg",
+    icon: "/vote.svg",
+    selectedIcon: "/vote_selected.svg",
   },
+  // {
+  //   value: MENUS.CREATE_ART,
+  //   href: "/art/regist",
+  //   alt: "그림체 등록",
+  //   selected: false,
+  //   icon: "/IconCreateArt.svg",
+  //   selectedIcon: "/IconCreateArt.svg",
+  // },
   {
     value: MENUS.NOTIFICATION,
     href: "/notifications",
@@ -58,12 +67,40 @@ const NAV_BUTTONS: Array<NavButtonType> = [
   },
 ];
 
+const findHrefByNAV_BUTTONS = (value: MenuType) => {
+  return NAV_BUTTONS.find((item) => item.value === value)?.href;
+};
+const matchPathnameToTab = (pathname: string) => {
+  switch (pathname) {
+    case findHrefByNAV_BUTTONS(MENUS.HOME):
+      return MENUS.HOME;
+    case findHrefByNAV_BUTTONS(MENUS.VOTE):
+      return MENUS.VOTE;
+    case findHrefByNAV_BUTTONS(MENUS.MESSAGE):
+      return MENUS.MESSAGE;
+    case findHrefByNAV_BUTTONS(MENUS.NOTIFICATION):
+      return MENUS.NOTIFICATION;
+    case findHrefByNAV_BUTTONS(MENUS.PROFILE):
+      return MENUS.PROFILE;
+    default:
+      return MENUS.HOME;
+  }
+};
+
 // excepts: 랜더링 하지 않을 경로를 지정합니다.
 const Footer = ({ excepts }: { excepts: string[] }) => {
-  const [selectedTab, setSelectedTab] = useState<MenuType>(MENUS.HOME);
+  const pathname = usePathname();
+
+  const [selectedTab, setSelectedTab] = useState<MenuType>(
+    matchPathnameToTab(pathname)
+  );
   const [navButtons, setNavButtons] =
     useState<Array<NavButtonType>>(NAV_BUTTONS);
-  const pathname = usePathname();
+
+  // Update `selectedTab` by current pathname
+  useEffect(() => {
+    setSelectedTab(matchPathnameToTab(pathname));
+  }, [pathname]);
 
   if (
     excepts &&

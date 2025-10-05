@@ -173,13 +173,13 @@ const Chat = ({ artId }: { artId: number }) => {
             console.log("e :>> ", e);
             const { data } = e;
             console.log("data :>> ", data);
-            const { textContent } = await JSON.parse(data);
+            const { textContent, imageUrl } = await JSON.parse(data);
             setChatStack((prev) => [
               ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
               {
                 type: 0 as 0,
                 text: textContent,
-                // image: imageUrl,
+                image: { imageUrl },
               } as ChatType,
             ]);
             setChatDisabled(false);
