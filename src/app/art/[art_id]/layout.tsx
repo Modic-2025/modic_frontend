@@ -42,6 +42,7 @@ const layout = async ({
       href: `/art/${artData.postId}/qnas`,
     },
   ];
+  console.log("artData :>> ", artData);
 
   return (
     <>

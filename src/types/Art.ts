@@ -13,15 +13,21 @@ export interface Art_thumbnail {
 }
 
 export interface Art extends Art_thumbnail {
+  userName: string;
+  hasUserImage: boolean;
+  userImageUrl: string;
+  userEmail: string;
+  userId: number;
   description: string;
   commercialPrice: number;
   nonCommercialPrice: number;
-  userId: number;
-  userName: string;
-  userEmail: string;
-  tags: Array<string>;
-  likeCount: number;
+  ticketPrice: number;
+  postStatus:
+    | "ORIGINAL"
+    | "DERIVED_PENDING"
+    | "DERIVED_APPROVED"
+    | "DERIVED_REJECTED";
+
   isLikedByCurrentUser: boolean;
-  isAiDerivedPost: boolean;
   derivedPosts: DerivedPost[];
 }
