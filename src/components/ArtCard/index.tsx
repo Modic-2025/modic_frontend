@@ -12,7 +12,7 @@ const ArtCard = ({
   const isWrapImage = Boolean(!onClick);
 
   const { postId, images } = data;
-  const safeThumbnailUrl = images[0].imageUrl;
+  const safeThumbnailUrl = images?.[0]?.imageUrl;
 
   // on click card
   const onClickCard = (e) => {
