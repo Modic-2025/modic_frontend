@@ -1,6 +1,5 @@
 import Slider from "@/components/Slider";
 import MetaData from "./MetaData";
-import { cookies } from "next/headers";
 import { getUserMe } from "@/APIs/UserAPI";
 import Tab, { UITab } from "@/components/Tab";
 import GetArt from "@/APIs/Art/GetArt";
@@ -18,12 +17,13 @@ const layout = async ({
   const data_getPost = await GetArt(art_id);
   const { status } = data_getPost;
   const artData: Art = data_getPost.data;
+  const { userId, postId, postStatus, images } = artData;
   if (status != 200) {
     return <p> SERVER ERROR! ({status}) </p>;
   }
 
   const user = await getUserMe();
-  const isAuthor: boolean = Boolean(user && artData.userId == user.userId);
+  const isAuthor: boolean = Boolean(user && userId == user.userId);
 
   /**
    * UI datas
@@ -31,22 +31,21 @@ const layout = async ({
   const tabs: Array<UITab> = [
     {
       name: "정보",
-      href: `/art/${artData.postId}`,
+      href: `/art/${postId}`,
     },
     {
       name: "후기",
-      href: `/art/${artData.postId}/reviews`,
+      href: `/art/${postId}/reviews`,
     },
     {
       name: "문의",
-      href: `/art/${artData.postId}/qnas`,
+      href: `/art/${postId}/qnas`,
     },
   ];
-  console.log("artData :>> ", artData);
-
+  const isDerivedPost = postStatus.startsWith("DERIVED_");
   return (
     <>
-      <Slider items={artData.images} />
+      <Slider items={images} />
       <div className="flex items-center justify-between gap-1 py-4 border-b border-gray-200">
         <MetaData art={artData} isAuthor={isAuthor} isLogined={Boolean(user)} />
       </div>
@@ -54,7 +53,7 @@ const layout = async ({
       {/* 제목 */}
       <div className="py-3 border-b-4 border-[#F3F4F6]">
         <h1 className="text-base">
-          {artData.isAiDerivedPost && <DerivedArtTag status={"APPROVED"} />}
+          {isDerivedPost && <DerivedArtTag status={postStatus} />}
           {artData.title}
         </h1>
       </div>

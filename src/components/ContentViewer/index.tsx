@@ -78,7 +78,6 @@ const ContentViewer = ({
   useEffect(() => {
     if (!error && data) {
       let { content } = data.data;
-      console.log("content :>> ", content);
       if (content) {
         setArts(content);
       }

@@ -12,6 +12,11 @@ export interface Art_thumbnail {
   likeCount: number;
 }
 
+export type PostStatus =
+  | "ORIGINAL"
+  | "DERIVED_PENDING"
+  | "DERIVED_APPROVED"
+  | "DERIVED_REJECTED";
 export interface Art extends Art_thumbnail {
   userName: string;
   hasUserImage: boolean;
@@ -22,12 +27,7 @@ export interface Art extends Art_thumbnail {
   commercialPrice: number;
   nonCommercialPrice: number;
   ticketPrice: number;
-  postStatus:
-    | "ORIGINAL"
-    | "DERIVED_PENDING"
-    | "DERIVED_APPROVED"
-    | "DERIVED_REJECTED";
-
+  postStatus: PostStatus;
   isLikedByCurrentUser: boolean;
   derivedPosts: DerivedPost[];
 }

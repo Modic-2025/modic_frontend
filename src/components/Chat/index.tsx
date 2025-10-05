@@ -120,7 +120,6 @@ const Chat = ({ artId }: { artId: number }) => {
 
   // on-click event on message send button
   const onClickMsgSendBtn = (e) => {
-    console.log("onClickMsgSendBtn");
     sendMsg();
   };
 
@@ -170,9 +169,7 @@ const Chat = ({ artId }: { artId: number }) => {
             Authorization: `Bearer ${token}`,
           },
           async onmessage(e) {
-            console.log("e :>> ", e);
             const { data } = e;
-            console.log("data :>> ", data);
             const { textContent } = await JSON.parse(data);
             setChatStack((prev) => [
               ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
