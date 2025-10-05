@@ -29,9 +29,6 @@ type ChatType = {
   isLoading?: boolean;
 };
 
-// Pooling state
-type PoolingStates = "PENDING" | "DONE" | "FAILED";
-
 const Chat = ({ artId }: { artId: number }) => {
   let safeArtId: number = -1;
   try {
@@ -123,7 +120,6 @@ const Chat = ({ artId }: { artId: number }) => {
 
   // on-click event on message send button
   const onClickMsgSendBtn = (e) => {
-    console.log("onClickMsgSendBtn");
     sendMsg();
   };
 
@@ -173,9 +169,7 @@ const Chat = ({ artId }: { artId: number }) => {
             Authorization: `Bearer ${token}`,
           },
           async onmessage(e) {
-            console.log("e :>> ", e);
             const { data } = e;
-            console.log("data :>> ", data);
             const { textContent } = await JSON.parse(data);
             setChatStack((prev) => [
               ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
@@ -281,7 +275,7 @@ const Chat = ({ artId }: { artId: number }) => {
   };
 
   // Classnames
-  const inputarea_classname = `fixed bottom-4 inset-x-0 mx-auto max-w-sm ${inputImage ? "h-36" : "h-12"}`;
+  const inputarea_classname = `fixed bottom-0 inset-x-0 mx-auto max-w-sm p-2 pb-0 ${inputImage ? "h-40" : "h-16"}`;
 
   return (
     <>
@@ -428,7 +422,7 @@ const Chat = ({ artId }: { artId: number }) => {
 
         <div className={inputarea_classname}>
           {inputImage && (
-            <div className="pb-2 px-4">
+            <div className="pb-2 px-2">
               <ImageList
                 items={[inputImage]}
                 max={1}
@@ -437,7 +431,7 @@ const Chat = ({ artId }: { artId: number }) => {
               />
             </div>
           )}
-          <div className="flex flex-row h-12 bg-white gap-2 px-2">
+          <div className="flex flex-row h-14 bg-white gap-2 py-2">
             <label className="flex flex-1/10 justify-center cursor-pointer">
               <Image
                 src="/gallery-add.svg"

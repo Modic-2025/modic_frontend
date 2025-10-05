@@ -1,27 +1,33 @@
 export type ImageType = { imageUrl: string; imageId: number };
 
-export interface Art_thumbnail {
+export interface DerivedPost {
   postId: number;
-  images: Array<ImageType>;
+  imageUrl: string;
 }
 
-export interface Art extends Art_thumbnail {
+export interface Art_thumbnail {
+  postId: number;
   title: string;
+  images: [ImageType, ...ImageType[]];
+  likeCount: number;
+}
+
+export type PostStatus =
+  | "ORIGINAL"
+  | "DERIVED_PENDING"
+  | "DERIVED_APPROVED"
+  | "DERIVED_REJECTED";
+export interface Art extends Art_thumbnail {
+  userName: string;
+  hasUserImage: boolean;
+  userImageUrl: string;
+  userEmail: string;
+  userId: number;
   description: string;
   commercialPrice: number;
   nonCommercialPrice: number;
-  userId: number;
-  userName: string;
-  userEmail: string;
-  tags: Array<string>;
-  likeCount: number;
+  ticketPrice: number;
+  postStatus: PostStatus;
   isLikedByCurrentUser: boolean;
-  isAiDerivedPost: boolean;
-  derivedPosts: Art_thumbnail_profiles[];
-}
-
-// /api/profiles 컨트롤러에서 반환하는 post 객체 (임시)
-export interface Art_thumbnail_profiles {
-  postId: number;
-  imageUrl: string;
+  derivedPosts: DerivedPost[];
 }

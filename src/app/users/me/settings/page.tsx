@@ -1,12 +1,9 @@
 import { getUserMe } from "@/APIs/UserAPI";
-import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 
 const Settings = async () => {
-  const _cookies = await cookies();
   const me = await getUserMe();
-
   return (
     <>
       <div className="py-6 mb-4 flex gap-6 border-b border-(--color-gray-4)">

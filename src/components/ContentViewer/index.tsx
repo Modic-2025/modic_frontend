@@ -1,16 +1,15 @@
 "use client";
-import { Art, Art_thumbnail, Art_thumbnail_profiles } from "@/types/Art";
+import { Art_thumbnail } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
 import useArts, { sortType } from "@/APIs/useArts";
-import { getCookie } from "cookies-next";
 import { Popup } from "../Popups";
 import Image from "next/image";
 import PrimaryButton from "../Button/PrimaryButton";
 import Link from "next/link";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
-type artsByGridType = Array<Array<Art_thumbnail | Art_thumbnail_profiles>>;
+type artsByGridType = Array<Array<Art_thumbnail>>;
 
 type tab = {
   value: string;
@@ -32,24 +31,22 @@ const ContentViewer = ({
 }: {
   mode?: "NORMAL" | "POPUP"; // NORMAL: default, POPUP: use in my image gen page
   grid: gridType;
-  arts?: Array<Art_thumbnail | Art_thumbnail_profiles>; // If set `arts`, component do not fetch arts
+  arts?: Array<Art_thumbnail>; // If set `arts`, component do not fetch arts
   showTabs?: boolean;
   userId?: number; // Get arts by user
   me?: boolean; // Get arts by own session
 }) => {
   const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
-  const [arts, setArts] = useState<
-    Array<Art_thumbnail | Art_thumbnail_profiles>
-  >(rest.arts ?? undefined); // prop arts
+  const [arts, setArts] = useState<Array<Art_thumbnail>>(
+    rest.arts ?? undefined
+  ); // prop arts
   const [grid, setGrid] = useState<gridType>(rest.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
 
   // Popup states
   const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [selectedArt, setSelectedArt] = useState<
-    Art | Art_thumbnail | Art_thumbnail_profiles | null
-  >(null);
+  const [selectedArt, setSelectedArt] = useState<Art_thumbnail | null>(null);
 
   const selectedTab = tabs.find((item) => item.selected);
   const { data, error, isLoading } = useArts(
@@ -109,9 +106,7 @@ const ContentViewer = ({
     );
   };
   // On click ArtCard
-  const onClickArtCard = (
-    data: Art | Art_thumbnail | Art_thumbnail_profiles
-  ) => {
+  const onClickArtCard = (data: Art_thumbnail) => {
     setShowPopup(true);
     setSelectedArt(data);
   };
