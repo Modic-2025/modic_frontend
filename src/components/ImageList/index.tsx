@@ -247,6 +247,7 @@ const CellWrapper = ({
           id={Number(imageId)}
           isEdit={isRenderUploadCell || isOnlyoneMode}
           onDelete={onDelete}
+          isThumbnail={!isOnlyoneMode && i === 0}
         >
           <Image
             src={imageUrl}
@@ -269,8 +270,9 @@ type CellProps = enableEditType &
     id: number;
     children: React.ReactNode;
     isEdit: boolean;
+    isThumbnail: boolean;
   };
-const Cell = ({ id, children, isEdit, onDelete }: CellProps) => {
+const Cell = ({ id, children, isEdit, onDelete, isThumbnail }: CellProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: id });
 
@@ -298,6 +300,11 @@ const Cell = ({ id, children, isEdit, onDelete }: CellProps) => {
         />
       )}
       <div {...listeners}>{children}</div>
+      {isThumbnail && isEdit && (
+        <div className="absolute flex justify-center items-center text-center w-full h-full bg-black/20 rounded-xl">
+          <p className="font-bold text-(--color-main)">대표</p>
+        </div>
+      )}
     </div>
   );
 };

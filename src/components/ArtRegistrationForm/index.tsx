@@ -1,4 +1,5 @@
 "use client";
+import MDEditor from "@uiw/react-md-editor";
 import { Art, ImageType } from "@/types/Art";
 import { useState } from "react";
 import Image from "next/image";
@@ -23,6 +24,7 @@ type CreatePostPayload = {
   nonCommercialPrice: number;
   ticketPrice: number;
   imageIds: string[];
+  thumbnailImageId: number;
 };
 
 type ArtRegistrationFormProps = {
@@ -116,6 +118,7 @@ const ArtRegistrationForm = ({
       commercialPrice: comCost || 0,
       nonCommercialPrice: nonComCost || 0,
       imageIds: imageUrls.map((item) => String(item.imageId)),
+      thumbnailImageId: imageUrls[0].imageId,
       // FOR DEVELOP
       ticketPrice: 10,
     };
@@ -255,8 +258,8 @@ const ArtRegistrationForm = ({
       {/* 그림체 소개 */}
       <div className="mt-6">
         <label className="block text-md font-semibold mb-2">설명</label>
-        <div className="relative rounded-lg bg-[#EDEEEF] px-4 py-4 text-sm text-gray-600 flex flex-col min-h-[180px]">
-          <textarea
+        {/* <div className="relative rounded-lg bg-[#EDEEEF] px-4 py-4 text-sm text-gray-600 flex flex-col min-h-[180px]"> */}
+        {/* <textarea
             value={description}
             onChange={onChangeDescription}
             className="h-full resize-none overflow-y-auto min-h-[180px]"
@@ -275,8 +278,14 @@ const ArtRegistrationForm = ({
               "\n" +
               "- 만든 이유나 필요성을 간단히 적어주세요."
             }
-          />
-        </div>
+          /> */}
+        <MDEditor
+          value={description}
+          onChange={(e) => {
+            setDescription(e);
+          }}
+        />
+        {/* </div> */}
         <div className="text-right text-xs text-[--color-gray-4] mt-2">
           {descriptionLength}/{MAX_DESCRIPTION_LENGTH}
         </div>
