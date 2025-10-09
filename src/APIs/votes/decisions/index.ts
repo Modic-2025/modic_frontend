@@ -26,10 +26,6 @@ const VoteDecision: (
       }),
     }
   );
-  const { ok } = http;
-  if (!ok) {
-    throw new Error("Error occured in vote decision HTTP request");
-  }
 
   const { status, data }: { status: number; data: TypeResponseData } =
     await http.json();

@@ -62,6 +62,7 @@ const VoteContent = ({
       response ? "APPROVE" : "DENY"
     );
     if ("code" in voteResponse) {
+      console.log("voteResponse :>> ", voteResponse);
       const { code, title } = voteResponse;
       setWarnTitle(title);
       setShowWarn(true);
@@ -79,7 +80,9 @@ const VoteContent = ({
       {/**
        * Popups
        */}
-      {showWarn && <Fail title={warnTitle} />}
+      {showWarn && (
+        <Fail title={warnTitle} onCancel={() => setShowWarn(false)} />
+      )}
       {/**
        * View
        */}
