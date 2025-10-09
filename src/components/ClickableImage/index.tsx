@@ -9,7 +9,7 @@ type ClickableImageType = {
   layout?: string;
   width?: number;
   height?: number;
-  classname?: string;
+  className?: string;
 };
 const ClickableImage = ({ ...rest }: ClickableImageType) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -24,7 +24,7 @@ const ClickableImage = ({ ...rest }: ClickableImageType) => {
               layout="fill"
               width={undefined}
               height={undefined}
-              className={`!relative rounded-2xl motion-preset-expand motion-duration-300 ${rest.classname}`}
+              className={`!relative rounded-2xl motion-preset-expand motion-duration-300 ${rest.className}`}
             />
           </div>
         </Background>
