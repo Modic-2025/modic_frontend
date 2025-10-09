@@ -377,9 +377,9 @@ const Chat = ({ artId }: { artId: number }) => {
                 />
               </div>
               <div className="chat-area basis-9/10">
-                {chat.image && (
+                {chat.image?.imageUrl && (
                   <ClickableImage
-                    src={chat.image.imageUrl}
+                    src={chat.image?.imageUrl}
                     alt="origin_image"
                     // layout="intrinsic"
                     width={240}
@@ -400,9 +400,9 @@ const Chat = ({ artId }: { artId: number }) => {
               className="me flex flex-col justify-end mb-4 items-end"
             >
               {/* <div className="chat-area text-right"> */}
-              {chat.image && (
+              {chat.image?.imageUrl && (
                 <ClickableImage
-                  src={chat.image.imageUrl}
+                  src={chat.image?.imageUrl}
                   alt="origin_image"
                   // layout="intrinsic"
                   width={240}
