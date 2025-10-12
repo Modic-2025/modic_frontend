@@ -363,9 +363,7 @@ const Chat = ({ artId }: { artId: number }) => {
           chat.type === 0 ? (
             <div
               key={index}
-              className={`opponent flex flex-row items-end gap-2 mb-4 ${
-                chat.isLoading && "opacity-60"
-              }`}
+              className={`opponent flex flex-row items-end gap-2 mb-4`}
             >
               <div className="profile basis-1/10">
                 <Image
@@ -376,7 +374,12 @@ const Chat = ({ artId }: { artId: number }) => {
                   height={48}
                 />
               </div>
-              <div className="chat-area basis-9/10">
+              <div
+                className={`chat-area basis-9/10 ${
+                  chat.isLoading &&
+                  "motion-preset-blink motion-duration-2000 [--motion-loop-opacity:0.4]"
+                }`}
+              >
                 {chat.image?.imageUrl && (
                   <ClickableImage
                     src={chat.image?.imageUrl}
