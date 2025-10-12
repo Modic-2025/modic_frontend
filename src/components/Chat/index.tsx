@@ -1,6 +1,4 @@
 "use client";
-import { APIFailureMsg } from "@/APIs";
-import getAiUrl from "@/APIs/ai/image-permissions/images/requests/get-url";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
@@ -18,7 +16,8 @@ import UseCoins from "@/hooks/UseCoins";
 import Fail from "../Popups/Fail";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import ImageList from "../ImageList";
-import getChatMessages from "@/APIs/posts/chat/messages/get";
+import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
+import getChatMessages from "@/APIs/posts/chat/messages/get/client";
 
 // 임시로 로딩 메시지 판별의 기준
 const NOW_LOADING_MSG = "응답 대기중 ..";
@@ -34,9 +33,10 @@ export type TypeChatData = {
   textContent?: string;
   requestId: string;
   imageUrl?: string;
-  createdAt: string;
+  createdAt: Date;
   status: "REQUEST" | "REQUEST_PENDING" | "REQUEST_FAILED" | "RESPONSE";
 };
+
 type TypeChat = TypeChatUI & TypeChatData;
 // Refactor chat data as type `TypeChat`
 const refactorChatData = (data: TypeChat | TypeChat[]) => {
@@ -69,7 +69,7 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
   const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false); // Fail window
   const [buyFailTitle, setBuyFailTitle] = useState<string>(""); // Fail window
   // Chat stack states
-  const [chatStack, setChatStack] = useState<Array<TypeChat>>([]);
+  const [chatStack, setChatStack] = useState<TypeChat[]>([]);
   // Remain generations of posts
   const { data: remainingGen } = useRemainGens(Number(safeArtId));
   // Coins of account
@@ -87,6 +87,10 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
 
   // Mutate SWR state
   const { mutate } = useSWRConfig();
+
+  // Intersection observer
+  const [observeRef, isIsView] = useIntersectionObserver({ threshold: 0.6 });
+  const [isChatFetching, setIsChatFetching] = useState<boolean>(false);
 
   // Refs
   const chatRef = useRef<HTMLDivElement>(null);
@@ -145,27 +149,6 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
       return;
     }
     if (!inputImage && !inputText) return;
-    setChatStack((prev) => [
-      ...prev,
-      {
-        messageId: -1,
-        messageOrder: -1,
-        senderType: "USER",
-        textContent: inputText,
-        imageUrl: inputImage?.imageUrl ?? undefined,
-        createdAt: "",
-        status: "REQUEST_PENDING",
-      },
-      {
-        messageId: -1,
-        messageOrder: -1,
-        senderType: "AI",
-        textContent: "응답 대기중 ..",
-        createdAt: "",
-        status: "RESPONSE",
-        isLoading: true,
-      },
-    ]);
     setInputText("");
     setInputImage(null);
     setChatDisabled(true);
@@ -186,6 +169,30 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
     // Assign SSE
     if (status === 200) {
       const { requestId } = data;
+      console.log("data :>> ", data);
+      setChatStack((prev) => [
+        ...prev,
+        {
+          messageId: -1,
+          messageOrder: -1,
+          senderType: "USER",
+          textContent: inputText,
+          requestId: -1,
+          imageUrl: inputImage?.imageUrl ?? undefined,
+          createdAt: new Date(""),
+          status: "REQUEST_PENDING",
+        },
+        {
+          messageId: -1,
+          messageOrder: -1,
+          senderType: "AI",
+          textContent: "응답 대기중 ..",
+          requestId: -1,
+          createdAt: new Date(""),
+          isLoading: true,
+          status: "RESPONSE",
+        },
+      ]);
       const token = localStorage.getItem("accessToken");
       await fetchEventSource(
         `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${artId}/chat/sse/${requestId}`,
@@ -195,6 +202,7 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
           },
           async onmessage(e) {
             const { data } = e;
+            console.log("data :>> ", data);
             const { textContent, imageUrl } = await JSON.parse(data);
             setChatStack((prev) => [
               ...prev.filter((item) => item.textContent !== NOW_LOADING_MSG),
@@ -209,6 +217,14 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
         }
       );
     }
+  };
+
+  // Fetch chat by message id
+  const fetchChats = (orderId: number) => {
+    setIsChatFetching(true); // disable fetching
+    if (isChatFetching) return;
+    // getChatMessages()
+    setIsChatFetching(false); // turn off
   };
 
   /**
@@ -251,24 +267,34 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
   useEffect(() => {
     if (art && !isUIInitialized) {
       const { images, postId } = art;
-
-      if ("code" in response) {
-        return;
-      }
+      console.log("chatHistory :>> ", chatHistory);
+      // if ("code" in response) {
+      //   return;
+      // }
       // Data refactoring for UI
-
-      setChatStack([
-        {
-          messageId: -1,
-          messageOrder: -1,
-          senderType: "AI",
-          imageUrl: images[0].imageUrl,
-          requestId: "",
-          textContent: "이 그림체로 어떤 작품을 만들어볼까요?",
-          createdAt: "",
-          status: "RESPONSE",
-        },
-      ]);
+      setChatStack(
+        chatHistory && chatHistory.length > 0
+          ? chatHistory
+          : [
+              {
+                messageId: -1,
+                messageOrder: -1,
+                senderType: "AI",
+                imageUrl: images[0].imageUrl,
+                requestId: "",
+                textContent: "이 그림체로 어떤 작품을 만들어볼까요?",
+                createdAt: new Date(""),
+                status: "RESPONSE",
+              },
+            ]
+      );
+      [
+        // old
+        [].reverse(),
+        ...[
+          /* current */
+        ],
+      ]; // new
 
       setInit(true); // Set flag
     }
@@ -286,6 +312,15 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
       UploadCurrentImage();
     }
   }, [inputFile]);
+
+  // Fetch old messages
+  useEffect(() => {
+    if (isIsView && !isChatFetching) {
+      console.log("Fetch new messages called!");
+      // fetchChats();
+    }
+  }, [isIsView]);
+
   // Uploads current selected image
   const UploadCurrentImage = () => {
     inputFile && UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
@@ -354,7 +389,7 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
             }}
           />
         )}
-
+        <div ref={observeRef}></div>
         {/* Chat history */}
         {chatStack.map((chat, index) =>
           chat.senderType === "AI" ? (

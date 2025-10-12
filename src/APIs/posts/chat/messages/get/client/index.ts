@@ -1,6 +1,6 @@
 import { APIFailureMsg } from "@/APIs";
 import { ALERT_500_TEXT_TITLE } from "@/APIs/Art/Like";
-import _fetch from "@/APIs/fetcher/ServerSide";
+import _fetch from "@/APIs/fetcher/ClientSide";
 import { TypeChatData } from "@/components/Chat";
 
 type TypeResponseData = {
@@ -8,7 +8,7 @@ type TypeResponseData = {
 };
 const getChatMessages: (
   postId: number
-) => TypeChatData[] | APIFailureMsg = async (postId: number) => {
+) => Promise<TypeChatData[] | APIFailureMsg> = async (postId: number) => {
   // fetch API
   const response = await (
     await _fetch(
@@ -37,9 +37,9 @@ const getChatMessages: (
   const { content } = data;
 
   // refactor data
-  const safeContent: TypeChatData[] =
-    content &&
-    content.map((item) => ({ ...item, createdAt: new Date(item.createdAt) }));
+  const safeContent: TypeChatData[] = content
+    ? content.map((item) => ({ ...item, createdAt: new Date(item.createdAt) }))
+    : [];
 
   return safeContent;
 };
