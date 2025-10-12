@@ -35,7 +35,7 @@ const VoteDecision: (
       case 400:
         return {
           code: status,
-          title: "일일 투표 한도를 초과했습니다.",
+          title: "일일 투표 한도를 초과했거나, 이미 참여한 투표입니다.",
         };
       case 403:
         return {

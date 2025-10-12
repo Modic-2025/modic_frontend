@@ -1,23 +1,17 @@
 import { Vote } from "@/types/Vote";
 import Image from "next/image";
-import Streak from "./Streak";
 
 const VoteForm = ({
   vote,
   onVote,
-  streak,
-  maxStreak,
 }: {
   vote: Vote;
-  streak: number;
-  maxStreak: number;
   onVote?: (response: boolean) => void; // true: "YES", false: "NO"
 }) => {
   const { derivedImageUrl, originalImageUrl } = vote;
 
   return (
     <div className="flex flex-col h-full justify-center text-center">
-      <Streak value={streak} max={maxStreak} />
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
           <ul>
