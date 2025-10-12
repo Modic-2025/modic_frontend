@@ -445,6 +445,7 @@ const Chat = ({ artId }: { artId: number }) => {
               <input
                 type="file"
                 className="hidden"
+                disabled={chatDisabled}
                 onChange={(e) => {
                   setInputFile(e.target.files && e.target.files[0]);
                 }}
