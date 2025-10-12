@@ -1,6 +1,4 @@
 "use client";
-import { APIFailureMsg } from "@/APIs";
-import getAiUrl from "@/APIs/ai/image-permissions/images/requests/get-url";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
@@ -18,18 +16,38 @@ import UseCoins from "@/hooks/UseCoins";
 import Fail from "../Popups/Fail";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import ImageList from "../ImageList";
+import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
+import getChatMessages from "@/APIs/posts/chat/messages/get/client";
 
 // 임시로 로딩 메시지 판별의 기준
 const NOW_LOADING_MSG = "응답 대기중 ..";
 
-type ChatType = {
-  type: 0 | 1; // 0: opponent, 1: me
-  text: string;
-  image?: ImageType;
+type TypeChatUI = {
+  // For UI
   isLoading?: boolean;
 };
+export type TypeChatData = {
+  messageId: number; // loading 등의 fake message는 id를 -1로 설정
+  messageOrder: number; // loading 등의 fake message는 id를 -1로 설정
+  senderType: "AI" | "USER";
+  textContent?: string;
+  requestId: string;
+  imageUrl?: string;
+  createdAt: Date;
+  status: "REQUEST" | "REQUEST_PENDING" | "REQUEST_FAILED" | "RESPONSE";
+};
 
-const Chat = ({ artId }: { artId: number }) => {
+type TypeChat = TypeChatUI & TypeChatData;
+// Refactor chat data as type `TypeChat`
+const refactorChatData = (data: TypeChat | TypeChat[]) => {
+  return data;
+};
+
+type PropChat = {
+  artId: number;
+  chatHistory?: TypeChatData[];
+};
+const Chat = ({ artId, chatHistory }: PropChat) => {
   let safeArtId: number = -1;
   try {
     safeArtId = Number(artId);
@@ -51,7 +69,7 @@ const Chat = ({ artId }: { artId: number }) => {
   const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false); // Fail window
   const [buyFailTitle, setBuyFailTitle] = useState<string>(""); // Fail window
   // Chat stack states
-  const [chatStack, setChatStack] = useState<Array<ChatType>>([]);
+  const [chatStack, setChatStack] = useState<TypeChat[]>([]);
   // Remain generations of posts
   const { data: remainingGen } = useRemainGens(Number(safeArtId));
   // Coins of account
@@ -69,6 +87,10 @@ const Chat = ({ artId }: { artId: number }) => {
 
   // Mutate SWR state
   const { mutate } = useSWRConfig();
+
+  // Intersection observer
+  const [observeRef, isIsView] = useIntersectionObserver({ threshold: 0.6 });
+  const [isChatFetching, setIsChatFetching] = useState<boolean>(false);
 
   // Refs
   const chatRef = useRef<HTMLDivElement>(null);
@@ -118,11 +140,6 @@ const Chat = ({ artId }: { artId: number }) => {
     setBuyFailTitle(title);
   };
 
-  // on-click event on message send button
-  const onClickMsgSendBtn = (e) => {
-    sendMsg();
-  };
-
   /**
    * Methods
    */
@@ -132,15 +149,6 @@ const Chat = ({ artId }: { artId: number }) => {
       return;
     }
     if (!inputImage && !inputText) return;
-    setChatStack((prev) => [
-      ...prev,
-      { type: 1, text: inputText, image: inputImage ?? undefined },
-      {
-        type: 0,
-        text: NOW_LOADING_MSG,
-        isLoading: true,
-      },
-    ]);
     setInputText("");
     setInputImage(null);
     setChatDisabled(true);
@@ -151,16 +159,40 @@ const Chat = ({ artId }: { artId: number }) => {
     if (!isSuccess) {
       console.error("ERROR");
       setChatStack((prev) => [
-        ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
+        ...prev.filter((item) => !item.isLoading),
         {
-          type: 0 as 0,
-          text: `생성중 에러가 발생하였습니다. 잠시 후 다시 시도해주세요 (${status})`,
-        } as ChatType,
+          senderType: "AI",
+          textContent: `생성중 에러가 발생하였습니다. 잠시 후 다시 시도해주세요 (${status})`,
+        } as TypeChat,
       ]);
     }
     // Assign SSE
     if (status === 200) {
       const { requestId } = data;
+      console.log("data :>> ", data);
+      setChatStack((prev) => [
+        ...prev,
+        {
+          messageId: -1,
+          messageOrder: -1,
+          senderType: "USER",
+          textContent: inputText,
+          requestId: -1,
+          imageUrl: inputImage?.imageUrl ?? undefined,
+          createdAt: new Date(""),
+          status: "REQUEST_PENDING",
+        },
+        {
+          messageId: -1,
+          messageOrder: -1,
+          senderType: "AI",
+          textContent: "응답 대기중 ..",
+          requestId: -1,
+          createdAt: new Date(""),
+          isLoading: true,
+          status: "RESPONSE",
+        },
+      ]);
       const token = localStorage.getItem("accessToken");
       await fetchEventSource(
         `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${artId}/chat/sse/${requestId}`,
@@ -170,20 +202,29 @@ const Chat = ({ artId }: { artId: number }) => {
           },
           async onmessage(e) {
             const { data } = e;
-            const { textContent } = await JSON.parse(data);
+            console.log("data :>> ", data);
+            const { textContent, imageUrl } = await JSON.parse(data);
             setChatStack((prev) => [
-              ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
+              ...prev.filter((item) => item.textContent !== NOW_LOADING_MSG),
               {
-                type: 0 as 0,
-                text: textContent,
-                // image: imageUrl,
-              } as ChatType,
+                senderType: "AI",
+                textContent: textContent,
+                imageUrl: imageUrl,
+              } as TypeChat,
             ]);
             setChatDisabled(false);
           },
         }
       );
     }
+  };
+
+  // Fetch chat by message id
+  const fetchChats = (orderId: number) => {
+    setIsChatFetching(true); // disable fetching
+    if (isChatFetching) return;
+    // getChatMessages()
+    setIsChatFetching(false); // turn off
   };
 
   /**
@@ -222,16 +263,38 @@ const Chat = ({ artId }: { artId: number }) => {
   }, [inputFile]);
 
   // Initialize UI
+  // Work as mount life cycle (fetch chat history)
   useEffect(() => {
     if (art && !isUIInitialized) {
       const { images, postId } = art;
-      setChatStack([
-        {
-          type: 0,
-          image: images[0],
-          text: "이 그림체로 어떤 작품을 만들어볼까요?",
-        },
-      ]);
+      console.log("chatHistory :>> ", chatHistory);
+      // if ("code" in response) {
+      //   return;
+      // }
+      // Data refactoring for UI
+      setChatStack(
+        chatHistory && chatHistory.length > 0
+          ? chatHistory
+          : [
+              {
+                messageId: -1,
+                messageOrder: -1,
+                senderType: "AI",
+                imageUrl: images[0].imageUrl,
+                requestId: "",
+                textContent: "이 그림체로 어떤 작품을 만들어볼까요?",
+                createdAt: new Date(""),
+                status: "RESPONSE",
+              },
+            ]
+      );
+      [
+        // old
+        [].reverse(),
+        ...[
+          /* current */
+        ],
+      ]; // new
 
       setInit(true); // Set flag
     }
@@ -249,6 +312,15 @@ const Chat = ({ artId }: { artId: number }) => {
       UploadCurrentImage();
     }
   }, [inputFile]);
+
+  // Fetch old messages
+  useEffect(() => {
+    if (isIsView && !isChatFetching) {
+      console.log("Fetch new messages called!");
+      // fetchChats();
+    }
+  }, [isIsView]);
+
   // Uploads current selected image
   const UploadCurrentImage = () => {
     inputFile && UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
@@ -317,50 +389,10 @@ const Chat = ({ artId }: { artId: number }) => {
             }}
           />
         )}
-
-        {/* [DEPRECATED] Confirm window */}
-        {/* {showConfirmWindow && (
-          <div className="fixed flex items-center justify-center align-text inset-0 w-full h-full bg-white/60">
-            <div className="flex items-center flex-col text-center">
-              <Image
-                src={inputImage}
-                alt={inputImage}
-                layout="raw"
-                width={200}
-                height={200}
-                className="rounded-2xl shadow-lg mb-4 max-w-[30vw] max-h-[30vh]"
-                // unoptimized
-              />
-              <h1 className="font-bold">선택하신 사진으로 계속 진행할까요?</h1>
-              <h1 className="font-bold mb-4">진행 시 N코인이 차감됩니다.</h1>
-              <div className="flex flex-row gap-6">
-                <button
-                  className="cursor-pointer border-2 p-2 rounded-md bg-white border-[#E9E9E9]"
-                  onClick={() => {
-                    setConfirmState(false);
-                    setShowConfirmWindow(false);
-                    setInputImage("");
-                  }}
-                >
-                  다시 선택할게요
-                </button>
-                <button
-                  className="cursor-pointer bg-[#585858] p-2 rounded-md text-white"
-                  onClick={() => {
-                    setConfirmState(true);
-                    setShowConfirmWindow(false);
-                  }}
-                >
-                  <p className="font-bold">네, 진행할게요</p>
-                </button>
-              </div>
-            </div>
-          </div>
-        )} */}
-
+        <div ref={observeRef}></div>
         {/* Chat history */}
         {chatStack.map((chat, index) =>
-          chat.type === 0 ? (
+          chat.senderType === "AI" ? (
             <div
               key={index}
               className={`opponent flex flex-row items-end gap-2 mb-4`}
@@ -380,9 +412,9 @@ const Chat = ({ artId }: { artId: number }) => {
                   "motion-preset-blink motion-duration-2000 [--motion-loop-opacity:0.4]"
                 }`}
               >
-                {chat.image?.imageUrl && (
+                {chat.imageUrl && (
                   <ClickableImage
-                    src={chat.image?.imageUrl}
+                    src={chat.imageUrl}
                     alt="origin_image"
                     // layout="intrinsic"
                     width={240}
@@ -390,9 +422,9 @@ const Chat = ({ artId }: { artId: number }) => {
                     className="mb-4 shadow-lg rounded-2xl cursor-grab"
                   />
                 )}
-                {chat.text && (
+                {chat.textContent && (
                   <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-bl-none">
-                    {chat.text}
+                    {chat.textContent}
                   </p>
                 )}
               </div>
@@ -403,9 +435,9 @@ const Chat = ({ artId }: { artId: number }) => {
               className="me flex flex-col justify-end mb-4 items-end"
             >
               {/* <div className="chat-area text-right"> */}
-              {chat.image?.imageUrl && (
+              {chat.imageUrl && (
                 <ClickableImage
-                  src={chat.image?.imageUrl}
+                  src={chat.imageUrl}
                   alt="origin_image"
                   // layout="intrinsic"
                   width={240}
@@ -413,9 +445,9 @@ const Chat = ({ artId }: { artId: number }) => {
                   className="mb-4 shadow-lg rounded-2xl cursor-grab"
                 />
               )}
-              {chat.text && (
+              {chat.textContent && (
                 <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-br-none">
-                  {chat.text}
+                  {chat.textContent}
                 </p>
               )}
               {/* </div> */}
@@ -463,7 +495,7 @@ const Chat = ({ artId }: { artId: number }) => {
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={textInputKeydownCheck}
             />
-            <button className="cursor-pointer" onClick={onClickMsgSendBtn}>
+            <button className="cursor-pointer" onClick={() => sendMsg()}>
               <Image
                 src={
                   inputText.trim() !== "" || inputImage
