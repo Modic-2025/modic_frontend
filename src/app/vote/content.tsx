@@ -226,7 +226,7 @@ const Result = ({ isCorrect }: { isCorrect: undefined | boolean }) => (
       저작권이 인정{isCorrect ? "되었습니다." : "되지 않았습니다."}
     </section>
     <section>
-      CURRENT_VOTE_SECTION
+      {/* CURRENT_VOTE_SECTION */}
       {/* {isCorrect
         ? "winning streak이 한 개 쌓였습니다!"
         : "winning streak이 삭제 되었습니다 ㅠㅠ"} */}
