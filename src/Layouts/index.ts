@@ -26,6 +26,14 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
   "/art/[art_id]": HEADER_CONTENTS_DEFAULT,
   "/art/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,
   "/art/[art_id]/reviews": HEADER_CONTENTS_DEFAULT,
+  "/art/search": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "검색",
+      },
+    },
+  },
   "/art/edit/[art_id]": {
     elements: ["backward", "title"],
     actions: {
