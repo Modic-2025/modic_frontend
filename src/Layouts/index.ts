@@ -82,6 +82,22 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/users/me/edit": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "비밀번호 확인",
+      },
+    },
+  },
+  "/users/me/edit/profile": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "프로필 편집",
+      },
+    },
+  },
   "/users/[user_id]": {
     elements: ["logo", "title", "option_dotted"],
   },
