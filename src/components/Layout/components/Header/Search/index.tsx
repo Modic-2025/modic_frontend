@@ -1,12 +1,23 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { commonClassNames } from "../../index";
 
 const Search = ({ onClick }: { onClick?: () => void }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      router.push('/art/search');
+    }
+  };
+
   return (
     <div
       className={`${commonClassNames} basis-1/10`}
-      onClick={onClick ? onClick : () => {}}
+      onClick={handleClick}
     >
       <Image
         src="/Search.svg"
