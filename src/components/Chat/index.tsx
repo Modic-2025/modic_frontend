@@ -89,7 +89,9 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
   const { mutate } = useSWRConfig();
 
   // Intersection observer
-  const [observeRef, isIsView] = useIntersectionObserver({ threshold: 0.6 });
+  const [observeRef, isIsView] = useIntersectionObserver<HTMLDivElement>({
+    threshold: 0.6,
+  });
   const [isChatFetching, setIsChatFetching] = useState<boolean>(false);
 
   // Refs
@@ -177,7 +179,7 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
           messageOrder: -1,
           senderType: "USER",
           textContent: inputText,
-          requestId: -1,
+          requestId: "",
           imageUrl: inputImage?.imageUrl ?? undefined,
           createdAt: new Date(""),
           status: "REQUEST_PENDING",
@@ -187,7 +189,7 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
           messageOrder: -1,
           senderType: "AI",
           textContent: "응답 대기중 ..",
-          requestId: -1,
+          requestId: "",
           createdAt: new Date(""),
           isLoading: true,
           status: "RESPONSE",
@@ -326,7 +328,7 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
     inputFile && UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
   };
 
-  const imageOnUpload = async (r, e) => {
+  const imageOnUpload = async (r: [string, string, string], e: unknown) => {
     if (e) {
       console.error("Error occured in image upload");
       return;
@@ -335,7 +337,7 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
 
     setInputImage({
       imageUrl,
-      imageId,
+      imageId: Number(imageId),
     });
     // initialize callback state
     setBuyPermCBState(false);
@@ -389,7 +391,10 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
             }}
           />
         )}
-        <div ref={observeRef}></div>
+
+        {observeRef && typeof observeRef === "object" && (
+          <div ref={observeRef}></div>
+        )}
         {/* Chat history */}
         {chatStack.map((chat, index) =>
           chat.senderType === "AI" ? (

@@ -36,7 +36,7 @@ const MetaData = ({
   const router = useRouter();
 
   // On delete
-  const onClickArtDelete = async (e) => {
+  const onClickArtDelete = async () => {
     setShowConfirm(true);
   };
 

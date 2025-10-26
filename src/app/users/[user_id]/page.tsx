@@ -10,8 +10,8 @@ const headerContents = [
   { ...HEADER_CONTENTS.OPTION_DOTTED, goTo: "/settings" },
 ];
 
-const Page = async ({ params }: { params: { user_id: string } }) => {
-  const { user_id } = params;
+const Page = async ({ params }: { params: Promise<{ user_id: string }> }) => {
+  const { user_id } = await params;
   let safeUserId = -1;
   try {
     safeUserId = Number(user_id);

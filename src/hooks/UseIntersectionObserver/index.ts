@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 
-const useIntersectionObserver = (
+const useIntersectionObserver = <T extends Element = Element>(
   options: IntersectionObserverInit | undefined
 ) => {
   const [isInView, setIsInView] = useState(false);
-  const targetRef = useRef(null);
+  const targetRef = useRef<T>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {

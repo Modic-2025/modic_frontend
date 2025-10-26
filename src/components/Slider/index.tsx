@@ -7,12 +7,12 @@ import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ImageType } from "@/app/art/regist/page";
+import { ImageType } from "@/types/Art";
 
 type layoutType = "DEFAULT" | "PANORAMA";
 
 const Slider = (props: {
-  items: Array<ImageType | string>;
+  items: ImageType[];
   maxItemNum?: number;
   children?: React.ReactNode;
   type?: layoutType;
@@ -37,9 +37,9 @@ const Slider = (props: {
   const swiperProps = {
     modules: [Navigation],
     className: swiperClassName,
-    onSlideChange: (e) => setCurrentIndex(e.activeIndex),
-    slidesPerView: isPANORAMA && 3,
-    spaceBetween: isPANORAMA && 12,
+    onSlideChange: (e: any) => setCurrentIndex(e.activeIndex),
+    slidesPerView: isPANORAMA ? 3 : undefined,
+    spaceBetween: isPANORAMA ? 12 : undefined,
     pagination: {
       clickable: true,
     },

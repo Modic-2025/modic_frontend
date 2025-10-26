@@ -1,7 +1,7 @@
 "use client";
 import MDEditor from "@uiw/react-md-editor";
 import { Art, ImageType } from "@/types/Art";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import Image from "next/image";
 import ImageList from "../ImageList";
 import { useRouter } from "next/navigation";
@@ -28,7 +28,7 @@ type CreatePostPayload = {
 };
 
 type ArtRegistrationFormProps = {
-  art?: Art;
+  art?: Art | Partial<Art>;
   confirmText?: string;
   isDerived?: boolean;
 };
@@ -91,24 +91,26 @@ const ArtRegistrationForm = ({
         10
       );
 
-      // Success
-      if (typeof response === "number") {
-        router.push(`/art/${response}`);
+      // failure
+      if ("code" in response) {
+        const { code } = response;
+        switch (code) {
+          case 403: // no access to ai created image
+            alert("해당 AI 이미지에 대한 권한이 없습니다.");
+            break;
+          case 404: // cannot find ai created image
+            alert("해당 AI 이미지를 찾을 수 없습니다.");
+            break;
+          default:
+            alert(`서버에서 에러가 발생했습니다. (${code})`);
+        }
         return;
       }
 
-      const { code } = response;
-      switch (code) {
-        case 403: // no access to ai created image
-          alert("해당 AI 이미지에 대한 권한이 없습니다.");
-          break;
-        case 404: // cannot find ai created image
-          alert("해당 AI 이미지를 찾을 수 없습니다.");
-          break;
-        default:
+      // Success
+      if (typeof response === "number") {
+        router.push(`/art/${response}`);
       }
-
-      return;
     }
 
     // Create/Editing original post
@@ -169,19 +171,22 @@ const ArtRegistrationForm = ({
     setImageUrls(images);
   };
 
-  const onCostChange = (e, type: "COM" | "NONCOM") => {
+  const onCostChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    type: "COM" | "NONCOM"
+  ) => {
     const value = Number(e.target.value);
     if (type === "COM") {
       if (value <= 0) {
         // Shows placeholder
         setComCost(undefined);
-        e.target.value = undefined;
+        e.target.value = "";
       } else setComCost(value);
     } else {
       if (value <= 0) {
         // Shows placeholder
         setNonComCost(undefined);
-        e.target.value = undefined;
+        e.target.value = "";
       } else setNonComCost(value);
     }
   };
@@ -222,7 +227,9 @@ const ArtRegistrationForm = ({
             <input
               type="number"
               value={comCost}
-              onChange={(e) => onCostChange(e, "COM")}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                onCostChange(e, "COM")
+              }
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
               placeholder="상업용 가격"
             />
@@ -238,7 +245,7 @@ const ArtRegistrationForm = ({
             <input
               type="number"
               value={nonComCost}
-              onChange={(e) => {
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 onCostChange(e, "NONCOM");
               }}
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
@@ -281,8 +288,8 @@ const ArtRegistrationForm = ({
           /> */}
         <MDEditor
           value={description}
-          onChange={(e) => {
-            setDescription(e);
+          onChange={(e?: string) => {
+            e && setDescription(e);
           }}
         />
         {/* </div> */}

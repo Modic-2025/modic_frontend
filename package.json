@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "typecheck:all": "tsc -b --noEmit",
+    "vercel-build": "pnpm run typecheck && pnpm run build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

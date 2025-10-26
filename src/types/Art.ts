@@ -7,9 +7,9 @@ export interface DerivedPost {
 
 export interface Art_thumbnail {
   postId: number;
-  title: string;
+  title?: string;
   images: [ImageType, ...ImageType[]];
-  likeCount: number;
+  likeCount?: number;
 }
 
 export type PostStatus =

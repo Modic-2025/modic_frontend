@@ -1,3 +1,4 @@
+import { ImageType } from "@/types/Art";
 import OptionDotted from "../Layout/components/Header/Option/dotted";
 import Slider from "../Slider";
 import UserInfo from "../UserInfo";
@@ -10,7 +11,7 @@ const ArtReview = ({
 }: {
   userName: string;
   date: Date;
-  images?: Array<String>;
+  images?: Array<ImageType>;
   desc?: string;
 }) => {
   const imagesExist = images && images.length > 0;

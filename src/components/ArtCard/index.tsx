@@ -15,7 +15,7 @@ const ArtCard = ({
   const safeThumbnailUrl = images?.[0]?.imageUrl;
 
   // on click card
-  const onClickCard = (e) => {
+  const onClickCard = () => {
     onClick && onClick(data);
   };
 
