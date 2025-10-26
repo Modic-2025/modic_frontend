@@ -114,26 +114,26 @@ const VoteContent = ({
    * Events
    */
   const onVote = async (response: boolean) => {
-    // const voteResponse = await VoteDecision(
-    //   vote.voteId,
-    //   response ? "APPROVE" : "DENY"
-    // );
-    // if ("code" in voteResponse) {
-    //   console.log("voteResponse :>> ", voteResponse);
-    //   const { code, title } = voteResponse;
-    //   setWarnTitle(title);
-    //   setShowWarn(true);
-    //   return;
-    // }
+    const voteResponse = await VoteDecision(
+      votes[currentSlideIdx].voteId,
+      response ? "APPROVE" : "DENY"
+    );
+    if ("code" in voteResponse) {
+      console.log("voteResponse :>> ", voteResponse);
+      const { code, title } = voteResponse;
+      setWarnTitle(title);
+      setShowWarn(true);
+      return;
+    }
 
-    // FOR DEVELOP
-    const { isCorrectAnswer, currentStreak, receivedTicket } = {
-      isCorrectAnswer: true,
-      currentStreak: streak + 1 >= 3 ? 0 : streak + 1,
-      receivedTicket: streak + 1 >= 3 ? true : false,
-    };
+    // // FOR DEVELOP
+    // const { isCorrectAnswer, currentStreak, receivedTicket } = {
+    //   isCorrectAnswer: true,
+    //   currentStreak: streak + 1 >= 3 ? 0 : streak + 1,
+    //   receivedTicket: streak + 1 >= 3 ? true : false,
+    // };
     // Save vote result
-    // const { isCorrectAnswer, currentStreak, receivedTicket } = voteResponse;
+    const { isCorrectAnswer, currentStreak, receivedTicket } = voteResponse;
     setStreak(currentStreak);
     setIsCorrect(isCorrectAnswer);
 
