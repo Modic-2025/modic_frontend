@@ -10,6 +10,7 @@ const ArtDetailContent = ({ art }: { art: Art }) => {
       <div className="px-4 py-4 text-sm text-gray-700 leading-relaxed">
         <MDEditor.Markdown
           source={art.description}
+          data-color-mode="light"
           // style={{ whiteSpace: "pre-wrap" }}
         />
       </div>
