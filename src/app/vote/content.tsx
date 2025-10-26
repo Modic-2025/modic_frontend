@@ -171,7 +171,7 @@ const VoteContent = ({
                 height={120}
               />
             </section>
-            <section className="basis-3/4 font-bold">
+            <section className="flex basis-3/4 font-bold items-center">
               축하드립니다! <br />
               무료 티켓이 지급되었습니다.
             </section>
