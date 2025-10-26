@@ -170,13 +170,13 @@ const Chat = ({ artId }: { artId: number }) => {
           },
           async onmessage(e) {
             const { data } = e;
-            const { textContent } = await JSON.parse(data);
+            const { textContent, imageUrl } = await JSON.parse(data);
             setChatStack((prev) => [
               ...prev.filter((item) => item.text !== NOW_LOADING_MSG),
               {
                 type: 0 as 0,
                 text: textContent,
-                // image: imageUrl,
+                image: { imageUrl },
               } as ChatType,
             ]);
             setChatDisabled(false);
@@ -317,46 +317,6 @@ const Chat = ({ artId }: { artId: number }) => {
             }}
           />
         )}
-
-        {/* [DEPRECATED] Confirm window */}
-        {/* {showConfirmWindow && (
-          <div className="fixed flex items-center justify-center align-text inset-0 w-full h-full bg-white/60">
-            <div className="flex items-center flex-col text-center">
-              <Image
-                src={inputImage}
-                alt={inputImage}
-                layout="raw"
-                width={200}
-                height={200}
-                className="rounded-2xl shadow-lg mb-4 max-w-[30vw] max-h-[30vh]"
-                // unoptimized
-              />
-              <h1 className="font-bold">선택하신 사진으로 계속 진행할까요?</h1>
-              <h1 className="font-bold mb-4">진행 시 N코인이 차감됩니다.</h1>
-              <div className="flex flex-row gap-6">
-                <button
-                  className="cursor-pointer border-2 p-2 rounded-md bg-white border-[#E9E9E9]"
-                  onClick={() => {
-                    setConfirmState(false);
-                    setShowConfirmWindow(false);
-                    setInputImage("");
-                  }}
-                >
-                  다시 선택할게요
-                </button>
-                <button
-                  className="cursor-pointer bg-[#585858] p-2 rounded-md text-white"
-                  onClick={() => {
-                    setConfirmState(true);
-                    setShowConfirmWindow(false);
-                  }}
-                >
-                  <p className="font-bold">네, 진행할게요</p>
-                </button>
-              </div>
-            </div>
-          </div>
-        )} */}
 
         {/* Chat history */}
         {chatStack.map((chat, index) =>

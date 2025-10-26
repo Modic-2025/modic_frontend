@@ -3,7 +3,7 @@
 import React from "react";
 import clsx from "clsx";
 
-interface SecondartButtonProps {
+interface SecondaryButtonProps {
   text: string;
   disabled?: boolean;
   onClick?: () => void;
@@ -13,7 +13,7 @@ export default function SecondartButton({
   text,
   disabled = false,
   onClick,
-}: SecondartButtonProps) {
+}: SecondaryButtonProps) {
   return (
     <button
       type="button"

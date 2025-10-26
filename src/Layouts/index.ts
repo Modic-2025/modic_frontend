@@ -101,6 +101,14 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/vote": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "저작권 투표",
+      },
+    },
+  },
 };
 
 // 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
