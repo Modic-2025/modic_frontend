@@ -98,7 +98,7 @@ const UserHeader = ({
     }
     const { code, title, desc } = response;
     setPopupTitle(title);
-    setPopupDesc(desc);
+    setPopupDesc(desc ?? "");
     setShowPopup(true);
     if (code === 404) {
       setTimeout(() => {

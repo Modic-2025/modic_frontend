@@ -149,7 +149,10 @@ const NavButton = ({
       href={href}
       className="basis-1/5 flex justify-center items-center cursor-pointer"
     >
-      <button onClick={(e) => onClick(value)} className="w-full cursor-pointer">
+      <button
+        onClick={(e) => onClick && onClick(value)}
+        className="w-full cursor-pointer"
+      >
         <Image
           src={selected ? selectedIcon : icon}
           className="mx-auto"

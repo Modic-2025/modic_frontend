@@ -68,7 +68,7 @@ const Header = () => {
     title: {
       value: isUserPage ? user?.userName : headerContent?.actions?.title?.value,
     },
-    coins: { value: user?.coin },
+    coins: { value: user?.coin !== undefined ? String(user.coin) : undefined },
   };
 
   return (

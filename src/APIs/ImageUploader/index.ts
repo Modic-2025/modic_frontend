@@ -38,7 +38,7 @@ const UploadImage = async (
       break;
     case "AI_REQUEST":
       if (!postId) {
-        return false;
+        return Promise.resolve(false);
       } // AI purpose upload는 postId parameter가 필요합니다.
       pathByType = "ai";
       break;
@@ -141,7 +141,7 @@ const UploadImageAI = (
     }
   );
 
-  return false;
+  return Promise.resolve(false);
 };
 
 export default UploadImage;

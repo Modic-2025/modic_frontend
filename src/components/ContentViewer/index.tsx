@@ -31,13 +31,13 @@ const ContentViewer = ({
 }: {
   mode?: "NORMAL" | "POPUP"; // NORMAL: default, POPUP: use in my image gen page
   grid: gridType;
-  arts?: Array<Art_thumbnail>; // If set `arts`, component do not fetch arts
+  arts?: Art_thumbnail[]; // If set `arts`, component do not fetch arts
   showTabs?: boolean;
   userId?: number; // Get arts by user
   me?: boolean; // Get arts by own session
 }) => {
   const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
-  const [arts, setArts] = useState<Array<Art_thumbnail>>(
+  const [arts, setArts] = useState<Art_thumbnail[] | undefined>(
     rest.arts ?? undefined
   ); // prop arts
   const [grid, setGrid] = useState<gridType>(rest.grid); // grid number

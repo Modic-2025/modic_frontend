@@ -7,6 +7,7 @@ type Qna = {
   content: string;
   answer: string;
   state: responseState;
+  postId: number;
 };
 
 type responseState = "WAITING" | "ANSWERED";
@@ -21,6 +22,7 @@ export const FAKE_QNA_DATAS: Qna[] = [
     content: "layout과 page 컴포넌트의 역할이 궁금합니다.",
     answer: "layout은 공통 UI, page는 실제 페이지 콘텐츠를 담당합니다.",
     state: "ANSWERED",
+    postId: -1,
   },
   {
     id: 2,
@@ -32,6 +34,7 @@ export const FAKE_QNA_DATAS: Qna[] = [
     answer:
       "key는 React가 리스트 항목을 효율적으로 업데이트하는 데 필요합니다.",
     state: "ANSWERED",
+    postId: -1,
   },
   {
     id: 3,
@@ -43,6 +46,7 @@ export const FAKE_QNA_DATAS: Qna[] = [
     answer:
       "string은 원시 타입, String은 객체 타입이므로 string을 사용하는 것이 좋습니다.",
     state: "ANSWERED",
+    postId: -1,
   },
   {
     id: 4,
@@ -53,6 +57,7 @@ export const FAKE_QNA_DATAS: Qna[] = [
     content: "서버 컴포넌트와 클라이언트 컴포넌트는 어떻게 구분하나요?",
     answer: "",
     state: "WAITING",
+    postId: -1,
   },
   {
     id: 5,
@@ -63,6 +68,7 @@ export const FAKE_QNA_DATAS: Qna[] = [
     content: "병렬 슬롯을 어떻게 적용하는지 예시가 궁금합니다.",
     answer: "",
     state: "WAITING",
+    postId: -1,
   },
 ];
 

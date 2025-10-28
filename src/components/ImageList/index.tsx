@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   closestCenter,
   DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -97,7 +98,7 @@ const ImageList = ({
               ...prev,
               {
                 imageUrl: imageUrl,
-                imageId: imageId,
+                imageId: Number(imageId),
               },
             ]);
           },
@@ -108,9 +109,9 @@ const ImageList = ({
   };
 
   // DragEnd event handler
-  const handleDragEnd = (e) => {
+  const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
-    if (active.id !== over.id) {
+    if (active.id !== over?.id) {
       setImages((items) => {
         let oldIndex = -1;
         let newIndex = -1;
@@ -118,7 +119,7 @@ const ImageList = ({
           if (Number(item.imageId) === active.id) {
             oldIndex = items.indexOf(item);
           }
-          if (Number(item.imageId) === over.id) {
+          if (Number(item.imageId) === over?.id) {
             newIndex = items.indexOf(item);
           }
         });
@@ -269,8 +270,8 @@ type CellProps = enableEditType &
   onDeleteType & {
     id: number;
     children: React.ReactNode;
-    isEdit: boolean;
-    isThumbnail: boolean;
+    isEdit?: boolean;
+    isThumbnail?: boolean;
   };
 const Cell = ({ id, children, isEdit, onDelete, isThumbnail }: CellProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =

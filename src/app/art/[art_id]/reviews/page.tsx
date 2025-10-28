@@ -119,7 +119,7 @@ const Reviews = async ({ params }: { params: Promise<{ art_id: number }> }) => {
 
   return (
     <>
-      {FAKE_REVIEWS.map((item, i) => (
+      {/* {FAKE_REVIEWS.map((item, i) => (
         <ArtReview
           key={item.postReviewId}
           userName={item.userName}
@@ -127,7 +127,7 @@ const Reviews = async ({ params }: { params: Promise<{ art_id: number }> }) => {
           images={item.imageUrls}
           desc={item.description}
         />
-      ))}
+      ))} */}
       <BottomButton>리뷰 등록하기</BottomButton>
     </>
   );

@@ -6,8 +6,6 @@ import PrimaryButton from "@/components/Button/PrimaryButton";
 import Link from "next/link";
 
 const MyPage = async () => {
-  const cookieStore = await cookies();
-
   const user = await getUserMe();
   if (!user) {
     return (
@@ -28,7 +26,7 @@ const MyPage = async () => {
 
   return (
     <>
-      <UserHeader user={user} isAboutMe={true} showsName={true} />
+      <UserHeader user={user} isAboutMe={true} />
       <section>
         <ContentViewer grid={2} showTabs={false} me={true} />
       </section>

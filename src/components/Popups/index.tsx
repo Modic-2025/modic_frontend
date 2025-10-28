@@ -21,12 +21,12 @@ export const PopupWrapper = ({
   onClick,
 }: {
   children: React.ReactNode;
-  onClick?: (e) => void;
+  onClick?: () => void;
 }) => (
   <div
-    onClick={(e) => {
+    onClick={(e: any) => {
       e.stopPropagation();
-      onClick && onClick(e);
+      onClick && onClick();
     }}
     className="w-xs min-h-[100px] bg-white rounded-xl p-4 text-center motion-preset-expand motion-duration-300"
   >

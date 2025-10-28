@@ -5,8 +5,8 @@ const Page = async ({
   params,
   searchParams,
 }: {
-  params: { image_id: number };
-  searchParams: { imageUrl: string };
+  params: Promise<{ image_id: number }>;
+  searchParams: Promise<{ imageUrl: string }>;
 }) => {
   const { image_id } = await params;
   const { imageUrl } = await searchParams;
