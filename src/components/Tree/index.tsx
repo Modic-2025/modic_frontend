@@ -4,7 +4,6 @@ import { TypeTreeItem } from "@/APIs/Art/tree";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   addEdge,
-  Background,
   Controls,
   MiniMap,
   useNodesState,
@@ -13,9 +12,11 @@ import ReactFlow, {
   Edge,
   Connection,
   ConnectionLineType,
-  MarkerType,
-  Handle,
-  Position,
+  NodeProps,
+  // 1. ReactFlowProvider를 임포트합니다.
+  ReactFlowProvider,
+  useReactFlow,
+  Background,
 } from "reactflow";
 
 // React Flow CSS 임포트
@@ -24,11 +25,10 @@ import "reactflow/dist/style.css";
 // 레이아웃 계산을 위한 dagre 임포트
 import dagre from "dagre";
 import PostNode, { NODE_HEIGHT, NODE_WIDTH } from "./CustomNodes/Post";
+import Image from "next/image";
+import { Background as CustomBackground } from "../Popups";
 
-// --- 1. 커스텀 노드 (PostNode) ---
-// PostNode.tsx의 코드를 React Flow용으로 수정
-
-// React Flow의 커스텀 노드는 'data' prop으로 데이터를 받습니다.
+// --- 1. 커스텀 노드 (PostNode) 데이터 인터페이스 ---
 export interface PostNodeData {
   name: string;
   attributes: {
@@ -36,17 +36,13 @@ export interface PostNodeData {
     status: string;
     postId: number;
   };
+  _data: TypeTreeItem;
 }
 
 // --- 2. 레이아웃 계산 함수 (Dagre 사용) ---
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-/**
- * Dagre를 사용해 노드 위치를 계산하고 React Flow 엘리먼트로 변환
- * @param apiData API 원본 데이터
- * @param direction 'TB' (Top-to-Bottom) 또는 'LR' (Left-to-Right)
- */
 const getLayoutedElements = (apiData: TypeTreeItem[], direction = "TB") => {
   dagreGraph.setGraph({ rankdir: direction, nodesep: 50, ranksep: 120 });
 
@@ -66,6 +62,7 @@ const getLayoutedElements = (apiData: TypeTreeItem[], direction = "TB") => {
           status: item.postStatus,
           postId: item.postId,
         },
+        _data: item,
       },
       position: { x: 0, y: 0 }, // Dagre가 계산할 위치
     });
@@ -79,18 +76,12 @@ const getLayoutedElements = (apiData: TypeTreeItem[], direction = "TB") => {
         id: `e-${item.parentPostId}-${item.postId}`,
         source: item.parentPostId.toString(),
         target: item.postId.toString(),
-        type: ConnectionLineType.Step, // react-d3-tree의 pathFunc="step"과 유사
+        type: ConnectionLineType.Step,
         style: {
           stroke: "#D3D3D3",
           strokeWidth: 2,
-          strokeDasharray: "5 5",
         },
         animated: true,
-        // 화살표가 필요하면 추가
-        // markerEnd: {
-        //   type: MarkerType.ArrowClosed,
-        //   color: '#D3D3D3',
-        // },
       };
       initialEdges.push(edge);
       dagreGraph.setEdge(edge.source, edge.target);
@@ -105,7 +96,6 @@ const getLayoutedElements = (apiData: TypeTreeItem[], direction = "TB") => {
     const nodeWithPosition = dagreGraph.node(node.id);
     return {
       ...node,
-      // Dagre의 위치는 노드의 중앙 기준이므로 x, y 조정
       position: {
         x: nodeWithPosition.x - NODE_WIDTH / 2,
         y: nodeWithPosition.y - NODE_HEIGHT / 2,
@@ -116,14 +106,110 @@ const getLayoutedElements = (apiData: TypeTreeItem[], direction = "TB") => {
   return { nodes: layoutedNodes, edges: initialEdges };
 };
 
-// --- 3. 메인 트리 컴포넌트 ---
+// --- 3. React Flow 캔버스 컴포넌트 (내부 분리) ---
+// 이 컴포넌트는 ReactFlowProvider 내부에 렌더링되므로 useReactFlow() 사용 가능
+const TreeCanvas = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  nodeTypes,
+  selectedPost,
+  lastSelectedPost,
+}: {
+  nodes: Node<PostNodeData>[];
+  edges: Edge[];
+  onNodesChange: any; // UseNodesState의 onNodesChange 타입
+  onEdgesChange: any; // UseEdgesState의 onEdgesChange 타입
+  onConnect: (params: Connection) => void;
+  nodeTypes: any; // useMemo로 생성된 nodeTypes 타입
+  selectedPost: TypeTreeItem | null;
+  lastSelectedPost: TypeTreeItem | null;
+}) => {
+  // 3-1. useReactFlow 훅을 여기서 호출
+  const { fitView } = useReactFlow();
+
+  // 3-2. 줌 효과를 적용하는 useEffect
+  useEffect(() => {
+    if (selectedPost) {
+      fitView({
+        nodes: [{ id: selectedPost.postId.toString() }],
+        duration: 300,
+        maxZoom: 1.2,
+      });
+    }
+  }, [selectedPost, lastSelectedPost, fitView]);
+
+  // 3-3. ReactFlow 캔버스 렌더링
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      nodeTypes={nodeTypes}
+      connectionLineType={ConnectionLineType.Step}
+      nodesDraggable={false}
+      fitView
+    >
+      <MiniMap
+        nodeStrokeWidth={3}
+        pannable={true}
+        position="top-right"
+        style={{
+          border: "1px solid #ddd",
+          backgroundColor: "rgba(248, 248, 248, 0.85)",
+        }}
+      />
+      <Controls showInteractive={false} />
+      <Background gap={20} color="#f1f1f1" />
+    </ReactFlow>
+  );
+};
+
+// --- 4. 메인 컴포넌트 (상태 관리 및 Provider 제공) ---
 const DrvTreeFlow = ({ data }: { data: TypeTreeItem[] }) => {
   const [selectedPost, setSelectedPost] = useState<TypeTreeItem | null>(null);
+  const [sameDepthPosts, setSameDepthPosts] = useState<TypeTreeItem[] | null>(
+    null
+  );
+  const [lastSelectedPost, setLastSelectedPost] = useState<TypeTreeItem | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (selectedPost) {
+      const { parentPostId } = selectedPost;
+      setSameDepthPosts(
+        data.filter((item) => item.parentPostId === parentPostId)
+      );
+    } else {
+      setSameDepthPosts(null);
+    }
+  }, [selectedPost, data]);
+
+  // 노드 클릭 핸들러
+  const handleNodeClick = useCallback(
+    ({ _data }: PostNodeData) => {
+      setSelectedPost(_data);
+      setLastSelectedPost(_data);
+    },
+    [setSelectedPost, setLastSelectedPost]
+  );
 
   // 1. 커스텀 노드 타입 등록
-  const nodeTypes = useMemo(() => ({ post: PostNode }), []);
+  const nodeTypes = useMemo(
+    () => ({
+      post: (props: NodeProps<PostNodeData>) => (
+        <PostNode {...props} onClick={handleNodeClick} />
+      ),
+    }),
+    [handleNodeClick] // handleNodeClick이 바뀔 수 있으므로 의존성 배열에 추가
+  );
 
-  // 2. 레이아웃 계산 (data prop이 바뀔 때만 다시 계산)
+  // 2. 레이아웃 계산
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(
     () => getLayoutedElements(data, "TB"),
     [data]
@@ -139,7 +225,7 @@ const DrvTreeFlow = ({ data }: { data: TypeTreeItem[] }) => {
     setEdges(layoutedEdges);
   }, [layoutedNodes, layoutedEdges, setNodes, setEdges]);
 
-  // 5. 엣지 연결 시 콜백 (사용자가 노드를 수동으로 연결할 때)
+  // 5. 엣지 연결 시 콜백
   const onConnect = useCallback(
     (params: Connection) =>
       setEdges((eds) =>
@@ -150,7 +236,6 @@ const DrvTreeFlow = ({ data }: { data: TypeTreeItem[] }) => {
             style: {
               stroke: "#D3D3D3",
               strokeWidth: 2,
-              strokeDasharray: "5 5",
             },
             animated: true,
           },
@@ -161,41 +246,64 @@ const DrvTreeFlow = ({ data }: { data: TypeTreeItem[] }) => {
   );
 
   return (
-    <div className="w-full h-[calc(100%-70px)]">
-      {selectedPost ? (
-        <div></div>
-      ) : (
-        <ReactFlow
+    <div className="w-full h-[calc(100%-70px)] flex items-center">
+      {selectedPost && (
+        <CustomBackground onClick={() => setSelectedPost(null)}>
+          <div className="max-w-84 max-h-[90%]">
+            <Image
+              src={selectedPost.representativeImageUrl}
+              alt={selectedPost.representativeImageUrl}
+              fill
+              className={`!relative rounded-2xl motion-preset-expand motion-duration-300`}
+            />
+          </div>
+        </CustomBackground>
+      )}
+      {/* {selectedPost ? (
+        <>
+          <ul className="absolute my-auto ml-4 flex flex-col items-center rounded-full bg-[rgba(248,248,248,0.4)] border-1 border-[#EDEDED] px-4 py-4">
+            <li className="bg-[#FF925F] w-2 h-2 mb-4 rounded-full"></li>
+            <li className="bg-[#DBDBDB] w-1 h-1 mb-4 rounded-full"></li>
+            <li className="bg-[#DBDBDB] w-1 h-1 rounded-full last:mb-0 "></li>
+          </ul>
+          <Swiper
+            slidesPerView={1}
+            spaceBetween={100}
+            centeredSlides={true}
+            pagination={{
+              clickable: true,
+            }}
+            modules={[Pagination]}
+            className="mySwiper min-h-[50vh] h-[60vh]"
+          >
+            {sameDepthPosts?.map((item) => (
+              <SwiperSlide key={item.postId} className="h-full">
+                <div className="w-full h-full">
+                  <Image
+                    src={item.representativeImageUrl}
+                    alt={item.representativeImageUrl}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </>
+      ) : ( */}
+      <ReactFlowProvider>
+        <TreeCanvas
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          nodeTypes={nodeTypes} // 커스텀 노드 등록
-          connectionLineType={ConnectionLineType.Step}
-          nodesDraggable={false}
-          fitView // 캔버스에 맞게 초기 뷰 조정
-        >
-          {/* --- 요구사항 기능 --- */}
-
-          {/* 1. 미니맵 (Minimap) */}
-          <MiniMap
-            nodeStrokeWidth={3}
-            pannable={true}
-            position="top-right"
-            style={{
-              border: "1px solid #ddd",
-              backgroundColor: "rgba(248, 248, 248, 0.85)",
-            }}
-          />
-
-          {/* 2. 줌/패닝 컨트롤러 */}
-          <Controls showInteractive={false} />
-
-          {/* 3. 캔버스 배경 (점선 또는 격자) */}
-          <Background gap={20} color="#f1f1f1" />
-        </ReactFlow>
-      )}
+          nodeTypes={nodeTypes}
+          selectedPost={selectedPost}
+          lastSelectedPost={lastSelectedPost}
+        />
+      </ReactFlowProvider>
+      {/* )} */}
     </div>
   );
 };

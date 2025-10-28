@@ -7,7 +7,10 @@ export const NODE_WIDTH = 120;
 export const NODE_HEIGHT = 160;
 const BORDER_RADIUS = 10;
 
-type PostNodeProps = { data: PostNodeData; onClick: (nodeId: number) => void };
+type PostNodeProps = {
+  data: PostNodeData;
+  onClick: (data: PostNodeData) => void;
+};
 
 // React Flow의 NodeProps 타입 사용
 const PostNode = ({ data, onClick }: PostNodeProps) => {
@@ -19,7 +22,7 @@ const PostNode = ({ data, onClick }: PostNodeProps) => {
         width: NODE_WIDTH,
         height: NODE_HEIGHT,
       }}
-      onClick={}
+      onClick={() => onClick && onClick(data)}
     >
       {/* 3. 부모 노드로부터 연결을 받는 Target Handle (상단) */}
       <Handle
@@ -46,7 +49,6 @@ const PostNode = ({ data, onClick }: PostNodeProps) => {
           const target = e.target as HTMLImageElement;
           target.src = `https://placehold.co/${NODE_WIDTH}x${NODE_HEIGHT}/eee/aaa?text=Image+Not+Found`;
         }}
-        onClick={() => onClick && onClick(data.attributes.postId)}
       />
 
       {/* 4. 자식 노드로 연결을 보내는 Source Handle (하단) */}
