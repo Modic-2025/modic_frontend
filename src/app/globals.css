@@ -11,6 +11,11 @@
   --color-foreground: var(--foreground);
 }
 
+/* Swuper  */
+.swiper .swiper-wrapper {
+  height: 100%;
+}
+
 /* ✅ Pretendard를 모든 기본 폰트로 지정 */
 html {
   font-family:
