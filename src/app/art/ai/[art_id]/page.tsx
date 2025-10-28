@@ -1,13 +1,17 @@
 import { APIFailureMsg } from "@/APIs";
-import GetArt from "@/APIs/Art/GetArt";
+import { TypeResponseData } from "@/APIs/posts/chat/messages/get/client";
 import getChatMessages from "@/APIs/posts/chat/messages/get/server";
 import Chat, { TypeChatData } from "@/components/Chat";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
 
-  const response: TypeChatData[] | APIFailureMsg =
-    await getChatMessages(art_id);
+  const response: TypeResponseData | APIFailureMsg = await getChatMessages(
+    art_id,
+    -1,
+    20
+  );
+
   if ("code" in response && response.code !== 404) {
     // except 404, because chat UI need to be shown during 404 state
     switch (response.code) {
@@ -26,12 +30,11 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
     }
   }
 
-  let chatHistory: TypeChatData[] | undefined = undefined;
-  if (Array.isArray(response)) {
-    chatHistory = response.reverse();
-  }
+  const { content, page } = response as TypeResponseData;
+  console.log("page :>> ", page);
+  const chatHistory: TypeChatData[] = Array.isArray(content) ? content : [];
 
-  return <Chat artId={art_id} chatHistory={chatHistory} />;
+  return <Chat artId={art_id} chatHistory={chatHistory} page={page} />;
 };
 
 export default Page;

@@ -1,18 +1,32 @@
-import { APIFailureMsg } from "@/APIs";
-import { ALERT_500_TEXT_TITLE } from "@/APIs/Art/Like";
+import { APIFailureMsg, TITLE_500 } from "@/APIs";
 import _fetch from "@/APIs/fetcher/ServerSide";
 import { TypeChatData } from "@/components/Chat";
 
+export const sortChatMsg = (datas: TypeChatData[]) => {
+  const ary = [...datas].sort((a, b) => a.messageOrder - b.messageOrder);
+  return ary;
+};
+
 type TypeResponseData = {
+  page: number;
   content: TypeChatData[];
 };
 const getChatMessages: (
-  postId: number
-) => Promise<TypeChatData[] | APIFailureMsg> = async (postId: number) => {
+  postId: number,
+  _page: number,
+  size: number
+) => Promise<TypeResponseData | APIFailureMsg> = async (
+  postId: number,
+  _page: number,
+  size: number
+) => {
+  const param = new URLSearchParams();
+  param.append("page", _page.toString());
+  param.append("size", size.toString());
   // fetch API
   const response = await (
     await _fetch(
-      `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${postId}/chat/messages`,
+      `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${postId}/chat/messages?${param.toString()}`,
       true
     )
   ).json();
@@ -31,17 +45,24 @@ const getChatMessages: (
           title: "AI 이미지 생성권을 구매한 이력이 없습니다.[AI-004]",
         };
       default:
-        return { code: status, title: ALERT_500_TEXT_TITLE };
+        return { code: status, title: TITLE_500 };
     }
   }
-  const { content } = data;
+  const { content, page } = data;
 
   // refactor data
-  const safeContent: TypeChatData[] = content
-    ? content.map((item) => ({ ...item, createdAt: new Date(item.createdAt) }))
-    : [];
-
-  return safeContent;
+  const safeContent: TypeChatData[] = sortChatMsg(
+    content
+      ? content.map((item) => ({
+          ...item,
+          createdAt: new Date(item.createdAt),
+        }))
+      : []
+  );
+  return {
+    page,
+    content: safeContent,
+  };
 };
 
 export default getChatMessages;

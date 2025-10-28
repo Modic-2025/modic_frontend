@@ -46,8 +46,9 @@ const refactorChatData = (data: TypeChat | TypeChat[]) => {
 type PropChat = {
   artId: number;
   chatHistory?: TypeChatData[];
+  page: number;
 };
-const Chat = ({ artId, chatHistory }: PropChat) => {
+const Chat = ({ artId, chatHistory, page }: PropChat) => {
   let safeArtId: number = -1;
   try {
     safeArtId = Number(artId);
@@ -74,6 +75,11 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
   const { data: remainingGen } = useRemainGens(Number(safeArtId));
   // Coins of account
   const { data: coins } = UseCoins();
+  // Page of chat stack
+  const [chatPage, setChatPage] = useState<number>(page);
+
+  const [isInitScrolled, setIsInitScrolled] = useState<boolean>(false);
+
   /**
    * [Compoent using state]
    * For managing callback works at two cases
@@ -248,10 +254,11 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
    */
   // Scroll to end when chat stack changed
   useEffect(() => {
-    if (chatStack) {
+    if (chatStack && !isInitScrolled) {
       setTimeout(() => {
         chatScrollToEnd();
       }, 400);
+      setIsInitScrolled(true);
     }
   }, [chatStack]);
 
@@ -269,7 +276,6 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
   useEffect(() => {
     if (art && !isUIInitialized) {
       const { images, postId } = art;
-      console.log("chatHistory :>> ", chatHistory);
       // if ("code" in response) {
       //   return;
       // }
@@ -317,11 +323,22 @@ const Chat = ({ artId, chatHistory }: PropChat) => {
 
   // Fetch old messages
   useEffect(() => {
-    if (isIsView && !isChatFetching) {
-      console.log("Fetch new messages called!");
-      // fetchChats();
+    if (isIsView && !isChatFetching && art && page >= 0) {
+      _getChatMessages(art.postId, page, 20);
     }
   }, [isIsView]);
+  const _getChatMessages = async (
+    postId: number,
+    page: number,
+    size: number
+  ) => {
+    const { content }: { content: TypeChat[] } = await getChatMessages(
+      postId,
+      page - 1,
+      size
+    );
+    setChatStack([...content].concat(chatStack));
+  };
 
   // Uploads current selected image
   const UploadCurrentImage = () => {
