@@ -40,7 +40,7 @@ import { APIFailureMsg } from "@/APIs";
 type TreeProp = {
   art_id: number;
 };
-const TreePage = async ({ params }: { params: TreeProp }) => {
+const TreePage = async ({ params }: { params: Promise<TreeProp> }) => {
   const { art_id } = await params;
   const treeData: APIFailureMsg | TypeTreeItem[] =
     await getPostDerivedTree(art_id);
