@@ -12,7 +12,9 @@ const useUserMe = (token: string | null): SWRResponse<UserMe> => {
           Authorization: `Bearer ${token}`,
         },
       });
-      return res.json() as Promise<UserMe>;
+      const response = await res.json();
+      // API 응답이 {isSuccess, status, data} 구조인 경우 data 추출
+      return response.data as UserMe;
     }
   );
 };
