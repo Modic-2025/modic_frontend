@@ -21,15 +21,20 @@ const ClickableImage = ({ ...rest }: ClickableImageType) => {
           <div className="max-w-84 max-h-[90%]">
             <Image
               {...rest}
+              // fill
               layout="fill"
               width={undefined}
               height={undefined}
-              className={`!relative rounded-2xl motion-preset-expand motion-duration-300 ${rest.className}`}
+              className={`!relative rounded-2xl motion-preset-expand motion-duration-300`}
             />
           </div>
         </Background>
       )}
-      <Image {...rest} onClick={() => setIsOpen(true)} />
+      <Image
+        {...rest}
+        onClick={() => setIsOpen(true)}
+        className={`cursor-pointer ${rest.className}`}
+      />
     </>
   );
 };

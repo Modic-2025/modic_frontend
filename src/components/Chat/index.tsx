@@ -432,7 +432,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               <div
                 className={`chat-area basis-9/10 ${
                   chat.isLoading &&
-                  "motion-preset-blink motion-duration-2000 [--motion-loop-opacity:0.4]"
+                  "motion-preset-blink motion-duration-2000 [--motion-loop-opacity:0.4] rounded-2xl"
                 }`}
               >
                 {chat.imageUrl && (
@@ -442,7 +442,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                     // layout="intrinsic"
                     width={240}
                     height={180}
-                    className="mb-4 shadow-lg rounded-2xl cursor-grab"
+                    className="mb-4 shadow-lg cursor-pointer rounded-2xl"
                   />
                 )}
                 {chat.textContent && (
@@ -465,7 +465,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                   // layout="intrinsic"
                   width={240}
                   height={180}
-                  className="mb-4 shadow-lg rounded-2xl cursor-grab"
+                  className="mb-4 shadow-lg cursor-pointer rounded-2xl"
                 />
               )}
               {chat.textContent && (

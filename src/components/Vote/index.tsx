@@ -1,5 +1,6 @@
 import { Vote } from "@/types/Vote";
 import Image from "next/image";
+import ClickableImage from "../ClickableImage";
 
 const VoteForm = ({
   vote,
@@ -27,13 +28,23 @@ const VoteForm = ({
           <div className="flex-1/2">
             {/* <h2>A</h2> */}
             <div className="absolute w-43 h-36 rounded-xl overflow-hidden">
-              <Image src={originalImageUrl} alt={originalImageUrl} fill />
+              <ClickableImage
+                src={originalImageUrl}
+                alt={originalImageUrl}
+                fill
+              />
+              {/* <Image src={originalImageUrl} alt={originalImageUrl} fill /> */}
             </div>
           </div>
           <div className="flex-1/2">
             {/* <h2>B</h2> */}
             <div className="absolute w-43 h-36 rounded-xl overflow-hidden">
-              <Image src={derivedImageUrl} alt={derivedImageUrl} fill />
+              <ClickableImage
+                src={derivedImageUrl}
+                alt={derivedImageUrl}
+                fill
+              />
+              {/* <Image src={derivedImageUrl} alt={derivedImageUrl} fill /> */}
             </div>
           </div>
         </section>
