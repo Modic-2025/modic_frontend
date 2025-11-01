@@ -9,14 +9,14 @@ type ApiResponse<T> = {
   message?: string;
 };
 
-const GetPost = async (
+const publicGetPost = async (
   postId: string | number
 ): Promise<Art | APIFailureMsg> => {
-  const url = `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${postId}`;
+  const url = `${process.env.NEXT_PUBLIC_API_HOST}/api/public/posts/${postId}`;
 
   try {
     // 3. API 호출 (public이므로 auth 플래그는 false로 전달)
-    const response = await _fetch(url, true);
+    const response = await _fetch(url, false);
 
     // 4. JSON 파싱
     // 만약 _fetch가 5xx 에러 시 HTML을 반환하면 .json()에서 에러가 발생하여
@@ -69,7 +69,7 @@ const GetPost = async (
   } catch (err) {
     // 6. [에러 제어 플로우] 네트워크 오류 또는 JSON 파싱 실패
     // (e.g., 502 Bad Gateway가 HTML을 반환하는 경우)
-    console.error(`[GetPost] API Fetch Error: ${err}`);
+    console.error(`[publicGetPost] API Fetch Error: ${err}`);
     return {
       code: -1,
       title: "네트워크 오류",
@@ -78,4 +78,4 @@ const GetPost = async (
   }
 };
 
-export default GetPost;
+export default publicGetPost;

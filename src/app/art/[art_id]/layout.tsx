@@ -6,6 +6,9 @@ import GetArt from "@/APIs/Art/GetArt";
 import DerivedArtTag from "@/components/Derived/Tag";
 import { Art } from "@/types/Art";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { APIFailureMsg } from "@/APIs";
+import publicGetPost from "@/APIs/public/posts";
 
 const layout = async ({
   children,
@@ -14,17 +17,27 @@ const layout = async ({
   children: React.ReactNode;
   params: Promise<{ art_id: number }>;
 }) => {
+  const cookieStore = await cookies();
   const { art_id } = await params;
-  const data_getPost = await GetArt(art_id);
-  const { status } = data_getPost;
-  const artData: Art = data_getPost.data;
-  const { userId, postId, postStatus, images } = artData;
-  if (status != 200) {
-    return <p> SERVER ERROR! ({status}) </p>;
+
+  const response: Art | APIFailureMsg = cookieStore.get("accessToken")?.value
+    ? await GetArt(art_id)
+    : await publicGetPost(art_id);
+
+  if ("code" in response) {
+    return (
+      <>
+        <p> {response.title}</p>
+        <p>{response.desc}</p>
+        <span>{response.code}</span>
+      </>
+    );
   }
 
+  const { userId, postId, postStatus, title, images } = response;
+
   const user = await getUserMe();
-  const isAuthor: boolean = Boolean(user && userId == user.userId);
+  const isAuthor: boolean = Boolean(user && response.userId == user.userId);
 
   /**
    * UI datas
@@ -48,7 +61,11 @@ const layout = async ({
     <>
       <Slider items={images} />
       <div className="flex items-center justify-between gap-1 py-4 border-b border-gray-200">
-        <MetaData art={artData} isAuthor={isAuthor} isLogined={Boolean(user)} />
+        <MetaData
+          art={response}
+          isAuthor={isAuthor}
+          isLogined={Boolean(user)}
+        />
       </div>
 
       {/* 제목 */}
@@ -61,7 +78,7 @@ const layout = async ({
             2차 창작물 보기
           </Link>
           {isDerivedPost && <DerivedArtTag status={postStatus} />}
-          {artData.title}
+          {title}
         </h1>
       </div>
 

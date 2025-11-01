@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// 1. useSearchParams 훅을 임포트합니다.
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import api from "@/libs/axiosInstance";
-import PrimaryButton from "@/components/Button/PrimaryButton";
+// 2. 경로 별칭(@/)을 상대 경로로 수정합니다.
+import api from "../../libs/axiosInstance";
+import PrimaryButton from "../../components/Button/PrimaryButton";
 import { setCookie } from "cookies-next/client";
 
 export default function LoginPage() {
@@ -13,6 +15,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // 3. searchParams 훅을 초기화합니다.
+  const searchParams = useSearchParams();
 
   const isActive = email.trim() !== "" && password.trim() !== "";
 
@@ -31,7 +36,11 @@ export default function LoginPage() {
         setCookie("accessToken", accessToken); // FOR DEVELOP
       }
 
-      router.push("/art");
+      // 4. 쿼리 파라미터에서 'redirectUrl'을 가져옵니다.
+      const redirectUrl = searchParams.get("redirectUrl");
+
+      // 5. redirectUrl이 있으면 해당 URL로, 없으면 '/art'로 이동합니다.
+      router.push(redirectUrl || "/art");
     } catch (err) {
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
