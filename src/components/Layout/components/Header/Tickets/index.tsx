@@ -1,9 +1,14 @@
 "use client";
 import Image from "next/image";
 import { commonClassNames } from "../..";
+import { useTicketCount } from "@/APIs/ai/tickets/me/hook";
 
 const Tickets = ({ onClick }: { onClick?: () => void }) => {
-  return (
+  const { ticketCount, isLoading, error } = useTicketCount();
+
+  return isLoading || error ? (
+    <></>
+  ) : (
     <div
       className={`${commonClassNames} basis-1/6 inline-flex items-center text-sm font-bold`}
       onClick={onClick ? onClick : () => {}}
@@ -16,7 +21,7 @@ const Tickets = ({ onClick }: { onClick?: () => void }) => {
           width={18}
           height={18}
         />
-        1/3
+        {ticketCount}개
       </span>
     </div>
   );

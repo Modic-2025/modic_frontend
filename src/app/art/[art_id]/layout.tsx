@@ -5,6 +5,7 @@ import Tab, { UITab } from "@/components/Tab";
 import GetArt from "@/APIs/Art/GetArt";
 import DerivedArtTag from "@/components/Derived/Tag";
 import { Art } from "@/types/Art";
+import Link from "next/link";
 
 const layout = async ({
   children,
@@ -53,6 +54,12 @@ const layout = async ({
       {/* 제목 */}
       <div className="py-3 border-b-4 border-[#F3F4F6]">
         <h1 className="text-base">
+          <Link
+            href={`/art/tree/${postId}`}
+            className={`inline-block px-2 py-1 rounded-full text-sm font-bold mr-1 underline`}
+          >
+            2차 창작물 보기
+          </Link>
           {isDerivedPost && <DerivedArtTag status={postStatus} />}
           {artData.title}
         </h1>

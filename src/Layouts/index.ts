@@ -133,6 +133,14 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/art/tree/[art_id]": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "2차 창작물 트리",
+      },
+    },
+  },
 };
 
 // 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
@@ -144,7 +152,8 @@ export const convertToRoutePattern = (pathName: string) => {
     .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
     .replace(/^\/users\/(\d+)/, "/users/[user_id]")
     .replace(/^\/art\/ai\/(\d+)/, "/art/ai/[art_id]")
-    .replace(/^\/art\/regist\/(\d+)/, "/art/regist/[image_id]");
+    .replace(/^\/art\/regist\/(\d+)/, "/art/regist/[image_id]")
+    .replace(/^\/art\/tree\/(\d+)/, "/art/tree/[art_id]");
 };
 
 export interface HeaderContent {
