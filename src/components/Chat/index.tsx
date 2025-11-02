@@ -95,7 +95,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   const { mutate } = useSWRConfig();
 
   // Intersection observer
-  const [observeRef, isIsView] = useIntersectionObserver<HTMLDivElement>({
+  const [observeRef, isInView] = useIntersectionObserver<HTMLDivElement>({
     threshold: 0.6,
   });
   const [isChatFetching, setIsChatFetching] = useState<boolean>(false);
@@ -322,10 +322,10 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // Fetch old messages
   useEffect(() => {
-    if (isIsView && !isChatFetching && art && page >= 0) {
+    if (isInView && !isChatFetching && art && page >= 0) {
       _getChatMessages(art.postId, page, 20);
     }
-  }, [isIsView]);
+  }, [isInView]);
   const _getChatMessages = async (
     postId: number,
     page: number,
