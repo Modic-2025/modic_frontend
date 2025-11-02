@@ -117,10 +117,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     if (inputText.trim() === "") {
       return;
     }
-    // console.log("e :>> ", e);
-    // console.log("inputText :>> ", inputText);
     if (e.nativeEvent.isComposing) {
-      // console.log("composing disable");
       return;
     }
     if (e.key === "Enter") {
@@ -177,7 +174,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     // Assign SSE
     if (status === 200) {
       const { requestId } = data;
-      console.log("data :>> ", data);
       setChatStack((prev) => [
         ...prev,
         {
@@ -224,14 +220,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         }
       );
     }
-  };
-
-  // Fetch chat by message id
-  const fetchChats = (orderId: number) => {
-    setIsChatFetching(true); // disable fetching
-    if (isChatFetching) return;
-    // getChatMessages()
-    setIsChatFetching(false); // turn off
   };
 
   /**
@@ -331,10 +319,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     page: number,
     size: number
   ) => {
+    setIsChatFetching(true);
     const res = await getChatMessages(postId, page - 1, size);
     // Guard against API failure shape which doesn't include `content`
     if (!res || !("content" in res)) {
       console.error("Failed to fetch chat messages:", res);
+      setIsChatFetching(false);
       return;
     }
     const { content }: { content: TypeChat[] } = res;
@@ -364,6 +354,28 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // For ImageList component
   const onDeleteImageList = (id: number) => {
     setInputImage(null);
+  };
+
+  // Render function
+  const renderDayOfWeek = (day: number) => {
+    switch (day) {
+      case 0:
+        return "일";
+      case 1:
+        return "월";
+      case 2:
+        return "화";
+      case 3:
+        return "수";
+      case 4:
+        return "목";
+      case 5:
+        return "금";
+      case 6:
+        return "토";
+      default:
+        return "NONE";
+    }
   };
 
   // Classnames
@@ -414,26 +426,63 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
           <div ref={observeRef}></div>
         )}
         {/* Chat history */}
-        {chatStack.map((chat, index) =>
-          chat.senderType === "AI" ? (
-            <div
-              key={index}
-              className={`opponent flex flex-row items-end gap-2 mb-4`}
-            >
-              <div className="profile basis-1/10">
-                <Image
-                  src="/opponent-profile-icon.svg"
-                  alt="opponent"
-                  className="relative bottom-0"
-                  width={48}
-                  height={48}
-                />
+        {chatStack.map((chat, index) => (
+          <>
+            {chatStack[index - 1 <= 0 ? 0 : index - 1].createdAt.getDate() !==
+              chat.createdAt.getDate() && (
+              <div className="text-center my-4">
+                <p className="font-bold text-(--color-gray-4)">
+                  {chat.createdAt.getFullYear()}.{chat.createdAt.getMonth()}.
+                  {chat.createdAt.getDate()} (
+                  {renderDayOfWeek(chat.createdAt.getDay())})
+                </p>
               </div>
+            )}
+            {chat.senderType === "AI" ? (
               <div
-                className={`chat-area basis-9/10 ${
-                  chat.isLoading &&
-                  "motion-preset-blink motion-duration-2000 [--motion-loop-opacity:0.4] rounded-2xl"
-                }`}
+                key={index}
+                className={`opponent flex flex-row items-end gap-2 mb-4`}
+              >
+                {/* <p>
+                {chatStack[index - 2 <= 0 ? 0 : index - 2].createdAt.getDate()}
+              </p>
+              <p>{chat.createdAt.getDate()}</p> */}
+                <div className="profile basis-1/10">
+                  <Image
+                    src="/opponent-profile-icon.svg"
+                    alt="opponent"
+                    className="relative bottom-0"
+                    width={48}
+                    height={48}
+                  />
+                </div>
+                <div
+                  className={`chat-area basis-9/10 ${
+                    chat.isLoading &&
+                    "motion-preset-blink motion-duration-2000 [--motion-loop-opacity:0.4] rounded-2xl"
+                  }`}
+                >
+                  {chat.imageUrl && (
+                    <ClickableImage
+                      src={chat.imageUrl}
+                      alt="origin_image"
+                      // layout="intrinsic"
+                      width={240}
+                      height={180}
+                      className="mb-4 shadow-lg cursor-pointer rounded-2xl"
+                    />
+                  )}
+                  {chat.textContent && (
+                    <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-bl-none">
+                      {chat.textContent}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div
+                key={index}
+                className="me flex flex-col justify-end mb-4 items-end"
               >
                 {chat.imageUrl && (
                   <ClickableImage
@@ -446,37 +495,14 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                   />
                 )}
                 {chat.textContent && (
-                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-bl-none">
+                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-br-none">
                     {chat.textContent}
                   </p>
                 )}
               </div>
-            </div>
-          ) : (
-            <div
-              key={index}
-              className="me flex flex-col justify-end mb-4 items-end"
-            >
-              {/* <div className="chat-area text-right"> */}
-              {chat.imageUrl && (
-                <ClickableImage
-                  src={chat.imageUrl}
-                  alt="origin_image"
-                  // layout="intrinsic"
-                  width={240}
-                  height={180}
-                  className="mb-4 shadow-lg cursor-pointer rounded-2xl"
-                />
-              )}
-              {chat.textContent && (
-                <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-br-none">
-                  {chat.textContent}
-                </p>
-              )}
-              {/* </div> */}
-            </div>
-          )
-        )}
+            )}
+          </>
+        ))}
 
         <div className={inputarea_classname}>
           {inputImage && (

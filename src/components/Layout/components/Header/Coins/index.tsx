@@ -19,7 +19,6 @@ const Coins = ({ onClick }: { onClick?: () => void }) => {
       setSoManyCoins(checkDisplayOverflow(coinBalance));
     }
   }, [coinBalance]);
-  console.log("error :>> ", error);
 
   return isLoading || error ? (
     <></>
