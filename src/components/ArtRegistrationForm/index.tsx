@@ -265,34 +265,13 @@ const ArtRegistrationForm = ({
       {/* 그림체 소개 */}
       <div className="mt-6">
         <label className="block text-md font-semibold mb-2">설명</label>
-        {/* <div className="relative rounded-lg bg-[#EDEEEF] px-4 py-4 text-sm text-gray-600 flex flex-col min-h-[180px]"> */}
-        {/* <textarea
-            value={description}
-            onChange={onChangeDescription}
-            className="h-full resize-none overflow-y-auto min-h-[180px]"
-            placeholder={
-              "무엇을 만들고자 하나요?" +
-              "\n" +
-              "- 만들고 싶은 대상이나 해결하고 싶은 문제를 적어주세요." +
-              "\n" +
-              "\n" +
-              "한 줄로 소개한다면?" +
-              "\n" +
-              "- 프로젝트 내용을 짧고 명확하게 써주세요." +
-              "\n" +
-              "\n" +
-              "왜 의미 있나요?" +
-              "\n" +
-              "- 만든 이유나 필요성을 간단히 적어주세요."
-            }
-          /> */}
+
         <MDEditor
           value={description}
           onChange={(e?: string) => {
-            e && setDescription(e);
+            setDescription(e ? e : "");
           }}
         />
-        {/* </div> */}
         <div className="text-right text-xs text-[--color-gray-4] mt-2">
           {descriptionLength}/{MAX_DESCRIPTION_LENGTH}
         </div>
