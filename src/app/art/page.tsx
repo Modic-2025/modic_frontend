@@ -9,7 +9,10 @@ export default function Home() {
       <section>
         <ContentViewer grid={2} />
       </section>
-      <Link href="/art/regist" className="fixed bottom-16 z-10 right-4">
+      <Link
+        href="/art/regist"
+        className="fixed bottom-16 z-10 right-[calc(50vw-180px)]"
+      >
         <button className="bg-(--color-main) p-4 py-2 rounded-full text-white font-bold shadow-md cursor-pointer">
           {" "}
           그림 등록하기{" "}
