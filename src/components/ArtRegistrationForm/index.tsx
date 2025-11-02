@@ -52,16 +52,6 @@ const ArtRegistrationForm = ({
   const [description, setDescription] = useState<string>(
     art?.description || ""
   );
-  const [descriptionLength, setDescriptionLength] = useState<number>(
-    art?.description?.length || 0
-  );
-
-  const onChangeDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { value } = e.target;
-    if (value.length > MAX_DESCRIPTION_LENGTH) return;
-    setDescription(value);
-    setDescriptionLength(value.length);
-  };
 
   const onClickCreatePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (imageUrls.length < 1) {
@@ -210,6 +200,8 @@ const ArtRegistrationForm = ({
           inputLayout="NORMAL"
           value={title}
           onChange={(e) => {
+            const { value } = e.target;
+            if (value.length > MAX_TITLE_NUM) return;
             setTitle(e.target.value);
           }}
           placeholder="제목을 입력해주세요"
@@ -268,12 +260,17 @@ const ArtRegistrationForm = ({
 
         <MDEditor
           value={description}
-          onChange={(e?: string) => {
-            setDescription(e ? e : "");
+          onChange={(value?: string) => {
+            if (!value) {
+              setDescription("");
+              return;
+            }
+            if (value.length > MAX_DESCRIPTION_LENGTH) return;
+            setDescription(value);
           }}
         />
         <div className="text-right text-xs text-[--color-gray-4] mt-2">
-          {descriptionLength}/{MAX_DESCRIPTION_LENGTH}
+          {description.length}/{MAX_DESCRIPTION_LENGTH}
         </div>
       </div>
 
