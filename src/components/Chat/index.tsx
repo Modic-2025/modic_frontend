@@ -266,30 +266,36 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       // if ("code" in response) {
       //   return;
       // }
-      // Data refactoring for UI
-      setChatStack(
-        chatHistory && chatHistory.length > 0
-          ? chatHistory
-          : [
-              {
-                messageId: -1,
-                messageOrder: -1,
-                senderType: "AI",
-                imageUrl: images[0].imageUrl,
-                requestId: "",
-                textContent: "이 그림체로 어떤 작품을 만들어볼까요?",
-                createdAt: new Date(""),
-                status: "RESPONSE",
-              },
-            ]
-      );
-      [
-        // old
-        [].reverse(),
-        ...[
-          /* current */
-        ],
-      ]; // new
+      if (chatHistory) {
+        // Data refactoring for UI
+        setChatStack(
+          chatHistory && chatHistory.length > 0
+            ? chatHistory
+            : [
+                {
+                  messageId: -1,
+                  messageOrder: -1,
+                  senderType: "AI",
+                  imageUrl: images[0].imageUrl,
+                  requestId: "",
+                  textContent: "이 그림체로 어떤 작품을 만들어볼까요?",
+                  createdAt: new Date(""),
+                  status: "RESPONSE",
+                },
+              ]
+        );
+
+        if (chatHistory.length < 5) {
+          _getChatMessages(art.postId, chatPage, 20);
+        }
+      }
+      // [
+      //   // old
+      //   [].reverse(),
+      //   ...[
+      //     /* current */
+      //   ],
+      // ]; // new
 
       setInit(true); // Set flag
     }
@@ -310,8 +316,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // Fetch old messages
   useEffect(() => {
-    if (isInView && !isChatFetching && art && page >= 0) {
-      _getChatMessages(art.postId, page, 20);
+    console.log("isInView :>> ", isInView);
+    console.log("isChatFetching :>> ", isChatFetching);
+    console.log("chatPage :>> ", chatPage);
+    console.log("art :>> ", art);
+    if (isInView && !isChatFetching && art && chatPage >= 0) {
+      _getChatMessages(art.postId, chatPage, 20);
     }
   }, [isInView]);
   const _getChatMessages = async (
@@ -319,6 +329,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     page: number,
     size: number
   ) => {
+    if (chatPage < 0) return; // blocking
     setIsChatFetching(true);
     const res = await getChatMessages(postId, page - 1, size);
     // Guard against API failure shape which doesn't include `content`
@@ -329,7 +340,15 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     const { content }: { content: TypeChat[] } = res;
     setChatStack((prev) => [...content].concat(prev));
+    setChatPage(page - 1);
+
+    // setTimeout(() => {
+    //   if ()
+    // });
+
+    setIsChatFetching(false);
   };
+  // UI function
 
   // Uploads current selected image
   const UploadCurrentImage = () => {
