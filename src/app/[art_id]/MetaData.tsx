@@ -78,7 +78,7 @@ const MetaData = ({
           setFailTitle(ALERT_404_TEXT_TITLE);
           setFailDesc(ALERT_404_TEXT_DESC);
           setTimeout(() => {
-            router.push("/art");
+            router.push("/");
           }, 3000);
           break;
         default:
@@ -101,7 +101,7 @@ const MetaData = ({
       )}
       {showOption && (
         <OverlayOption onClose={onCloseOverlayOption}>
-          <Option href={`/art/edit/${art.postId}`}>수정</Option>
+          <Option href={`/edit/${art.postId}`}>수정</Option>
           <Option onClick={onClickArtDelete} type="warn">
             삭제
           </Option>

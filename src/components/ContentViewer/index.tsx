@@ -145,7 +145,7 @@ const ContentViewer = ({
                 height={200}
               />
               <Link
-                href={`/art/regist/${selectedArt.images[0].imageId}?imageUrl=${safeImageUrl}`}
+                href={`/regist/${selectedArt.images[0].imageId}?imageUrl=${safeImageUrl}`}
               >
                 <PrimaryButton
                   text="2차 창작물 등록하기"

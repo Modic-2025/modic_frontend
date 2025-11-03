@@ -99,7 +99,7 @@ const ArtRegistrationForm = ({
 
       // Success
       if (typeof response === "number") {
-        router.push(`/art/${response}`);
+        router.push(`/${response}`);
       }
     }
 
@@ -147,8 +147,8 @@ const ArtRegistrationForm = ({
         const { postId } = data.data;
         // Success routing
         if (status == 201 && isSuccess) {
-          router.push("/art");
-          router.replace(`/art/${postId}`);
+          router.push("/");
+          router.replace(`/${postId}`);
           return;
         }
       })

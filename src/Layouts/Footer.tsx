@@ -19,7 +19,7 @@ type MenuType = (typeof MENUS)[keyof typeof MENUS];
 const NAV_BUTTONS: Array<NavButtonType> = [
   {
     value: MENUS.HOME,
-    href: "/art",
+    href: "/",
     alt: "피드",
     selected: true,
     icon: "/IconHome.svg",
@@ -43,7 +43,7 @@ const NAV_BUTTONS: Array<NavButtonType> = [
   },
   // {
   //   value: MENUS.CREATE_ART,
-  //   href: "/art/regist",
+  //   href: "/regist",
   //   alt: "그림체 등록",
   //   selected: false,
   //   icon: "/IconCreateArt.svg",

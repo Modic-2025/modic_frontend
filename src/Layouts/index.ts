@@ -22,11 +22,11 @@ export type HeaderContentActionsType = {
  * header contents map by path
  */
 export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
-  "/art": HEADER_CONTENTS_DEFAULT,
-  "/art/[art_id]": HEADER_CONTENTS_DEFAULT,
-  "/art/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,
-  "/art/[art_id]/reviews": HEADER_CONTENTS_DEFAULT,
-  "/art/search": {
+  "/": HEADER_CONTENTS_DEFAULT,
+  "/[art_id]": HEADER_CONTENTS_DEFAULT,
+  "/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,
+  "/[art_id]/reviews": HEADER_CONTENTS_DEFAULT,
+  "/search": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -34,7 +34,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/edit/[art_id]": {
+  "/edit/[art_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -42,7 +42,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/regist": {
+  "/regist": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -50,7 +50,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/regist/[image_id]": {
+  "/regist/[image_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -109,7 +109,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
   "/users/[user_id]": {
     elements: ["logo", "title", "option_dotted"],
   },
-  "/art/ai/[art_id]": {
+  "/ai/[art_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -133,7 +133,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/tree/[art_id]": {
+  "/tree/[art_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -148,12 +148,12 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
 // .replace(target_regex, replace_string)
 export const convertToRoutePattern = (pathName: string) => {
   return pathName
-    .replace(/^\/art\/(\d+)/, "/art/[art_id]")
-    .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
+    .replace(/^\/(\d+)/, "/[art_id]")
+    .replace(/^\/edit\/(\d+)/, "/edit/[art_id]")
     .replace(/^\/users\/(\d+)/, "/users/[user_id]")
-    .replace(/^\/art\/ai\/(\d+)/, "/art/ai/[art_id]")
-    .replace(/^\/art\/regist\/(\d+)/, "/art/regist/[image_id]")
-    .replace(/^\/art\/tree\/(\d+)/, "/art/tree/[art_id]");
+    .replace(/^\/ai\/(\d+)/, "/ai/[art_id]")
+    .replace(/^\/regist\/(\d+)/, "/regist/[image_id]")
+    .replace(/^\/tree\/(\d+)/, "/tree/[art_id]");
 };
 
 export interface HeaderContent {

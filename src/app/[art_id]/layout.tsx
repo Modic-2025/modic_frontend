@@ -45,15 +45,15 @@ const layout = async ({
   const tabs: Array<UITab> = [
     {
       name: "정보",
-      href: `/art/${postId}`,
+      href: `/${postId}`,
     },
     {
       name: "후기",
-      href: `/art/${postId}/reviews`,
+      href: `/${postId}/reviews`,
     },
     {
       name: "문의",
-      href: `/art/${postId}/qnas`,
+      href: `/${postId}/qnas`,
     },
   ];
   const isDerivedPost = postStatus.startsWith("DERIVED_");
@@ -72,7 +72,7 @@ const layout = async ({
       <div className="py-3 border-b-4 border-[#F3F4F6]">
         <h1 className="text-base">
           <Link
-            href={`/art/tree/${postId}`}
+            href={`/tree/${postId}`}
             className={`inline-block px-2 py-1 rounded-full text-sm font-bold mr-1 underline`}
           >
             2차 창작물 보기
