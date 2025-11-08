@@ -9,7 +9,7 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const response: TypeResponseData | APIFailureMsg = await getChatMessages(
     art_id,
     -1,
-    20
+    30
   );
 
   if ("code" in response && response.code !== 404) {
@@ -31,7 +31,6 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   }
 
   const { content, page } = response as TypeResponseData;
-  console.log("page :>> ", page);
   const chatHistory: TypeChatData[] = Array.isArray(content) ? content : [];
 
   return <Chat artId={art_id} chatHistory={chatHistory} page={page} />;
