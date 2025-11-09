@@ -21,13 +21,13 @@ const VoteForm = ({
         </div>
         <h1 className="font-bold text-lg">
           {" "}
-          두 그림은 같은 작가가 그렸을까요?{" "}
+          두 그림은 각각 독립된 저작권이 인정될까요?{" "}
         </h1>
         <p className="text-(--color-gray-4)"> 예, 아니오 중 선택 해주세요 </p>
-        <section className="flex flex-row min-h-36 gap-2">
+        <section className="flex flex-row min-h-54 gap-2">
           <div className="flex-1/2">
             {/* <h2>A</h2> */}
-            <div className="absolute w-43 h-36 rounded-xl overflow-hidden">
+            <div className="absolute w-43 h-54 rounded-xl overflow-hidden">
               <ClickableImage
                 src={originalImageUrl}
                 alt={originalImageUrl}
@@ -38,7 +38,7 @@ const VoteForm = ({
           </div>
           <div className="flex-1/2">
             {/* <h2>B</h2> */}
-            <div className="absolute w-43 h-36 rounded-xl overflow-hidden">
+            <div className="absolute w-43 h-54 rounded-xl overflow-hidden">
               <ClickableImage
                 src={derivedImageUrl}
                 alt={derivedImageUrl}

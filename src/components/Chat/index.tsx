@@ -169,7 +169,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
       chatScrollToEndWithDelay(Boolean(imageUrl)); // UI control
 
-      subsSSE(artId, data, (e: EventSourceMessage) => handleMsgReceived);
+      subsSSE(artId, data, handleMsgReceived);
     }
   };
   const handleMsgReceived = async (e: EventSourceMessage) => {
@@ -207,6 +207,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       const result = safePrev
         .filter((item) => !item.isLoading)
         .concat(safeChatResponse);
+      console.log("result :>> ", result);
       return result;
     });
     chatScrollToEndWithDelay(Boolean(chatResponse.imageUrl)); // UI control
@@ -519,7 +520,9 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
             </div>
           )}
           <div className="flex flex-row h-16 bg-white gap-2 p-2">
-            <label className="flex flex-1/10 justify-center cursor-pointer">
+            <label
+              className={`flex flex-1/10 justify-center cursor-pointer ${chatDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
               <Image
                 src="/gallery-add.svg"
                 alt="Select image"
@@ -543,7 +546,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                   : `앞으로 ${remainingGen}번 그림체 변환 가능합니다!`
               }
               value={inputText}
-              // disabled={true}
               disabled={chatDisabled}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={textInputKeydownCheck}

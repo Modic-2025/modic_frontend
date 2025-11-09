@@ -3,7 +3,7 @@ import {
   fetchEventSource,
 } from "@microsoft/fetch-event-source";
 import { getCookie } from "cookies-next/client";
-import { TypeChatData } from ".";
+import { TypeChatData } from "./types";
 
 /**
  * SSE를 구독합니다.
@@ -29,6 +29,7 @@ const subsSSE = async (
         await onmessage(e);
         unsubsRequest(artId);
       },
+      signal: AbortSignal.timeout(5 * 60000),
     }
   );
 };
