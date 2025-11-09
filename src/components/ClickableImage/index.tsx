@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Background } from "../Popups";
 import Image from "next/image";
+import { preload } from "react-dom";
 
 type ClickableImageType = {
   src: string;
@@ -33,6 +34,7 @@ const ClickableImage = ({ ...rest }: ClickableImageType) => {
       <Image
         {...rest}
         onClick={() => setIsOpen(true)}
+        onMouseEnter={() => preload(rest.src, { as: "image" })}
         className={`cursor-pointer ${rest.className}`}
       />
     </>
