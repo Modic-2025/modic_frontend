@@ -468,7 +468,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                       // layout="intrinsic"
                       width={240}
                       height={180}
-                      className=" shadow-lg cursor-pointer rounded-2xl"
+                      className="shadow-lg cursor-pointer rounded-2xl mb-4"
                     />
                   )}
                   {chat.textContent && (
