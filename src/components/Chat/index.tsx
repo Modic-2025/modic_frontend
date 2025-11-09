@@ -63,7 +63,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Coins of account
   const { data: coins } = UseCoins();
   // Page of chat stack
-  const [chatPage, setChatPage] = useState<number>(page - 1);
+  const [chatPage, setChatPage] = useState<number>(page);
 
   const [isInitScrolled, setIsInitScrolled] = useState<boolean>(false);
 
@@ -204,7 +204,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       const result = safePrev
         .filter((item) => !item.isLoading)
         .concat(safeChatResponse);
-      console.log("result :>> ", result);
       return result;
     });
     chatScrollToEndWithDelay(Boolean(chatResponse.imageUrl)); // UI control
@@ -295,7 +294,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         );
 
         // 첫 페이지(-1)가 아니고, 메시지가 10개 이하일 때, 메시지를 추가적으로 fetch 한다.
-        if (chatPage > 0 && chatHistory.length < 10) {
+        if (chatPage >= 0 && chatHistory.length < 10) {
           _getChatMessages(art.postId, chatPage, 30);
         }
       }
@@ -328,9 +327,10 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     page: number,
     size: number
   ) => {
-    if (page - 1 < 0) return; // blocking
+    const safePage = page - 1;
+    if (safePage < 0) return; // blocking
     setIsChatFetching(true);
-    const res = await getChatMessages(postId, page - 1, size);
+    const res = await getChatMessages(postId, safePage, size);
     // Guard against API failure shape which doesn't include `content`
     if (!res || !("content" in res)) {
       console.error("Failed to fetch chat messages:", res);
@@ -339,7 +339,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     const { content }: { content: TypeChat[] } = res;
     setChatStack((prev) => [...content].concat(prev));
-    setChatPage(page - 1);
+    setChatPage(safePage);
 
     setIsChatFetching(false);
   };
