@@ -103,6 +103,7 @@ const ArtRegistrationForm = ({
       if (typeof response === "number") {
         router.push(`/art/${response}`);
       }
+      return;
     }
 
     // Create/Editing original post
