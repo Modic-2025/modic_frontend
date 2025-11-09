@@ -20,6 +20,7 @@ import subsSSE, { getPendingReqById } from "./subscribeSSE";
 import { EventSourceMessage } from "@microsoft/fetch-event-source";
 import { TypeChat, TypeChatData } from "./types";
 import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
+import Link from "next/link";
 
 // Refactor chat data as type `TypeChat`
 const refacorChatData = (data: TypeChatData): TypeChat => {
@@ -64,6 +65,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   const { data: coins } = UseCoins();
   // Page of chat stack
   const [chatPage, setChatPage] = useState<number>(page);
+  // Info overlay
+  const [isInfoOverlayOpen, setIsInfoOverlayOpen] = useState<boolean>(false);
 
   const [isInitScrolled, setIsInitScrolled] = useState<boolean>(false);
 
@@ -421,6 +424,48 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               setShowBuyFailWindow(false);
             }}
           />
+        )}
+
+        {isInfoOverlayOpen ? (
+          <div
+            className="fixed top-14 left-[calc(50vw-180px)] w-[calc(384px-24px)] h-24 bg-white rounded-md shadow-xl flex gap-2 p-2 z-1 motion-preset-expand motion-duration-500"
+            onClick={() => setIsInfoOverlayOpen(false)}
+          >
+            {art && (
+              <>
+                <section className="relative basis-1/4 overflow-hidden rounded-lg">
+                  <ClickableImage
+                    src={art.images[0].imageUrl}
+                    alt="스타일 이미지"
+                    // width={80}
+                    // height={80}
+                    fill
+                  />
+                </section>
+                <section className="basis-3/4 flex items-center">
+                  <div>
+                    <Link
+                      href={`/art/${artId}`}
+                      className="text-md font-bold underline block mb-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {art?.title}
+                    </Link>
+                    <p className="w-full text-sm text-(--color-gray-4) overflow-hidden">
+                      {art.userName} | {art.userEmail}
+                    </p>
+                  </div>
+                </section>
+              </>
+            )}
+          </div>
+        ) : (
+          <button
+            className="fixed top-14 left-[calc(50vw-180px)] w-12 h-12 rounded-full bg-white shadow-xl cursor-pointer z-1 motion-preset-expand motion-duration-300"
+            onClick={() => setIsInfoOverlayOpen(true)}
+          >
+            <Image src="/info-circle.svg" alt="정보" width={48} height={48} />
+          </button>
         )}
 
         {observeRef && typeof observeRef === "object" && (

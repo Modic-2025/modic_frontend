@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 
 type BgPropType = {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick: (e?: React.MouseEvent<HTMLDivElement>) => void;
   noBg?: boolean;
 };
 export const Background = ({ children, onClick, noBg = false }: BgPropType) =>

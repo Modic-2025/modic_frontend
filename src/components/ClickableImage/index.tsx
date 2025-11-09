@@ -18,7 +18,12 @@ const ClickableImage = ({ ...rest }: ClickableImageType) => {
   return (
     <>
       {isOpen && (
-        <Background onClick={() => setIsOpen(false)}>
+        <Background
+          onClick={(e) => {
+            setIsOpen(false);
+            e?.stopPropagation();
+          }}
+        >
           <div className="max-w-84 max-h-[90%]">
             <Image
               {...rest}
@@ -33,7 +38,10 @@ const ClickableImage = ({ ...rest }: ClickableImageType) => {
       )}
       <Image
         {...rest}
-        onClick={() => setIsOpen(true)}
+        onClick={(e) => {
+          setIsOpen(true);
+          e.stopPropagation();
+        }}
         onMouseEnter={() => preload(rest.src, { as: "image" })}
         className={`cursor-pointer ${rest.className}`}
       />
