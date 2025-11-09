@@ -165,19 +165,20 @@ const ArtRegistrationForm = ({
     e: ChangeEvent<HTMLInputElement>,
     type: "COM" | "NONCOM"
   ) => {
-    const value = Number(e.target.value);
+    const { value } = e.target;
+    const numberValue = Number(value);
     if (type === "COM") {
-      if (value <= 0) {
+      if (numberValue < 0 || !value) {
         // Shows placeholder
         setComCost(undefined);
         e.target.value = "";
-      } else setComCost(value);
+      } else setComCost(numberValue);
     } else {
-      if (value <= 0) {
+      if (numberValue < 0 || !value) {
         // Shows placeholder
         setNonComCost(undefined);
         e.target.value = "";
-      } else setNonComCost(value);
+      } else setNonComCost(numberValue);
     }
   };
 
@@ -213,7 +214,7 @@ const ArtRegistrationForm = ({
 
       {/* 가격 입력란 */}
       <div className="mt-4">
-        <label className="block text-md font-semibold mb-2">가격</label>
+        <label className="block text-md font-semibold mb-2">코인</label>
         <div className="flex flex-row items-center gap-2">
           <div className="relative basis-1/2">
             <input
@@ -223,10 +224,10 @@ const ArtRegistrationForm = ({
                 onCostChange(e, "COM")
               }
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
-              placeholder="상업용 가격"
+              placeholder="상업용"
             />
             <Image
-              src="/circle-letter-c.svg"
+              src="/copyright.svg"
               alt="commercial cost"
               width={24}
               height={24}
@@ -241,10 +242,10 @@ const ArtRegistrationForm = ({
                 onCostChange(e, "NONCOM");
               }}
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
-              placeholder="비상업용 가격"
+              placeholder="비상업용"
             />
             <Image
-              src="/circle-letter-c.svg"
+              src="/copyright-off.svg"
               alt="non-commercial cost"
               width={24}
               height={24}

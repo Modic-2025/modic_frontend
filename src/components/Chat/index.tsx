@@ -11,36 +11,26 @@ import { SWRResponse, useSWRConfig } from "swr";
 import ClickableImage from "../ClickableImage";
 import Confirm from "../Popups/Confirm";
 import buyPermissionWithCoin from "@/APIs/ai/image-permissions/buy-with-coin";
-import Error from "next/error";
 import UseCoins from "@/hooks/UseCoins";
 import Fail from "../Popups/Fail";
-import { fetchEventSource } from "@microsoft/fetch-event-source";
 import ImageList from "../ImageList";
 import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
 import getChatMessages from "@/APIs/posts/chat/messages/get/client";
+import subsSSE, {
+  getPendingReqById,
+  PREFIX_PENDING_USER_REQUEST_MESSAGE,
+} from "./subscribeSSE";
+import { EventSourceMessage } from "@microsoft/fetch-event-source";
+import { TypeChat, TypeChatData } from "./types";
+import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
 
-// 임시로 로딩 메시지 판별의 기준
-const NOW_LOADING_MSG = "응답 대기중 ..";
-
-type TypeChatUI = {
-  // For UI
-  isLoading?: boolean;
-};
-export type TypeChatData = {
-  messageId: number; // loading 등의 fake message는 id를 -1로 설정
-  messageOrder: number; // loading 등의 fake message는 id를 -1로 설정
-  senderType: "AI" | "USER";
-  textContent?: string;
-  requestId: string;
-  imageUrl?: string;
-  createdAt: Date;
-  status: "REQUEST" | "REQUEST_PENDING" | "REQUEST_FAILED" | "RESPONSE";
-};
-
-type TypeChat = TypeChatUI & TypeChatData;
 // Refactor chat data as type `TypeChat`
-const refactorChatData = (data: TypeChat | TypeChat[]) => {
-  return data;
+const refacorChatData = (data: TypeChatData): TypeChat => {
+  if (data) {
+    return { ...data, createdAt: new Date(data.createdAt) };
+  }
+  console.error("[refactorChatData]: data가 올바르지 않습니다. >> ", data);
+  return CHAT_ERROR_REFRESH;
 };
 
 type PropChat = {
@@ -76,7 +66,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Coins of account
   const { data: coins } = UseCoins();
   // Page of chat stack
-  const [chatPage, setChatPage] = useState<number>(page);
+  const [chatPage, setChatPage] = useState<number>(page - 1);
 
   const [isInitScrolled, setIsInitScrolled] = useState<boolean>(false);
 
@@ -127,8 +117,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // on-click event on buy permission window
   const onClickBuy = async () => {
-    const response = await buyPermissionWithCoin(safeArtId);
     setShowBuyWindow(false);
+    const response = await buyPermissionWithCoin(safeArtId);
     // On success
     if (typeof response === "boolean" && response) {
       mutate([`remaining-generations`, art?.postId]);
@@ -173,53 +163,55 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     // Assign SSE
     if (status === 200) {
-      const { requestId } = data;
-      setChatStack((prev) => [
-        ...prev,
-        {
-          messageId: -1,
-          messageOrder: -1,
-          senderType: "USER",
-          textContent: inputText,
-          requestId: "",
-          imageUrl: inputImage?.imageUrl ?? undefined,
-          createdAt: new Date(""),
-          status: "REQUEST_PENDING",
-        },
-        {
-          messageId: -1,
-          messageOrder: -1,
-          senderType: "AI",
-          textContent: "응답 대기중 ..",
-          requestId: "",
-          createdAt: new Date(""),
-          isLoading: true,
-          status: "RESPONSE",
-        },
-      ]);
-      const token = localStorage.getItem("accessToken");
-      await fetchEventSource(
-        `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${artId}/chat/sse/${requestId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          async onmessage(e) {
-            const { data } = e;
-            const { textContent, imageUrl } = await JSON.parse(data);
-            setChatStack((prev) => [
-              ...prev.filter((item) => item.textContent !== NOW_LOADING_MSG),
-              {
-                senderType: "AI",
-                textContent: textContent,
-                imageUrl: imageUrl,
-              } as TypeChat,
-            ]);
-            setChatDisabled(false);
-          },
-        }
-      );
+      const { imageUrl } = data;
+      await setChatStack([...chatStack, refacorChatData(data)]);
+      appendLoadingMsg(data);
+
+      chatScrollToEndWithDelay(Boolean(imageUrl)); // UI control
+
+      subsSSE(artId, data, (e: EventSourceMessage) => handleMsgReceived);
     }
+  };
+  const handleMsgReceived = async (e: EventSourceMessage) => {
+    const { data } = e;
+    const chatResponse: TypeChatData = await JSON.parse(data);
+    const safeChatResponse: TypeChat = refacorChatData(chatResponse);
+
+    const pendingRequest = getPendingReqById(artId);
+    // ERROR CASE: 현재 대기중인 요청이 없을 경우
+    if (!pendingRequest) {
+      console.error("ERROR CASE: 현재 대기중인 요청이 없을 경우");
+      return;
+    }
+    let safeRequest = null;
+    // Parse pending request
+    try {
+      safeRequest = JSON.parse(pendingRequest);
+    } catch (e) {
+      // ERROR CASE: 현재 대기중인 요청 데이터가 정상적이지 않을 경우
+      throw new Error(e);
+    }
+
+    // Update status
+    setChatStack((prev) => {
+      // Update `REQUEST_PENDING` to `REQUEST` (complete)
+      let safePrev = prev.map((item) => ({
+        ...item,
+        status:
+          item.requestId === safeRequest.requestId &&
+          item.status === "REQUEST_PENDING"
+            ? "REQUEST"
+            : item.status,
+      }));
+      // Filtering loading state message
+      const result = safePrev
+        .filter((item) => !item.isLoading)
+        .concat(safeChatResponse);
+      return result;
+    });
+    chatScrollToEndWithDelay(Boolean(chatResponse.imageUrl)); // UI control
+
+    setChatDisabled(false);
   };
 
   /**
@@ -235,16 +227,37 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       });
     }
   };
+  const chatScrollToEndWithDelay = (hasImage: boolean) => {
+    setTimeout(
+      () => {
+        chatScrollToEnd();
+      },
+      hasImage ? 400 : 100
+    );
+  };
+  const appendLoadingMsg = (requestId: string) => {
+    setChatStack((prev) => {
+      return [...prev, { ...CHAT_LOADING_MSG, reqeustId: requestId }];
+    });
+  };
 
   /**
    * Effects
    */
-  // Scroll to end when chat stack changed
+  // Scroll chat stack at initialize
   useEffect(() => {
-    if (chatStack && !isInitScrolled) {
+    if (chatStack && !isInitScrolled && chatStack.length > 0) {
       setTimeout(() => {
         chatScrollToEnd();
       }, 400);
+
+      const item = getPendingReqById(artId);
+      if (item) {
+        const chatData: TypeChat = JSON.parse(item);
+        subsSSE(artId, chatData, handleMsgReceived);
+        appendLoadingMsg(chatData.requestId);
+      }
+
       setIsInitScrolled(true);
     }
   }, [chatStack]);
@@ -279,23 +292,17 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                   imageUrl: images[0].imageUrl,
                   requestId: "",
                   textContent: "이 그림체로 어떤 작품을 만들어볼까요?",
-                  createdAt: new Date(""),
+                  createdAt: new Date(),
                   status: "RESPONSE",
                 },
               ]
         );
 
-        if (chatHistory.length < 5) {
+        // 첫 페이지(-1)가 아니고, 메시지가 10개 이하일 때, 메시지를 추가적으로 fetch 한다.
+        if (chatPage > 0 && chatHistory.length < 10) {
           _getChatMessages(art.postId, chatPage, 20);
         }
       }
-      // [
-      //   // old
-      //   [].reverse(),
-      //   ...[
-      //     /* current */
-      //   ],
-      // ]; // new
 
       setInit(true); // Set flag
     }
@@ -316,10 +323,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // Fetch old messages
   useEffect(() => {
-    console.log("isInView :>> ", isInView);
-    console.log("isChatFetching :>> ", isChatFetching);
-    console.log("chatPage :>> ", chatPage);
-    console.log("art :>> ", art);
     if (isInView && !isChatFetching && art && chatPage >= 0) {
       _getChatMessages(art.postId, chatPage, 20);
     }
@@ -342,13 +345,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     setChatStack((prev) => [...content].concat(prev));
     setChatPage(page - 1);
 
-    // setTimeout(() => {
-    //   if ()
-    // });
-
     setIsChatFetching(false);
   };
-  // UI function
 
   // Uploads current selected image
   const UploadCurrentImage = () => {
@@ -398,22 +396,10 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   };
 
   // Classnames
-  const inputarea_classname = `fixed bottom-0 inset-x-0 mx-auto max-w-sm p-2 pb-0 ${inputImage ? "h-40" : "h-16"}`;
+  const inputarea_classname = `fixed bottom-0 inset-x-0 mx-auto max-w-sm pb-0`;
 
   return (
     <>
-      {/* <div className="absolute rounded-full z-1 py-2 px-4 bg-(--color-main) text-white shadow-lg right-4">
-        <p className="flex font-bold">
-          <Image
-            src="/icon-image-white.svg"
-            alt="잔여 횟수: "
-            className="mr-1"
-            width={24}
-            height={24}
-          />
-          {remainingGen}번
-        </p>
-      </div> */}
       <div
         className="absolute width-full height-full overflow-y-auto p-4 pb-16 inset-0"
         ref={chatRef}
@@ -444,28 +430,26 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         {observeRef && typeof observeRef === "object" && (
           <div ref={observeRef}></div>
         )}
+
         {/* Chat history */}
         {chatStack.map((chat, index) => (
           <>
-            {chatStack[index - 1 <= 0 ? 0 : index - 1].createdAt.getDate() !==
-              chat.createdAt.getDate() && (
-              <div className="text-center my-4">
-                <p className="font-bold text-(--color-gray-4)">
-                  {chat.createdAt.getFullYear()}.{chat.createdAt.getMonth()}.
-                  {chat.createdAt.getDate()} (
-                  {renderDayOfWeek(chat.createdAt.getDay())})
-                </p>
-              </div>
-            )}
+            {/* {chatStack[index - 1 > 0 ? index - 1 : 0] &&
+              chatStack[index - 1 > 0 ? index - 1 : 0].createdAt.getDate() !==
+                chat.createdAt.getDate() && (
+                <div className="text-center my-4">
+                  <p className="font-bold text-(--color-gray-4)">
+                    {chat.createdAt.getFullYear()}.{chat.createdAt.getMonth()}.
+                    {chat.createdAt.getDate()} (
+                    {renderDayOfWeek(chat.createdAt.getDay())})
+                  </p>
+                </div>
+              )} */}
             {chat.senderType === "AI" ? (
               <div
-                key={index}
+                key={chat.messageId}
                 className={`opponent flex flex-row items-end gap-2 mb-4`}
               >
-                {/* <p>
-                {chatStack[index - 2 <= 0 ? 0 : index - 2].createdAt.getDate()}
-              </p>
-              <p>{chat.createdAt.getDate()}</p> */}
                 <div className="profile basis-1/10">
                   <Image
                     src="/opponent-profile-icon.svg"
@@ -525,7 +509,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
         <div className={inputarea_classname}>
           {inputImage && (
-            <div className="pb-2 px-2">
+            <div className="px-2">
               <ImageList
                 items={[inputImage]}
                 max={1}
@@ -534,7 +518,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               />
             </div>
           )}
-          <div className="flex flex-row h-14 bg-white gap-2 py-2">
+          <div className="flex flex-row h-16 bg-white gap-2 p-2">
             <label className="flex flex-1/10 justify-center cursor-pointer">
               <Image
                 src="/gallery-add.svg"
@@ -552,13 +536,14 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               />
             </label>
             <input
-              className="w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md"
+              className="w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md disabled:opacity-50"
               placeholder={
                 remainingGen <= 0
                   ? "그림체를 변환하기 위해 구매가 필요해요"
                   : `앞으로 ${remainingGen}번 그림체 변환 가능합니다!`
               }
               value={inputText}
+              // disabled={true}
               disabled={chatDisabled}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={textInputKeydownCheck}
