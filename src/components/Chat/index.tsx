@@ -16,13 +16,11 @@ import Fail from "../Popups/Fail";
 import ImageList from "../ImageList";
 import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
 import getChatMessages from "@/APIs/posts/chat/messages/get/client";
-import subsSSE, {
-  getPendingReqById,
-  PREFIX_PENDING_USER_REQUEST_MESSAGE,
-} from "./subscribeSSE";
+import subsSSE, { getPendingReqById } from "./subscribeSSE";
 import { EventSourceMessage } from "@microsoft/fetch-event-source";
 import { TypeChat, TypeChatData } from "./types";
 import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
+import Link from "next/link";
 
 // Refactor chat data as type `TypeChat`
 const refacorChatData = (data: TypeChatData): TypeChat => {
@@ -66,7 +64,9 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Coins of account
   const { data: coins } = UseCoins();
   // Page of chat stack
-  const [chatPage, setChatPage] = useState<number>(page - 1);
+  const [chatPage, setChatPage] = useState<number>(page);
+  // Info overlay
+  const [isInfoOverlayOpen, setIsInfoOverlayOpen] = useState<boolean>(false);
 
   const [isInitScrolled, setIsInitScrolled] = useState<boolean>(false);
 
@@ -207,7 +207,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       const result = safePrev
         .filter((item) => !item.isLoading)
         .concat(safeChatResponse);
-      console.log("result :>> ", result);
       return result;
     });
     chatScrollToEndWithDelay(Boolean(chatResponse.imageUrl)); // UI control
@@ -277,9 +276,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   useEffect(() => {
     if (art && !isUIInitialized) {
       const { images, postId } = art;
-      // if ("code" in response) {
-      //   return;
-      // }
+
       if (chatHistory) {
         // Data refactoring for UI
         setChatStack(
@@ -300,8 +297,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         );
 
         // 첫 페이지(-1)가 아니고, 메시지가 10개 이하일 때, 메시지를 추가적으로 fetch 한다.
-        if (chatPage > 0 && chatHistory.length < 10) {
-          _getChatMessages(art.postId, chatPage, 20);
+        if (chatPage >= 0 && chatHistory.length < 10) {
+          _getChatMessages(art.postId, chatPage, 30);
         }
       }
 
@@ -325,7 +322,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Fetch old messages
   useEffect(() => {
     if (isInView && !isChatFetching && art && chatPage >= 0) {
-      _getChatMessages(art.postId, chatPage, 20);
+      _getChatMessages(art.postId, chatPage, 30);
     }
   }, [isInView]);
   const _getChatMessages = async (
@@ -333,9 +330,10 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     page: number,
     size: number
   ) => {
-    if (chatPage < 0) return; // blocking
+    const safePage = page - 1;
+    if (safePage < 0) return; // blocking
     setIsChatFetching(true);
-    const res = await getChatMessages(postId, page - 1, size);
+    const res = await getChatMessages(postId, safePage, size);
     // Guard against API failure shape which doesn't include `content`
     if (!res || !("content" in res)) {
       console.error("Failed to fetch chat messages:", res);
@@ -344,7 +342,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     const { content }: { content: TypeChat[] } = res;
     setChatStack((prev) => [...content].concat(prev));
-    setChatPage(page - 1);
+    setChatPage(safePage);
 
     setIsChatFetching(false);
   };
@@ -428,6 +426,48 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
           />
         )}
 
+        {isInfoOverlayOpen ? (
+          <div
+            className="fixed top-14 left-[calc(50vw-180px)] w-[calc(384px-24px)] h-24 bg-white rounded-md shadow-xl flex gap-2 p-2 z-1 motion-preset-expand motion-duration-500"
+            onClick={() => setIsInfoOverlayOpen(false)}
+          >
+            {art && (
+              <>
+                <section className="relative basis-1/4 overflow-hidden rounded-lg">
+                  <ClickableImage
+                    src={art.images[0].imageUrl}
+                    alt="스타일 이미지"
+                    // width={80}
+                    // height={80}
+                    fill
+                  />
+                </section>
+                <section className="basis-3/4 flex items-center">
+                  <div>
+                    <Link
+                      href={`/art/${artId}`}
+                      className="text-md font-bold underline block mb-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {art?.title}
+                    </Link>
+                    <p className="w-full text-sm text-(--color-gray-4) overflow-hidden">
+                      {art.userName} | {art.userEmail}
+                    </p>
+                  </div>
+                </section>
+              </>
+            )}
+          </div>
+        ) : (
+          <button
+            className="fixed top-14 left-[calc(50vw-180px)] w-12 h-12 rounded-full bg-white shadow-xl cursor-pointer z-1 motion-preset-expand motion-duration-300"
+            onClick={() => setIsInfoOverlayOpen(true)}
+          >
+            <Image src="/info-circle.svg" alt="정보" width={48} height={48} />
+          </button>
+        )}
+
         {observeRef && typeof observeRef === "object" && (
           <div ref={observeRef}></div>
         )}
@@ -435,17 +475,17 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         {/* Chat history */}
         {chatStack.map((chat, index) => (
           <>
-            {/* {chatStack[index - 1 > 0 ? index - 1 : 0] &&
+            {chatStack[index - 1 > 0 ? index - 1 : 0] &&
               chatStack[index - 1 > 0 ? index - 1 : 0].createdAt.getDate() !==
                 chat.createdAt.getDate() && (
-                <div className="text-center my-4">
+                <div className="text-center mb-4">
                   <p className="font-bold text-(--color-gray-4)">
                     {chat.createdAt.getFullYear()}.{chat.createdAt.getMonth()}.
                     {chat.createdAt.getDate()} (
                     {renderDayOfWeek(chat.createdAt.getDay())})
                   </p>
                 </div>
-              )} */}
+              )}
             {chat.senderType === "AI" ? (
               <div
                 key={chat.messageId}
@@ -455,7 +495,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                   <Image
                     src="/opponent-profile-icon.svg"
                     alt="opponent"
-                    className="relative bottom-0"
+                    className="relative"
                     width={48}
                     height={48}
                   />
@@ -473,7 +513,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                       // layout="intrinsic"
                       width={240}
                       height={180}
-                      className="mb-4 shadow-lg cursor-pointer rounded-2xl"
+                      className="shadow-lg cursor-pointer rounded-2xl mb-4"
                     />
                   )}
                   {chat.textContent && (

@@ -40,6 +40,8 @@ const ArtRegistrationForm = ({
 }: ArtRegistrationFormProps) => {
   const router = useRouter();
 
+  const [isEditing, setIsEditing] = useState<boolean>(Boolean(art));
+
   // Form data
   const [title, setTitle] = useState<string>(art?.title || "");
   const [imageUrls, setImageUrls] = useState<ImageType[]>(art?.images || []);
@@ -101,6 +103,7 @@ const ArtRegistrationForm = ({
       if (typeof response === "number") {
         router.push(`/${response}`);
       }
+      return;
     }
 
     // Create/Editing original post
@@ -126,8 +129,10 @@ const ArtRegistrationForm = ({
       },
       body: JSON.stringify(payload),
     })
-      .then((response) => response.json())
+      .then((response) => !art && response.json())
       .then((data) => {
+        if (art) {
+        }
         const { status, isSuccess } = data;
 
         if (!isSuccess) {
@@ -183,7 +188,7 @@ const ArtRegistrationForm = ({
   };
 
   // only-one image allowed in regist derived post
-  const imageListMode = isDerived ? "ONLY-ONE" : "EDIT";
+  const imageListMode = isDerived ? "READ-ONLY" : "EDIT";
 
   return (
     <>
