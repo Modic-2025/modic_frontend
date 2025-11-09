@@ -8,7 +8,6 @@ const getRandomVote_clientSide: () => Promise<
   const response = await (
     await _fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/votes/random`, true)
   ).json();
-  console.log("response :>> ", response);
 
   const { status, data } = response;
 

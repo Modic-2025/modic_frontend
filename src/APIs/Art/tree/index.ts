@@ -21,7 +21,6 @@ const getPostDerivedTree: (
       true
     )
   ).json();
-  console.log("response :>> ", response);
 
   const { isSuccess, status } = response;
   if (!isSuccess) {

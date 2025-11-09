@@ -119,7 +119,6 @@ const VoteContent = ({
       response ? "APPROVE" : "DENY"
     );
     if ("code" in voteResponse) {
-      console.log("voteResponse :>> ", voteResponse);
       const { code, title } = voteResponse;
       setWarnTitle(title);
       setShowWarn(true);

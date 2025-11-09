@@ -8,7 +8,6 @@ const getTickets = async (): Promise<number | APIFailureMsg> => {
   const response = await (
     await _fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/ai/tickets/me`, true)
   ).json();
-  console.log("response :>> ", response);
 
   const { status, data }: { status: number; data: TypeResponseData } = response;
 

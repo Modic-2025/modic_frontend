@@ -12,7 +12,7 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const response: Art | APIFailureMsg = cookieStore.get("accessToken")?.value
     ? await GetArt(art_id)
     : await publicGetPost(art_id);
-  console.log("response :>> ", response);
+
   if ("code" in response) {
     return (
       <>

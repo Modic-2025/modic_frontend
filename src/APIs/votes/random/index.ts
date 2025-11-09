@@ -27,7 +27,6 @@ export const getRandomVote_serverSide: () => Promise<
       true
     )
   ).json();
-  console.log("response :>> ", response);
 
   const { status, data } = response;
 
