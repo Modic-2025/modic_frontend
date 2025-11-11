@@ -7,6 +7,7 @@ type GEN_IMAGE_TYPE = {
   imageId: number;
   imageUrl: string;
   postId: number;
+  fromOriginImage: boolean;
 };
 export type RESPONSE_BODY_TYPE = {
   content: GEN_IMAGE_TYPE[];

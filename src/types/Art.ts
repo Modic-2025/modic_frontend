@@ -10,6 +10,8 @@ export interface Art_thumbnail {
   title?: string;
   images: [ImageType, ...ImageType[]];
   likeCount?: number;
+  fromOriginImage?: boolean; // For ai-generated image
+  aiChatRoomId?: number; // For ai-generated image
 }
 
 export type PostStatus =

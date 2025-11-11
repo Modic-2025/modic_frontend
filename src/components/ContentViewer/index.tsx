@@ -27,14 +27,16 @@ const C_TABS: Array<tab> = [
 const ContentViewer = ({
   mode = "NORMAL",
   showTabs = true,
+  onClickPost,
   ...rest
 }: {
-  mode?: "NORMAL" | "POPUP"; // NORMAL: default, POPUP: use in my image gen page
+  mode?: "NORMAL" | "DERIVED"; // NORMAL: default, DERIVED: use in my image gen page
   grid: gridType;
   arts?: Art_thumbnail[]; // If set `arts`, component do not fetch arts
   showTabs?: boolean;
   userId?: number; // Get arts by user
   me?: boolean; // Get arts by own session
+  onClickPost?: (content: Art_thumbnail) => void;
 }) => {
   const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
   const [arts, setArts] = useState<Art_thumbnail[] | undefined>(
@@ -43,10 +45,6 @@ const ContentViewer = ({
   const [grid, setGrid] = useState<gridType>(rest.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
-
-  // Popup states
-  const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [selectedArt, setSelectedArt] = useState<Art_thumbnail | null>(null);
 
   const selectedTab = tabs.find((item) => item.selected);
   const { data, error, isLoading } = useArts(
@@ -105,11 +103,6 @@ const ContentViewer = ({
       }))
     );
   };
-  // On click ArtCard
-  const onClickArtCard = (data: Art_thumbnail) => {
-    setShowPopup(true);
-    setSelectedArt(data);
-  };
   // On click create derived art
   const onClickRegistDerivedArt = () => {};
 
@@ -118,45 +111,10 @@ const ContentViewer = ({
    */
   // Rendering tabs
   const isRenderTabs = typeof showTabs == "boolean" && showTabs;
-  // Rendering popups
-  // currently, used to created-images page
-  // this flag decides property of `ArtCard` Div's key
-  const usesPopup = mode === "POPUP";
-
-  /**
-   * Presentational rendering content
-   */
-  const safeImageUrl =
-    selectedArt && encodeURIComponent(selectedArt.images[0].imageUrl);
+  const isDisplayDerivedPost = mode === "DERIVED";
 
   return (
     <>
-      {/* Popups */}
-      {usesPopup && showPopup && selectedArt && (
-        <Popup onClick={() => setShowPopup(false)}>
-          {selectedArt && (
-            <>
-              <Image
-                src={selectedArt.images[0].imageUrl}
-                alt={selectedArt.images[0].imageUrl}
-                layout="responsive"
-                className="mb-4 rounded-xl"
-                width={200}
-                height={200}
-              />
-              <Link
-                href={`/art/regist/${selectedArt.images[0].imageId}?imageUrl=${safeImageUrl}`}
-              >
-                <PrimaryButton
-                  text="2차 창작물 등록하기"
-                  onClick={onClickRegistDerivedArt}
-                />
-              </Link>
-            </>
-          )}
-        </Popup>
-      )}
-
       {/* Tab */}
       {isRenderTabs && (
         <nav className="flex flex-row pb-4 font-semibold">
@@ -176,12 +134,14 @@ const ContentViewer = ({
               <div key={index} className="basis-1/2">
                 {_.map((art, index) => (
                   <div
-                    key={usesPopup ? art.images[0].imageId : art.postId}
+                    key={
+                      isDisplayDerivedPost ? art.images[0].imageId : art.postId
+                    }
                     className="mb-4"
                   >
                     <ArtCard
                       data={art}
-                      onClick={usesPopup ? onClickArtCard : undefined}
+                      onClick={isDisplayDerivedPost ? onClickPost : undefined}
                     />
                   </div>
                 ))}
