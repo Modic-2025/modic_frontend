@@ -42,7 +42,7 @@ const ArtRegistrationForm = ({
 }: ArtRegistrationFormProps) => {
   const router = useRouter();
 
-  const [isEditing, setIsEditing] = useState<boolean>(Boolean(art));
+  const isEditingMode = Boolean(art);
 
   // Form data
   const [title, setTitle] = useState<string>(art?.title || "");
@@ -79,7 +79,7 @@ const ArtRegistrationForm = ({
       return;
     }
 
-    if (isEditing) {
+    if (isEditingMode) {
       if (art && typeof art.postId === "number") {
         handleEditPost(art.postId);
         return;
