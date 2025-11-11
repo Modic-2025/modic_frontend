@@ -157,7 +157,7 @@ const VoteContent = ({
       {/**
        * Streak overlay
        */}
-      <div className="absolute bg-white w-[calc(100%-32px)] min-h-18 rounded-xl top-4 left-4 shadow-lg p-4 z-1">
+      <div className="absolute bg-white w-[calc(100%-32px)] min-h-18 rounded-xl top-4 left-4 shadow-lg p-4 z-10">
         {giveTicketUI ? (
           <div className="flex gap-4 motion-preset-fade motion-duration-750">
             <section className="basis-1/4">
