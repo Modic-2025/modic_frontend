@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import InputSet from "../Inputs/InputSet";
 import { createDerivedPost } from "@/APIs/ai/derived-posts";
 import { APIFailureMsg } from "@/APIs";
+import createPost from "@/APIs/Art/Create";
+import updatePost from "@/APIs/Art/Update";
 
 const MAX_TITLE_NUM = 20;
 const MAX_DESCRIPTION_LENGTH = 800;
@@ -44,7 +46,7 @@ const ArtRegistrationForm = ({
 
   // Form data
   const [title, setTitle] = useState<string>(art?.title || "");
-  const [imageUrls, setImageUrls] = useState<ImageType[]>(art?.images || []);
+  const [images, setImageUrls] = useState<ImageType[]>(art?.images || []);
   const [comCost, setComCost] = useState<number | undefined>(
     art?.commercialPrice ? art?.commercialPrice : undefined
   );
@@ -56,7 +58,7 @@ const ArtRegistrationForm = ({
   );
 
   const onClickCreatePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (imageUrls.length < 1) {
+    if (images.length < 1) {
       alert(TEXT_IMAGE_RESTRICTION);
       return;
     }
@@ -71,95 +73,110 @@ const ArtRegistrationForm = ({
 
     // Confirmation of no-cost post
     if (!comCost && !nonComCost) if (!confirm(TEXT_COST_FREE)) return;
-    // Create derived post case
-    if (isDerived) {
-      // Derived post cannot set
-      const response: Number | APIFailureMsg = await createDerivedPost(
-        imageUrls[0].imageId,
-        title,
-        description,
-        comCost || 0,
-        nonComCost || 0,
-        10
-      );
 
-      // failure
-      if ("code" in response) {
-        const { code } = response;
-        switch (code) {
-          case 403: // no access to ai created image
-            alert("해당 AI 이미지에 대한 권한이 없습니다.");
-            break;
-          case 404: // cannot find ai created image
-            alert("해당 AI 이미지를 찾을 수 없습니다.");
-            break;
-          default:
-            alert(`서버에서 에러가 발생했습니다. (${code})`);
-        }
+    if (isDerived) {
+      handleCreateDrvPost();
+      return;
+    }
+
+    if (isEditing) {
+      if (art && typeof art.postId === "number") {
+        handleEditPost(art.postId);
         return;
       }
+      alert(
+        "수정하고자 하는 게시글의 정보를 찾을 수 없습니다. 새로고침후 다시 시도해주세요 (art or art.posttId is not exist)"
+      );
+      return;
+    }
 
-      // Success
-      if (typeof response === "number") {
-        router.push(`/art/${response}`);
+    handleCreatePost();
+  };
+
+  // 게시글 생성
+  const handleCreatePost = async () => {
+    const response: APIFailureMsg | number = await createPost(
+      title,
+      description,
+      10,
+      images.map((item) => item.imageId),
+      comCost,
+      nonComCost
+    );
+
+    if (typeof response !== "number") {
+      const { title } = response;
+      alert(title);
+      return;
+    }
+
+    const safePostId = response;
+    // Success routing
+    router.push("/art");
+    router.replace(`/art/${safePostId}`);
+  };
+
+  // 게시글 수정
+  const handleEditPost = async (id: number) => {
+    const response: boolean | APIFailureMsg = await updatePost(
+      id,
+      title,
+      description,
+      1,
+      images.map((item) => item.imageId),
+      comCost,
+      nonComCost
+    );
+    console.log("response :>> ", response);
+
+    if (typeof response !== "boolean") {
+      const { title } = response;
+      alert(title);
+      return;
+    }
+
+    router.back();
+  };
+
+  // 2차 창작 게시글 생성
+  const handleCreateDrvPost = async () => {
+    // Derived post cannot set
+    const response: number | APIFailureMsg = await createDerivedPost(
+      images[0].imageId,
+      title,
+      description,
+      comCost || 0,
+      nonComCost || 0,
+      10
+    );
+
+    // failure
+    if (typeof response !== "number") {
+      const { code, title } = response;
+      switch (code) {
+        case 400:
+          alert(`${title} (${code})`);
+          break;
+        case 403: // no access to ai created image
+          alert("해당 AI 이미지에 대한 권한이 없습니다.");
+          break;
+        case 404: // cannot find ai created image
+          alert("해당 AI 이미지를 찾을 수 없습니다.");
+          break;
+        case 409: // already registrated
+          alert("이미 등록된 AI 이미지 입니다.");
+          break;
+        default:
+          alert(`서버에서 에러가 발생했습니다. (${code})`);
       }
       return;
     }
 
-    // Create/Editing original post
-    const payload: CreatePostPayload = {
-      title: title,
-      description: description,
-      commercialPrice: comCost || 0,
-      nonCommercialPrice: nonComCost || 0,
-      imageIds: imageUrls.map((item) => String(item.imageId)),
-      thumbnailImageId: imageUrls[0].imageId,
-      // FOR DEVELOP
-      ticketPrice: 10,
-    };
-
-    const requestUrl = art
-      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art.postId}`
-      : `${process.env.NEXT_PUBLIC_API_HOST}/api/posts`;
-    fetch(requestUrl, {
-      method: art ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => !art && response.json())
-      .then((data) => {
-        if (art) {
-        }
-        const { status, isSuccess } = data;
-
-        if (!isSuccess) {
-          const { code, message, reason } = data;
-          if (code == "C-001") {
-            const prefix = art ? "수정할 수" : "만들 수";
-            const alertMsg =
-              `게시글을 ${prefix} 없었습니다. (${message})` +
-              "\n" +
-              "- " +
-              reason.join("\n- ");
-            alert(alertMsg);
-          }
-          return;
-        }
-
-        const { postId } = data.data;
-        // Success routing
-        if (status == 201 && isSuccess) {
-          router.push("/art");
-          router.replace(`/art/${postId}`);
-          return;
-        }
-      })
-      .catch((error) => {
-        console.error("에러:", error);
-      });
+    // Success
+    if (typeof response === "number") {
+      router.push(`/art/${response}`);
+    }
+    return;
   };
 
   const onChangeImages = (images: ImageType[]) => {
@@ -194,7 +211,7 @@ const ArtRegistrationForm = ({
     <>
       {/* 이미지 업로드 영역 */}
       <ImageList
-        items={imageUrls}
+        items={images}
         mode={imageListMode}
         onChange={onChangeImages}
       />
