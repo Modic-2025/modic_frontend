@@ -189,7 +189,7 @@ const VoteContent = ({
           clickable: false,
         }}
         modules={[Pagination]}
-        className="mySwiper h-full overflow-hidden"
+        className="mySwiper h-[76vh] overflow-hidden"
         onSlideChange={(e) => setCurrentSlideIdx(e.activeIndex)}
       >
         {votes.map(({ view, ...rest }) => (
