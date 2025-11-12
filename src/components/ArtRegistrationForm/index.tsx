@@ -10,6 +10,7 @@ import { createDerivedPost } from "@/APIs/ai/derived-posts";
 import { APIFailureMsg } from "@/APIs";
 import createPost from "@/APIs/Art/Create";
 import updatePost from "@/APIs/Art/Update";
+import ToolTip from "../ToolTip";
 
 const MAX_TITLE_NUM = 20;
 const MAX_DESCRIPTION_LENGTH = 800;
@@ -17,17 +18,6 @@ const TEXT_IMAGE_RESTRICTION = `최소 1개 이상의 그림을 등록해주세�
 const TEXT_TITLE_RESTRICTION = `제목을 입력해주세요.`;
 const TEXT_COST_FREE = `해당 그림체를 무료로 게시하시겠습니까?`;
 const TEXT_DESC_RESTRICTION = `설명을 1자이상 입력해주세요.`;
-
-// On create post
-type CreatePostPayload = {
-  title: string;
-  description: string;
-  commercialPrice: number;
-  nonCommercialPrice: number;
-  ticketPrice: number;
-  imageIds: string[];
-  thumbnailImageId: number;
-};
 
 type ArtRegistrationFormProps = {
   art?: Art | Partial<Art>;
@@ -46,6 +36,9 @@ const ArtRegistrationForm = ({
 
   // Form data
   const [title, setTitle] = useState<string>(art?.title || "");
+  const [description, setDescription] = useState<string>(
+    art?.description || ""
+  );
   const [images, setImageUrls] = useState<ImageType[]>(art?.images || []);
   const [comCost, setComCost] = useState<number | undefined>(
     art?.commercialPrice ? art?.commercialPrice : undefined
@@ -53,8 +46,8 @@ const ArtRegistrationForm = ({
   const [nonComCost, setNonComCost] = useState<number | undefined>(
     art?.nonCommercialPrice ? art?.nonCommercialPrice : undefined
   );
-  const [description, setDescription] = useState<string>(
-    art?.description || ""
+  const [ticketCost, setTicketCost] = useState<number | undefined>(
+    art?.nonCommercialPrice ? art?.nonCommercialPrice : undefined
   );
 
   const onClickCreatePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -147,7 +140,7 @@ const ArtRegistrationForm = ({
       description,
       comCost || 0,
       nonComCost || 0,
-      10
+      ticketCost || 1
     );
 
     // failure
@@ -185,23 +178,50 @@ const ArtRegistrationForm = ({
 
   const onCostChange = (
     e: ChangeEvent<HTMLInputElement>,
-    type: "COM" | "NONCOM"
+    type: "COM" | "NONCOM" | "TICKET"
   ) => {
+    switch (type) {
+      case "COM":
+        handleComCost(e);
+        break;
+      case "NONCOM":
+        handleNonComCost(e);
+        break;
+      case "TICKET":
+        handleTicketCost(e);
+        break;
+      default: // ERROR: no target
+        alert("비용을 갱신할 수 없었습니다. 새로고침후 다시 시도해주세요");
+    }
+  };
+
+  // Handling costs
+  const handleComCost = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const numberValue = Number(value);
-    if (type === "COM") {
-      if (numberValue < 0 || !value) {
-        // Shows placeholder
-        setComCost(undefined);
-        e.target.value = "";
-      } else setComCost(numberValue);
-    } else {
-      if (numberValue < 0 || !value) {
-        // Shows placeholder
-        setNonComCost(undefined);
-        e.target.value = "";
-      } else setNonComCost(numberValue);
-    }
+    if (numberValue < 0 || !value) {
+      // Shows placeholder
+      setComCost(undefined);
+      e.target.value = "";
+    } else setComCost(numberValue);
+  };
+  const handleNonComCost = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const numberValue = Number(value);
+    if (numberValue < 0 || !value) {
+      // Shows placeholder
+      setNonComCost(undefined);
+      e.target.value = "";
+    } else setNonComCost(numberValue);
+  };
+  const handleTicketCost = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const numberValue = Number(value);
+    if (numberValue < 0 || !value) {
+      // Shows placeholder
+      setTicketCost(undefined);
+      e.target.value = "";
+    } else setTicketCost(numberValue);
   };
 
   // only-one image allowed in regist derived post
@@ -236,9 +256,9 @@ const ArtRegistrationForm = ({
 
       {/* 가격 입력란 */}
       <div className="mt-4">
-        <label className="block text-md font-semibold mb-2">코인</label>
+        <label className="block text-md font-semibold mb-2">비용</label>
         <div className="flex flex-row items-center gap-2">
-          <div className="relative basis-1/2">
+          <div className="relative basis-1/3">
             <input
               type="number"
               value={comCost}
@@ -248,15 +268,17 @@ const ArtRegistrationForm = ({
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
               placeholder="상업용"
             />
-            <Image
-              src="/copyright.svg"
-              alt="commercial cost"
-              width={24}
-              height={24}
-              className="absolute top-4 left-2"
-            />
+            <ToolTip text="상업용도로 사용될 때의 코인 개수">
+              <Image
+                src="/copyright.svg"
+                alt="commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </ToolTip>
           </div>
-          <div className="relative basis-1/2">
+          <div className="relative basis-1/3">
             <input
               type="number"
               value={nonComCost}
@@ -266,13 +288,35 @@ const ArtRegistrationForm = ({
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
               placeholder="비상업용"
             />
-            <Image
-              src="/copyright-off.svg"
-              alt="non-commercial cost"
-              width={24}
-              height={24}
-              className="absolute top-4 left-2"
+            <ToolTip text="비상업용도로 사용될 때의 코인 개수">
+              <Image
+                src="/copyright-off.svg"
+                alt="non-commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </ToolTip>
+          </div>
+          <div className="relative basis-1/3">
+            <input
+              type="number"
+              value={ticketCost}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                onCostChange(e, "TICKET");
+              }}
+              className="relative w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
+              placeholder="티켓"
             />
+            <ToolTip text="매 AI 편집을 시도할 때마다 소모시킬 티켓의 개수">
+              <Image
+                src="/ticket-gray-4.svg"
+                alt="non-commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </ToolTip>
           </div>
         </div>
       </div>
