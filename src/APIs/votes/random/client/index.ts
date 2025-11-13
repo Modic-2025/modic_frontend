@@ -15,7 +15,7 @@ const getRandomVote_clientSide: () => Promise<
 
   switch (status) {
     case 404:
-      return { code: 404, title: "헐, 참여 가능한 투표가 없습니다." };
+      return { code: 404, title: "참여할 수 있는 투표가 없습니다." };
     default:
       return { code: 500, title: "서버에서 에러가 발생했습니다." };
   }

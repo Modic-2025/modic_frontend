@@ -12,11 +12,10 @@ import { useEffect, useState } from "react";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 
-type TypeView = "DO_VOTE" | "RESULT";
+type TypeView = "DO_VOTE" | "RESULT" | "EXCEPTION";
 type TypeVotePresentational = Vote & {
   view: TypeView;
 };
-const NEXT_VOTE_DURATION = 5000; // Time for move to next vote from result
 const VoteContent = ({
   vote: _vote,
   streak: _streak,
@@ -29,7 +28,6 @@ const VoteContent = ({
   /**
    * Swiper state
    */
-  const swiper = useSwiper();
   const [currentSlideIdx, setCurrentSlideIdx] = useState<number>(0);
 
   /**
@@ -38,6 +36,9 @@ const VoteContent = ({
   const [votes, setVotes] = useState<TypeVotePresentational[]>([
     { ..._vote, view: "DO_VOTE" },
   ]);
+  const [voteException, setVoteException] = useState<
+    APIFailureMsg | undefined
+  >();
   const previousVotes: TypeVotePresentational[] = usePrevious(votes);
   const setViewOfCurrVote = async (view: TypeView) => {
     const temp = votes.map((vote, i) => ({
@@ -48,8 +49,16 @@ const VoteContent = ({
   };
   const fetchNewVoteAndPush = async () => {
     const voteResponse: Vote | APIFailureMsg = await getRandomVote();
+    console.log("voteResponse :>> ", voteResponse);
     if ("code" in voteResponse) {
       console.error("voteResponse", voteResponse);
+      setVoteException(voteResponse);
+      setVotes((prev) => [...votes, { ...prev[0], view: "EXCEPTION" }]);
+      // switch (code) {
+      //   case 404:
+      //     break;
+      //   default:
+      // }
       return;
     }
     setVotes([...votes, { ...voteResponse, view: "DO_VOTE" }]);
@@ -83,7 +92,7 @@ const VoteContent = ({
     setTimeout(() => {
       if (1 <= currentSlideIdx) {
         const filteredResult = votes.filter((vote, i) => i >= votes.length - 1);
-        setVotes(filteredResult); // WIP: 여기 수정해서 올바르게 작동하도록 만들기
+        setVotes(filteredResult);
       }
     }, 500);
   }, [currentSlideIdx]);
@@ -145,6 +154,8 @@ const VoteContent = ({
     setViewOfCurrVote("RESULT");
   };
 
+  console.log("votes :>> ", votes);
+
   return (
     <>
       {/**
@@ -192,45 +203,84 @@ const VoteContent = ({
         className="mySwiper h-[76vh] overflow-hidden"
         onSlideChange={(e) => setCurrentSlideIdx(e.activeIndex)}
       >
-        {votes.map(({ view, ...rest }) => (
-          <SwiperSlide>
-            {view === "DO_VOTE" ? (
-              <VoteForm vote={rest} onVote={onVote} />
-            ) : (
-              <Result isCorrect={isCorrect} />
-            )}
-          </SwiperSlide>
-        ))}
+        {votes.map(({ view, ...rest }) => {
+          let content: React.ReactNode;
+          switch (view) {
+            case "DO_VOTE":
+              content = <VoteForm vote={rest} onVote={onVote} />;
+              break;
+            case "RESULT":
+              content = <ResultForm isCorrect={isCorrect} />;
+              break;
+            case "EXCEPTION":
+              content = <ExceptionForm voteException={voteException} />;
+              break;
+            default:
+              content = <p>adf</p>;
+          }
+          return <SwiperSlide>{content}</SwiperSlide>;
+        })}
       </Swiper>
     </>
   );
 };
 
-const Result = ({ isCorrect }: { isCorrect: undefined | boolean }) => (
+const FormLayout = ({
+  src,
+  alt,
+  title,
+  desc,
+}: {
+  src: string;
+  alt: string;
+  title: string;
+  desc?: string;
+}) => (
+  <>
+    <section>
+      <Image src={src} alt={alt} width="100" height="100" className="m-auto" />
+    </section>
+    <section className="text-2xl font-bold">{title}</section>
+    {desc && (
+      <section className="font-bold text-(--color-gray-4)">{desc}</section>
+    )}
+  </>
+);
+
+const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="flex flex-col h-full justify-center gap-4 text-center">
-    <section>
-      <Image
-        src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
-        alt="X"
-        width="100"
-        height="100"
-        className="m-auto"
-      />
-    </section>
-    <section className="text-2xl font-bold">
-      {isCorrect ? "정답입니다!" : "틀렸습니다 .."}
-    </section>
-    <section className="font-bold text-(--color-gray-4)">
-      모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
-      저작권이 인정{isCorrect ? "되었습니다." : "되지 않았습니다."}
-    </section>
-    <section>
-      {/* CURRENT_VOTE_SECTION */}
-      {/* {isCorrect
-        ? "winning streak이 한 개 쌓였습니다!"
-        : "winning streak이 삭제 되었습니다 ㅠㅠ"} */}
-    </section>
+    {children}
   </div>
+);
+
+const ResultForm = ({ isCorrect }: { isCorrect: boolean | undefined }) => (
+  <Layout>
+    <FormLayout
+      src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
+      alt={isCorrect ? "정답" : "오답"}
+      title={isCorrect ? "정답입니다!" : "틀렸습니다 .."}
+      desc={`모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
+      저작권이 인정${isCorrect ? "되었습니다." : "되지 않았습니다."}`}
+    />
+  </Layout>
+);
+
+export const ExceptionForm = ({
+  children,
+  voteException,
+}: {
+  children?: React.ReactNode;
+  voteException?: APIFailureMsg;
+}) => (
+  <Layout>
+    <FormLayout
+      src="/warning.svg"
+      alt="EXCEPTION"
+      title={voteException?.title || "에러가 발생하였습니다."}
+      desc={voteException?.desc || ""}
+    />
+    {children}
+  </Layout>
 );
 
 export default VoteContent;
