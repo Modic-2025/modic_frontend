@@ -546,7 +546,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                       alt="origin_image"
                       // layout="intrinsic"
                       width={240}
-                      height={180}
+                      height={200}
                       className="shadow-lg cursor-pointer rounded-2xl mb-4"
                     />
                   )}
@@ -560,15 +560,14 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
             ) : (
               <div
                 key={index}
-                className="me flex flex-col justify-end mb-4 items-end"
+                className={`flex flex-col justify-end mb-4 items-end ${chat.imageUrl && `min-h-[300px]`}`}
               >
                 {chat.imageUrl && (
                   <ClickableImage
                     src={chat.imageUrl}
                     alt="origin_image"
-                    // layout="intrinsic"
                     width={240}
-                    height={180}
+                    height={200}
                     className="mb-4 shadow-lg cursor-pointer rounded-2xl"
                   />
                 )}
