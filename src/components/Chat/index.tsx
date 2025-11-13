@@ -6,7 +6,7 @@ import generateImage from "@/APIs/useGenerateImage";
 import useRemainGens from "@/hooks/UseRemainGens";
 import { Art, ImageType } from "@/types/Art";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { ClipboardEvent, useEffect, useRef, useState } from "react";
 import { SWRResponse, useSWRConfig } from "swr";
 import ClickableImage from "../ClickableImage";
 import Confirm from "../Popups/Confirm";
@@ -135,6 +135,38 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     setBuyFailTitle(title);
   };
 
+  const onPasteInput = (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    if (items.length > 0) {
+      const safeItem = items[0];
+
+      if (safeItem.kind === "file" && safeItem.type.includes("image")) {
+        const blob = safeItem.getAsFile(); // File 객체 추출
+        if (blob) {
+          const blob = safeItem.getAsFile();
+          if (!blob) return;
+
+          // Add timestamp
+          const timestamp = new Date().getTime();
+          const filename = `pasted_image_${timestamp}.png`;
+
+          // Wrapping
+          const file = new File([blob], filename, {
+            type: blob.type,
+            lastModified: new Date().getTime(),
+          });
+
+          // Upload image
+          setInputFile(file);
+
+          e.preventDefault();
+        }
+      }
+    }
+  };
+
   /**
    * Methods
    */
@@ -256,6 +288,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         const chatData: TypeChat = JSON.parse(item);
         subsSSE(artId, chatData, handleMsgReceived);
         appendLoadingMsg(chatData.requestId);
+        setChatDisabled(true);
       }
 
       setIsInitScrolled(true);
@@ -428,11 +461,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
         {isInfoOverlayOpen ? (
           <div
-            className="fixed top-14 left-[calc(50vw-180px)] w-[calc(384px-24px)] h-24 bg-white rounded-md shadow-xl flex gap-2 p-2 z-1 motion-preset-expand motion-duration-500"
+            className="fixed flex flex-col gap-2 top-14 left-[calc(50vw-180px)] w-[calc(384px-24px)] h-24 bg-white rounded-md shadow-xl p-2 z-1 motion-preset-expand motion-duration-500"
             onClick={() => setIsInfoOverlayOpen(false)}
           >
+            {/* <p className="text-(--color-gray-4)">현재 사용중인 그림:</p> */}
             {art && (
-              <>
+              <div className="flex gap-2 h-full">
                 <section className="relative basis-1/4 overflow-hidden rounded-lg">
                   <ClickableImage
                     src={art.images[0].imageUrl}
@@ -456,7 +490,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                     </p>
                   </div>
                 </section>
-              </>
+              </div>
             )}
           </div>
         ) : (
@@ -561,7 +595,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
           )}
           <div className="flex flex-row h-16 bg-white gap-2 p-2">
             <label
-              className={`flex flex-1/10 justify-center cursor-pointer ${chatDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`flex flex-1/10 justify-center ${chatDisabled ? `cursor-not-allowed opacity-50` : `cursor-pointer`}`}
             >
               <Image
                 src="/gallery-add.svg"
@@ -579,7 +613,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               />
             </label>
             <input
-              className="w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md disabled:opacity-50"
+              className={`w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md ${chatDisabled && `cursor-not-allowed opacity-50`}`}
               placeholder={
                 remainingGen <= 0
                   ? "그림체를 변환하기 위해 구매가 필요해요"
@@ -589,8 +623,13 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               disabled={chatDisabled}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={textInputKeydownCheck}
+              onPaste={onPasteInput}
             />
-            <button className="cursor-pointer" onClick={() => sendMsg()}>
+            <button
+              className={`cursor-pointer disabled:cursor-not-allowed ${chatDisabled && `cursor-not-allowed`}`}
+              disabled={chatDisabled}
+              onClick={() => sendMsg()}
+            >
               <Image
                 src={
                   inputText.trim() !== "" || inputImage
