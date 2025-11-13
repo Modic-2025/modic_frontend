@@ -3,6 +3,7 @@
 import { RESPONSE_BODY_TYPE } from "@/APIs/ai/images/my-generated";
 import PrimaryButton from "@/components/Button/PrimaryButton";
 import ContentViewer from "@/components/ContentViewer";
+import { SUGGEST_SEARCH_POSTS } from "@/components/ContentViewer/placeholders";
 import { Popup } from "@/components/Popups";
 import { Art, Art_thumbnail } from "@/types/Art";
 import Image from "next/image";
@@ -68,7 +69,9 @@ const Content = ({ content, page, size, hasNext }: RESPONSE_BODY_TYPE) => {
         showTabs={false}
         mode="DERIVED"
         onClickPost={(post: Art_thumbnail) => setSelectedArt(post)}
-      />
+      >
+        <SUGGEST_SEARCH_POSTS />
+      </ContentViewer>
     </>
   );
 };

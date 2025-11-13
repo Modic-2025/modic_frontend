@@ -2,6 +2,7 @@
 import { APIFailureMsg } from "@/APIs";
 import VoteDecision from "@/APIs/votes/decisions";
 import getRandomVote from "@/APIs/votes/random/client";
+import { AlertForm, CenteredLayout } from "@/components/Layout";
 import Fail from "@/components/Popups/Fail";
 import VoteForm from "@/components/Vote";
 import Streak from "@/components/Vote/Streak";
@@ -225,44 +226,16 @@ const VoteContent = ({
   );
 };
 
-const FormLayout = ({
-  src,
-  alt,
-  title,
-  desc,
-}: {
-  src: string;
-  alt: string;
-  title: string;
-  desc?: string;
-}) => (
-  <>
-    <section>
-      <Image src={src} alt={alt} width="100" height="100" className="m-auto" />
-    </section>
-    <section className="text-2xl font-bold">{title}</section>
-    {desc && (
-      <section className="font-bold text-(--color-gray-4)">{desc}</section>
-    )}
-  </>
-);
-
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex flex-col h-full justify-center gap-4 text-center">
-    {children}
-  </div>
-);
-
 const ResultForm = ({ isCorrect }: { isCorrect: boolean | undefined }) => (
-  <Layout>
-    <FormLayout
+  <CenteredLayout>
+    <AlertForm
       src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
       alt={isCorrect ? "정답" : "오답"}
       title={isCorrect ? "정답입니다!" : "틀렸습니다 .."}
       desc={`모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
       저작권이 인정${isCorrect ? "되었습니다." : "되지 않았습니다."}`}
     />
-  </Layout>
+  </CenteredLayout>
 );
 
 export const ExceptionForm = ({
@@ -272,15 +245,15 @@ export const ExceptionForm = ({
   children?: React.ReactNode;
   voteException?: APIFailureMsg;
 }) => (
-  <Layout>
-    <FormLayout
+  <CenteredLayout>
+    <AlertForm
       src="/warning.svg"
       alt="EXCEPTION"
       title={voteException?.title || "에러가 발생하였습니다."}
       desc={voteException?.desc || ""}
     />
     {children}
-  </Layout>
+  </CenteredLayout>
 );
 
 export default VoteContent;

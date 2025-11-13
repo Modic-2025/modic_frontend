@@ -1,9 +1,9 @@
 import UserHeader from "../UserHeader";
 import ContentViewer from "@/components/ContentViewer";
-import { cookies } from "next/headers";
 import { getUserMe } from "@/APIs/UserAPI";
 import PrimaryButton from "@/components/Button/PrimaryButton";
 import Link from "next/link";
+import { NO_POSTS } from "@/components/ContentViewer/placeholders";
 
 const MyPage = async () => {
   const user = await getUserMe();
@@ -25,12 +25,16 @@ const MyPage = async () => {
   }
 
   return (
-    <>
-      <UserHeader user={user} isAboutMe={true} />
+    <div className="flex flex-col h-full">
       <section>
-        <ContentViewer grid={2} showTabs={false} me={true} />
+        <UserHeader user={user} isAboutMe={true} />
       </section>
-    </>
+      <section className="h-full">
+        <ContentViewer grid={2} showTabs={false} me={true}>
+          <NO_POSTS />
+        </ContentViewer>
+      </section>
+    </div>
   );
 };
 

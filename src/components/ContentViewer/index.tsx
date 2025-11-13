@@ -3,10 +3,7 @@ import { Art_thumbnail } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
 import useArts, { sortType } from "@/APIs/useArts";
-import { Popup } from "../Popups";
 import Image from "next/image";
-import PrimaryButton from "../Button/PrimaryButton";
-import Link from "next/link";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
 type artsByGridType = Array<Array<Art_thumbnail>>;
@@ -25,11 +22,13 @@ const C_TABS: Array<tab> = [
 ];
 
 const ContentViewer = ({
+  children,
   mode = "NORMAL",
   showTabs = true,
   onClickPost,
   ...rest
 }: {
+  children?: React.ReactNode; // use as placeholder
   mode?: "NORMAL" | "DERIVED"; // NORMAL: default, DERIVED: use in my image gen page
   grid: gridType;
   arts?: Art_thumbnail[]; // If set `arts`, component do not fetch arts
@@ -103,8 +102,6 @@ const ContentViewer = ({
       }))
     );
   };
-  // On click create derived art
-  const onClickRegistDerivedArt = () => {};
 
   /**
    * Intuitive rendering flags
@@ -112,6 +109,23 @@ const ContentViewer = ({
   // Rendering tabs
   const isRenderTabs = typeof showTabs == "boolean" && showTabs;
   const isDisplayDerivedPost = mode === "DERIVED";
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col w-full h-full justify-center items-center">
+        <Image
+          src="/MODIC.svg"
+          alt="MODIC"
+          width={180}
+          height={100}
+          className="motion-preset-blink motion-duration-1000 [--motion-loop-opacity:0.6]"
+        />
+        <h1 className="text-(--color-gray-4) font-bold text-xl mt-4">
+          그림을 가져오는 중 ..
+        </h1>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -125,14 +139,14 @@ const ContentViewer = ({
       )}
 
       {/* Content */}
-      {isLoading ? (
-        <p> 작품 가져오는 중 .. </p>
+      {arts && arts?.length <= 0 ? (
+        children
       ) : (
         <div className={`content-viewer flex flex-row gap-4`}>
           {artsByGrid &&
             artsByGrid.map((_, index) => (
               <div key={index} className="basis-1/2">
-                {_.map((art, index) => (
+                {_.map((art) => (
                   <div
                     key={
                       isDisplayDerivedPost ? art.images[0].imageId : art.postId
