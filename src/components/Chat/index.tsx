@@ -186,6 +186,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     if (!inputImage && !inputText) return;
     setInputText("");
+    setInputFile(null);
     setInputImage(null);
     setChatDisabled(true);
     const responseGenerateImage = await (
@@ -429,6 +430,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // For ImageList component
   const onDeleteImageList = (id: number) => {
+    setInputFile(null);
     setInputImage(null);
   };
 
@@ -609,14 +611,18 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         ))}
 
         <div className={inputarea_classname}>
-          {inputImage && (
+          {inputFile && (
             <div className="px-2">
-              <ImageList
-                items={[inputImage]}
-                max={1}
-                mode={"ONLY-ONE"}
-                onDelete={onDeleteImageList}
-              />
+              {inputImage ? (
+                <ImageList
+                  items={[inputImage]}
+                  max={1}
+                  mode={"ONLY-ONE"}
+                  onDelete={onDeleteImageList}
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-xl bg-(--color-gray-4) motion-preset-blink motion-duration-1000 [--motion-loop-opacity:0.4]"></div>
+              )}
             </div>
           )}
           <div className="flex flex-row h-16 bg-white gap-2 p-2">
