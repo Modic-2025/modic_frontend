@@ -6,7 +6,13 @@ import generateImage from "@/APIs/useGenerateImage";
 import useRemainGens from "@/hooks/UseRemainGens";
 import { Art, ImageType } from "@/types/Art";
 import Image from "next/image";
-import { ClipboardEvent, useEffect, useRef, useState } from "react";
+import {
+  ClipboardEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { SWRResponse, useSWRConfig } from "swr";
 import ClickableImage from "../ClickableImage";
 import Confirm from "../Popups/Confirm";
@@ -67,7 +73,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   const [chatPage, setChatPage] = useState<number>(page);
   // Info overlay
   const [isInfoOverlayOpen, setIsInfoOverlayOpen] = useState<boolean>(false);
-
+  // 초기 스크롤 여부 flag
   const [isInitScrolled, setIsInitScrolled] = useState<boolean>(false);
 
   /**
@@ -92,6 +98,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // Refs
   const chatRef = useRef<HTMLDivElement>(null);
+  // Previous scroll height of chat stack
+  const prevScrollHeightRef = useRef<number>(0);
 
   // Form data
   const [inputText, setInputText] = useState<string>("");
@@ -135,6 +143,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     setBuyFailTitle(title);
   };
 
+  // Handle paste action in text input field
   const onPasteInput = (e: ClipboardEvent) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -355,9 +364,27 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Fetch old messages
   useEffect(() => {
     if (isInView && !isChatFetching && art && chatPage >= 0) {
+      if (typeof chatRef.current?.scrollHeight === "number") {
+        prevScrollHeightRef.current = chatRef.current?.scrollHeight;
+      }
       _getChatMessages(art.postId, chatPage, 30);
     }
   }, [isInView]);
+  // 추가 채팅 로딩시 UI Scroll 보정을 수행
+  useLayoutEffect(() => {
+    if (!chatRef.current) return;
+
+    const currentScrollHeight = chatRef.current.scrollHeight;
+    const prevScrollHeight = prevScrollHeightRef.current;
+
+    // 이전 높이가 0이 아닐 때만 (초기 로딩 제외) 보정 수행
+    if (prevScrollHeight > 0) {
+      // 늘어난 길이만큼 스크롤을 아래로 밈
+      const heightDiff = currentScrollHeight - prevScrollHeight;
+      chatRef.current.scrollTop = heightDiff;
+    }
+  }, [chatStack]);
+
   const _getChatMessages = async (
     postId: number,
     page: number,
