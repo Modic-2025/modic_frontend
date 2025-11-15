@@ -8,7 +8,7 @@ const AUTH_COOKIE_NAME = "accessToken";
 const PUBLIC_PATHS = ["/login", "/signup"];
 
 // 3. 인증이 "필요한" private 경로를 명시적으로 설정합니다.
-const PRIVATE_PATHS = ["/art/tree", "/art/ai", "/vote"];
+const PRIVATE_PATHS = ["/art/tree", "/art/ai", "/vote", "/search/user"];
 
 /**
  * Next.js 미들웨어 함수
@@ -28,9 +28,10 @@ export function middleware(request: NextRequest) {
   // 쿠키가 없고 & 현재 경로가 "private" 경로인 경우
   if (!accessToken && isPrivate) {
     // 로그인 페이지로 리다이렉트
+    const redirectPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
     // 사용자가 원래 가려던 페이지를 'redirectUrl' 쿼리 파라미터로 추가
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirectUrl", pathname);
+    loginUrl.searchParams.set("redirectUrl", redirectPath);
     return NextResponse.redirect(loginUrl);
   }
 

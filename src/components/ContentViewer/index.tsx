@@ -29,7 +29,7 @@ const ContentViewer = ({
   ...rest
 }: {
   children?: React.ReactNode; // use as placeholder
-  mode?: "NORMAL" | "DERIVED"; // NORMAL: default, DERIVED: use in my image gen page
+  mode?: "NORMAL" | "DERIVED" | "PRESENTATIONAL"; // NORMAL: default, DERIVED: use in my image gen page
   grid: gridType;
   arts?: Art_thumbnail[]; // If set `arts`, component do not fetch arts
   showTabs?: boolean;
@@ -40,11 +40,15 @@ const ContentViewer = ({
   const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
   const [arts, setArts] = useState<Art_thumbnail[] | undefined>(
     rest.arts ?? undefined
-  ); // prop arts
+  );
   const [grid, setGrid] = useState<gridType>(rest.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
 
+  /**
+   * mode === "PRESENTATIONAL"일 경우, prop의 art를 사용하게 됩니다.
+   */
+  const targetArts = mode === "PRESENTATIONAL" ? rest.arts : arts;
   const selectedTab = tabs.find((item) => item.selected);
   const { data, error, isLoading } = useArts(
     rest.arts
@@ -56,10 +60,10 @@ const ContentViewer = ({
   );
 
   useEffect(() => {
-    if (arts) {
-      if (arts.length > 0 && grid) {
+    if (targetArts) {
+      if (targetArts.length > 0 && grid) {
         const artsByGrid: artsByGridType = [];
-        arts.map((art, index) => {
+        targetArts.map((art, index) => {
           const gridIndex = index % grid;
           if (artsByGrid[gridIndex]) {
             artsByGrid[gridIndex].push(art);
@@ -70,7 +74,7 @@ const ContentViewer = ({
         setArtsByGrid(artsByGrid);
       }
     }
-  }, [arts, grid]);
+  }, [targetArts, grid]);
 
   useEffect(() => {
     if (!error && data) {
@@ -139,7 +143,7 @@ const ContentViewer = ({
       )}
 
       {/* Content */}
-      {arts && arts?.length <= 0 ? (
+      {targetArts && targetArts.length <= 0 ? (
         children
       ) : (
         <div className={`content-viewer flex flex-row gap-4`}>

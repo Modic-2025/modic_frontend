@@ -10,15 +10,12 @@ const Search = ({ onClick }: { onClick?: () => void }) => {
     if (onClick) {
       onClick();
     } else {
-      router.push('/art/search');
+      router.push("/search/art");
     }
   };
 
   return (
-    <div
-      className={`${commonClassNames} basis-1/10`}
-      onClick={handleClick}
-    >
+    <div className={`${commonClassNames} basis-1/10`} onClick={handleClick}>
       <Image
         src="/Search.svg"
         alt="back"

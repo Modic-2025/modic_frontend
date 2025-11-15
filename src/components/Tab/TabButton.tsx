@@ -4,11 +4,12 @@ import Link from "next/link";
 type prop = _UITab & {
   onClick?: (id: number) => void;
   children: React.ReactNode;
+  max: number;
 };
-const TabButton = ({ id, children, href, activated, onClick }: prop) => (
+const TabButton = ({ id, children, href, activated, onClick, max }: prop) => (
   <Link
     href={href || "#"}
-    className={`basis-1/3 py-3 ${activated ? "text-black" : "text-(--color-gray-4)"} text-center cursor-pointer ${activated && "border-b-[1.5px] border-black"}`}
+    className={`basis-1/${max} py-3 ${activated ? "text-black" : "text-(--color-gray-4)"} text-center cursor-pointer ${activated && "border-b-[1.5px] border-black"}`}
     onClick={(e) => {
       onClick && onClick(id);
     }}

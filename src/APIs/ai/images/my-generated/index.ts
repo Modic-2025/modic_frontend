@@ -1,6 +1,7 @@
 import { APIFailureMsg } from "@/APIs";
 import { default as clientFetch } from "@/APIs/fetcher/ClientSide";
 import { default as serverFetch } from "@/APIs/fetcher/ServerSide";
+import { TypePaging } from "@/types";
 
 const GET_GEN_IMAGES_400 = "생성된 이미지를 가져올 수 없었습니다.";
 type GEN_IMAGE_TYPE = {
@@ -9,15 +10,8 @@ type GEN_IMAGE_TYPE = {
   postId: number;
   fromOriginImage: boolean;
 };
-export type RESPONSE_BODY_TYPE = {
+export type RESPONSE_BODY_TYPE = TypePaging & {
   content: GEN_IMAGE_TYPE[];
-  hasNext: boolean;
-  totalPages: number;
-  totalElements: number;
-  page: number;
-  size: number;
-  isFirst: boolean;
-  isLast: boolean;
 };
 const GetGeneratedImages = async (
   page: number,

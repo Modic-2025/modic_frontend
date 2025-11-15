@@ -12,20 +12,22 @@ export const AlertForm = ({
   title,
   desc,
 }: {
-  src: string;
+  src?: string;
   alt?: string;
   title: string;
   desc?: string;
 }) => (
   <>
     <section>
-      <Image
-        src={src}
-        alt={alt || src}
-        width="100"
-        height="100"
-        className="m-auto"
-      />
+      {src && (
+        <Image
+          src={src}
+          alt={alt || src}
+          width="100"
+          height="100"
+          className="m-auto"
+        />
+      )}
     </section>
     <section className="text-2xl font-bold">{title}</section>
     {desc && (

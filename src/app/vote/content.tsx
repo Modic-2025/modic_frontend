@@ -50,7 +50,6 @@ const VoteContent = ({
   };
   const fetchNewVoteAndPush = async () => {
     const voteResponse: Vote | APIFailureMsg = await getRandomVote();
-    console.log("voteResponse :>> ", voteResponse);
     if ("code" in voteResponse) {
       console.error("voteResponse", voteResponse);
       setVoteException(voteResponse);
@@ -154,8 +153,6 @@ const VoteContent = ({
     // Change view of current vote
     setViewOfCurrVote("RESULT");
   };
-
-  console.log("votes :>> ", votes);
 
   return (
     <>

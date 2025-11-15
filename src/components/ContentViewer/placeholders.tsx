@@ -16,3 +16,9 @@ export const NO_POSTS = () => (
     <AlertForm src="/image-circle.svg" title="게시글이 없습니다." />
   </CenteredLayout>
 );
+
+export const NO_SEARCH_RESULTS = () => (
+  <CenteredLayout>
+    <AlertForm src="/image-circle.svg" title="검색 결과가 없습니다." />
+  </CenteredLayout>
+);

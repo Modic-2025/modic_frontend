@@ -52,12 +52,14 @@ export default function ProfileEditPage() {
   }, [router]);
 
   const handleUploadSuccess = (imageUrl: string, imageId: string) => {
-    console.log("Image uploaded successfully:", { imageUrl, imageId });
     setImageChanged(true);
     setUploadedImageId(imageId);
     // SWR 캐시 갱신
     if (accessToken) {
-      mutate([`${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me`, accessToken]);
+      mutate([
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me`,
+        accessToken,
+      ]);
     }
   };
 
@@ -67,7 +69,8 @@ export default function ProfileEditPage() {
   };
 
   const handleSave = async () => {
-    const hasPasswordChange = newPassword.trim() !== "" || confirmPassword.trim() !== "";
+    const hasPasswordChange =
+      newPassword.trim() !== "" || confirmPassword.trim() !== "";
     const hasAnyChange = imageChanged || hasPasswordChange;
 
     // 변경사항이 없으면 저장하지 않음

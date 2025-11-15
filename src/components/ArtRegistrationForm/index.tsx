@@ -120,7 +120,6 @@ const ArtRegistrationForm = ({
       comCost,
       nonComCost
     );
-    console.log("response :>> ", response);
 
     if (typeof response !== "boolean") {
       const { title } = response;
