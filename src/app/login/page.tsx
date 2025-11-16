@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 // 1. useSearchParams 훅을 임포트합니다.
-import { useRouter, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 // 2. 경로 별칭(@/)을 상대 경로로 수정합니다.
 import api from "../../libs/axiosInstance";
@@ -40,7 +40,11 @@ export default function LoginPage() {
       const redirectUrl = searchParams.get("redirectUrl");
 
       // 5. redirectUrl이 있으면 해당 URL로, 없으면 '/art'로 이동합니다.
-      router.push(redirectUrl || "/art");
+      if (redirectUrl) {
+        router.replace(redirectUrl);
+      } else {
+        router.push("/art");
+      }
     } catch (err) {
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {

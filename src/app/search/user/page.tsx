@@ -18,7 +18,6 @@ const SearchUserPage = async ({
 
   const response: TypeSearchContent<Art_thumbnail> | APIFailureMsg =
     await search<Art_thumbnail>("USER", safeKeyword, 0, 20);
-  console.log("response :>> ", response);
   if ("code" in response) {
     return <Error data={response} />;
   }

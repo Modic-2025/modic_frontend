@@ -19,7 +19,6 @@ const Tab = ({
   withQuery?: boolean;
 }) => {
   const searchQuery = useSearchParams();
-  console.log("searchQuery.toString() :>> ", searchQuery.toString());
 
   const [_tabs, setTabs] = useState<Array<_UITab>>();
   const pathname = usePathname();
@@ -35,7 +34,7 @@ const Tab = ({
         }))
       );
     }
-  }, []);
+  }, [pathname]);
 
   const tabOnClickListener = (id: number) => {
     setTabs(_tabs?.map((tab) => ({ ...tab, activated: tab.id == id })));
