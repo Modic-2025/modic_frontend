@@ -27,6 +27,7 @@ import { EventSourceMessage } from "@microsoft/fetch-event-source";
 import { TypeChat, TypeChatData } from "./types";
 import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Refactor chat data as type `TypeChat`
 const refacorChatData = (data: TypeChatData): TypeChat => {
@@ -43,6 +44,8 @@ type PropChat = {
   page: number;
 };
 const Chat = ({ artId, chatHistory, page }: PropChat) => {
+  const router = useRouter();
+
   let safeArtId: number = -1;
   try {
     safeArtId = Number(artId);
@@ -63,6 +66,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Popup window that failed to buy permissions
   const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false); // Fail window
   const [buyFailTitle, setBuyFailTitle] = useState<string>(""); // Fail window
+  const [buyFailDesc, setBuyFailDesc] = useState<string>(""); // Fail window
   // Chat stack states
   const [chatStack, setChatStack] = useState<TypeChat[]>([]);
   // Remain generations of posts
@@ -138,9 +142,15 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       return;
       // inputFile && readFileAndSetImage(inputFile); // read file and run the process
     }
-    const { title } = response;
+    const { title, desc, code } = response;
     setShowBuyFailWindow(true);
     setBuyFailTitle(title);
+    setBuyFailDesc(desc ?? "");
+    if (code === 401) {
+      setTimeout(() => {
+        router.refresh();
+      }, 2000);
+    }
   };
 
   // Handle paste action in text input field
@@ -482,6 +492,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         {showBuyFailWindow && (
           <Fail
             title={buyFailTitle}
+            desc={buyFailDesc}
             onCancel={() => {
               setShowBuyFailWindow(false);
             }}

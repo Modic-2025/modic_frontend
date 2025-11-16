@@ -8,6 +8,14 @@ export const APIFailureMsg_500 = {
   desc: DESC_500,
 };
 
+export const TITLE_401 = "세션이 만료되었습니다.";
+export const DESC_401 = "잠시 후 로그인 페이지로 이동합니다.";
+export const APIFailureMsg_401 = {
+  code: 401,
+  title: TITLE_401,
+  desc: DESC_401,
+};
+
 export type APIFailureMsg = {
   code: number;
   title: string;
