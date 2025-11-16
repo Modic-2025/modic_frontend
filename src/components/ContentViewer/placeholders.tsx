@@ -22,3 +22,15 @@ export const NO_SEARCH_RESULTS = () => (
     <AlertForm src="/image-circle.svg" title="검색 결과가 없습니다." />
   </CenteredLayout>
 );
+
+export const ERROR_FORM = ({
+  title,
+  desc,
+}: {
+  title: string;
+  desc?: string;
+}) => (
+  <CenteredLayout>
+    <AlertForm src="/image-circle.svg" title={title} desc={desc} />
+  </CenteredLayout>
+);
