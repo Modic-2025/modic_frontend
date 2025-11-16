@@ -28,6 +28,7 @@ import { TypeChat, TypeChatData } from "./types";
 import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { DESC_401, TITLE_401 } from "@/APIs";
 
 // Refactor chat data as type `TypeChat`
 const refacorChatData = (data: TypeChatData): TypeChat => {
@@ -204,6 +205,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     ).json();
     const { status, isSuccess, data } = responseGenerateImage;
     if (!isSuccess) {
+      if (status === 401) {
+        setErrorInfo(TITLE_401, DESC_401);
+        setTimeout(() => {
+          router.refresh();
+        }, 2000);
+      }
       console.error("ERROR");
       setChatStack((prev) => [
         ...prev.filter((item) => !item.isLoading),
@@ -221,7 +228,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
       chatScrollToEndWithDelay(Boolean(imageUrl)); // UI control
 
-      subsSSE(artId, data, handleMsgReceived);
+      subsSSE(artId, data.requestId, handleMsgReceived);
     }
   };
   const handleMsgReceived = async (e: EventSourceMessage) => {
@@ -229,36 +236,31 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     const chatResponse: TypeChatData = await JSON.parse(data);
     const safeChatResponse: TypeChat = refacorChatData(chatResponse);
 
-    const pendingRequest = getPendingReqById(artId);
-    // ERROR CASE: 현재 대기중인 요청이 없을 경우
-    if (!pendingRequest) {
-      console.error("ERROR CASE: 현재 대기중인 요청이 없을 경우");
-      return;
-    }
-    let safeRequest = null;
-    // Parse pending request
-    try {
-      safeRequest = JSON.parse(pendingRequest);
-    } catch (e) {
-      // ERROR CASE: 현재 대기중인 요청 데이터가 정상적이지 않을 경우
-      throw new Error(e);
-    }
-
     // Update status
     setChatStack((prev) => {
+      // const pendingRequests = prev.filter(
+      //   (chat) => chat.status === "REQUEST_PENDING"
+      // );
+      // // ERROR CASE: 현재 대기중인 요청이 없을 경우
+      // if (pendingRequests.length <= 0) {
+      //   console.error("ERROR CASE: 현재 대기중인 요청이 없을 경우");
+      //   return prev;
+      // }
+
       // Update `REQUEST_PENDING` to `REQUEST` (complete)
-      let safePrev = prev.map((item) => ({
-        ...item,
-        status:
-          item.requestId === safeRequest.requestId &&
+      let safePrev: TypeChat[] = prev.flatMap((item) => {
+        if (
+          item.requestId === safeChatResponse.requestId &&
+          item.senderType === "USER" &&
           item.status === "REQUEST_PENDING"
-            ? "REQUEST"
-            : item.status,
-      }));
+        ) {
+          return [{ ...item, status: "REQUEST" }, safeChatResponse];
+        }
+
+        return item;
+      });
       // Filtering loading state message
-      const result = safePrev
-        .filter((item) => !item.isLoading)
-        .concat(safeChatResponse);
+      const result = safePrev.filter((item) => !item.isLoading);
       return result;
     });
     chatScrollToEndWithDelay(Boolean(chatResponse.imageUrl)); // UI control
@@ -292,6 +294,11 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       return [...prev, { ...CHAT_LOADING_MSG, reqeustId: requestId }];
     });
   };
+  const setErrorInfo = (title: string, desc?: string) => {
+    setShowBuyFailWindow(true);
+    setBuyFailTitle(title);
+    setBuyFailDesc(desc ?? "");
+  };
 
   /**
    * Effects
@@ -303,13 +310,22 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         chatScrollToEnd();
       }, 400);
 
-      const item = getPendingReqById(artId);
-      if (item) {
-        const chatData: TypeChat = JSON.parse(item);
-        subsSSE(artId, chatData, handleMsgReceived);
-        appendLoadingMsg(chatData.requestId);
+      const loadingMsgAppliedChatStack = [
+        ...chatStack.flatMap((chat) => {
+          if (chat.status === "REQUEST_PENDING") {
+            // subs
+            subsSSE(artId, chat.requestId, handleMsgReceived);
+            // return chat of two
+            return [chat, { ...CHAT_LOADING_MSG, requestId: chat.requestId }];
+          }
+          return [chat];
+        }),
+      ];
+
+      if (chatStack.length !== loadingMsgAppliedChatStack.length) {
         setChatDisabled(true);
       }
+      setChatStack(loadingMsgAppliedChatStack);
 
       setIsInitScrolled(true);
     }
