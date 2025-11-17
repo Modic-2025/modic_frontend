@@ -2,7 +2,7 @@
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
-import generateImage from "@/APIs/useGenerateImage";
+import generateImage from "@/APIs/chat/messages";
 import useRemainGens from "@/hooks/UseRemainGens";
 import { Art, ImageType } from "@/types/Art";
 import Image from "next/image";
@@ -28,7 +28,9 @@ import { TypeChat, TypeChatData } from "./types";
 import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { DESC_401, TITLE_401 } from "@/APIs";
+import { APIFailureMsg, DESC_401, TITLE_401 } from "@/APIs";
+import { renderDayOfWeek } from "./utils";
+import cancelRequest from "@/APIs/chat/messages/cancel";
 
 // Refactor chat data as type `TypeChat`
 const refacorChatData = (data: TypeChatData): TypeChat => {
@@ -65,9 +67,9 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Popup window that buy permissions
   const [showBuyWindow, setShowBuyWindow] = useState<boolean>(false); // Confirm window
   // Popup window that failed to buy permissions
-  const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false); // Fail window
-  const [buyFailTitle, setBuyFailTitle] = useState<string>(""); // Fail window
-  const [buyFailDesc, setBuyFailDesc] = useState<string>(""); // Fail window
+  const [showFailWindow, setShowFailWindow] = useState<boolean>(false); // Fail window
+  const [failTitle, setFailTitle] = useState<string>(""); // Fail window
+  const [failDesc, setFailDesc] = useState<string>(""); // Fail window
   // Chat stack states
   const [chatStack, setChatStack] = useState<TypeChat[]>([]);
   // Remain generations of posts
@@ -144,9 +146,9 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       // inputFile && readFileAndSetImage(inputFile); // read file and run the process
     }
     const { title, desc, code } = response;
-    setShowBuyFailWindow(true);
-    setBuyFailTitle(title);
-    setBuyFailDesc(desc ?? "");
+    setShowFailWindow(true);
+    setFailTitle(title);
+    setFailDesc(desc ?? "");
     if (code === 401) {
       setTimeout(() => {
         router.refresh();
@@ -222,9 +224,9 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     // Assign SSE
     if (status === 200) {
-      const { imageUrl } = data;
+      const { imageUrl, requestId } = data;
       await setChatStack([...chatStack, refacorChatData(data)]);
-      appendLoadingMsg(data);
+      appendLoadingMsg(requestId);
 
       chatScrollToEndWithDelay(Boolean(imageUrl)); // UI control
 
@@ -263,9 +265,38 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       const result = safePrev.filter((item) => !item.isLoading);
       return result;
     });
-    chatScrollToEndWithDelay(Boolean(chatResponse.imageUrl)); // UI control
 
-    setChatDisabled(false);
+    // After UI processes
+    setChatUIState(false, Boolean(chatResponse.imageUrl));
+  };
+
+  const onRequestStopClick = async (chat: TypeChat) => {
+    const response: TypeChatData | APIFailureMsg = await cancelRequest(
+      artId,
+      chat.messageId
+    );
+
+    if ("code" in response) {
+      setErrorInfo(response.title, response.desc);
+      return;
+    }
+
+    const safeChatResposne: TypeChat = refacorChatData(response);
+    const { messageId, requestId } = safeChatResposne;
+    setChatStack(
+      (prevChatStack) =>
+        prevChatStack.flatMap((prevChat) => {
+          if (prevChat.messageId === messageId) {
+            return safeChatResposne;
+          }
+          if (prevChat.isLoading && prevChat.requestId === requestId) {
+            return [];
+          }
+          return prevChat;
+        }) ?? prevChatStack
+    );
+
+    setChatUIState(false, Boolean(safeChatResposne.imageUrl));
   };
 
   /**
@@ -291,13 +322,23 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   };
   const appendLoadingMsg = (requestId: string) => {
     setChatStack((prev) => {
-      return [...prev, { ...CHAT_LOADING_MSG, reqeustId: requestId }];
+      return [...prev].concat({ ...CHAT_LOADING_MSG, requestId: requestId });
     });
   };
   const setErrorInfo = (title: string, desc?: string) => {
-    setShowBuyFailWindow(true);
-    setBuyFailTitle(title);
-    setBuyFailDesc(desc ?? "");
+    setShowFailWindow(true);
+    setFailTitle(title);
+    setFailDesc(desc ?? "");
+  };
+  // For ImageList component
+  const onDeleteImageList = (id: number) => {
+    setInputFile(null);
+    setInputImage(null);
+  };
+  // 메시지를 발신/수신후 수행해야할 공통 UI control 입니다.
+  const setChatUIState = (isBefore: boolean, bigDelay: boolean = false) => {
+    chatScrollToEndWithDelay(bigDelay);
+    setChatDisabled(isBefore);
   };
 
   /**
@@ -397,6 +438,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       _getChatMessages(art.postId, chatPage, 30);
     }
   }, [isInView]);
+
   // 추가 채팅 로딩시 UI Scroll 보정을 수행
   useLayoutEffect(() => {
     if (!chatRef.current) return;
@@ -454,34 +496,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     setBuyPermCBState(false);
   };
 
-  // For ImageList component
-  const onDeleteImageList = (id: number) => {
-    setInputFile(null);
-    setInputImage(null);
-  };
-
-  // Render function
-  const renderDayOfWeek = (day: number) => {
-    switch (day) {
-      case 0:
-        return "일";
-      case 1:
-        return "월";
-      case 2:
-        return "화";
-      case 3:
-        return "수";
-      case 4:
-        return "목";
-      case 5:
-        return "금";
-      case 6:
-        return "토";
-      default:
-        return "NONE";
-    }
-  };
-
   // Classnames
   const inputarea_classname = `fixed bottom-0 inset-x-0 mx-auto max-w-sm pb-0`;
 
@@ -505,12 +519,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         )}
 
         {/* Failed to buy permissions window */}
-        {showBuyFailWindow && (
+        {showFailWindow && (
           <Fail
-            title={buyFailTitle}
-            desc={buyFailDesc}
+            title={failTitle}
+            desc={failDesc}
             onCancel={() => {
-              setShowBuyFailWindow(false);
+              setShowFailWindow(false);
             }}
           />
         )}
@@ -607,7 +621,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                     />
                   )}
                   {chat.textContent && (
-                    <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-bl-none">
+                    <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-1 rounded-2xl text-[#505050] rounded-bl-none">
                       {chat.textContent}
                     </p>
                   )}
@@ -616,19 +630,38 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
             ) : (
               <div
                 key={index}
-                className={`flex flex-col justify-end mb-4 items-end ${chat.imageUrl && `min-h-[300px]`}`}
+                className={`flex flex-row justify-end mb-4 items-end ${chat.imageUrl && `min-h-[300px]`}`}
               >
+                {chat.status === "REQUEST_PENDING" && (
+                  <button
+                    onClick={() => onRequestStopClick(chat)}
+                    className="mr-2 w-8 h-8 rounded-full bg-(--color-gray-2) cursor-pointer"
+                  >
+                    <Image
+                      src="/player-stop-filled-gray-4.svg"
+                      className="m-auto"
+                      alt="요청 취소"
+                      width={22}
+                      height={22}
+                    />
+                  </button>
+                )}
+                {chat.status === "REQUEST_CANCELLED" && (
+                  <p className="text-(--color-gray-4) mr-2 text-sm">
+                    취소된 요청
+                  </p>
+                )}
                 {chat.imageUrl && (
                   <ClickableImage
                     src={chat.imageUrl}
                     alt="origin_image"
                     width={240}
                     height={200}
-                    className="mb-4 shadow-lg cursor-pointer rounded-2xl"
+                    className="shadow-lg cursor-pointer rounded-2xl"
                   />
                 )}
                 {chat.textContent && (
-                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-br-none">
+                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 rounded-2xl text-[#505050] rounded-br-none">
                     {chat.textContent}
                   </p>
                 )}

@@ -16,6 +16,15 @@ export const APIFailureMsg_401 = {
   desc: DESC_401,
 };
 
+// Response 형태, generic은 data type을 가리킵니다.
+export type TypeResponse<T> = {
+  isSuccess: boolean;
+  status: number;
+  code: string;
+  data: T;
+  message: string;
+};
+
 export type APIFailureMsg = {
   code: number;
   title: string;

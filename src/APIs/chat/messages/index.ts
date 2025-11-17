@@ -1,4 +1,4 @@
-import _fetch from "../fetcher/ClientSide";
+import _fetch from "../../fetcher/ClientSide";
 
 export const generateImage = async (
   // name?: string,
