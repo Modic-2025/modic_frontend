@@ -69,14 +69,14 @@ const layout = async ({
       </div>
 
       {/* 제목 */}
-      <div className="py-3 border-b-4 border-[#F3F4F6]">
-        <h1 className="text-base">
-          <Link
-            href={`/art/tree/${postId}`}
-            className={`inline-block px-2 py-1 rounded-full text-sm font-bold mr-1 underline`}
-          >
-            2차 창작물 보기
-          </Link>
+      <div className="flex flex-col gap-1 py-3 border-b-4 border-[#F3F4F6]">
+        <Link
+          href={`/art/tree/${postId}`}
+          className={`block rounded-full text-sm mr-1 underline text-(--color-gray-4)`}
+        >
+          2차 창작물 보기
+        </Link>
+        <h1 className="text-base text-lg font-bold">
           {isDerivedPost && <DerivedArtTag status={postStatus} />}
           {title}
         </h1>
