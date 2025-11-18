@@ -27,7 +27,7 @@ export default function RootLayout({
   header: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
+    <html lang="ko" data-color-mode="light">
       <head>
         {/* Pretendard 웹폰트 CDN */}
         <link
