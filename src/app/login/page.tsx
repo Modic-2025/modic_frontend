@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 // 1. useSearchParams 훅을 임포트합니다.
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
