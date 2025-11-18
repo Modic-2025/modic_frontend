@@ -20,8 +20,10 @@ export default function PrimaryButton({
       onClick={onClick}
       disabled={disabled}
       className={clsx(
-        "w-full h-[56px] rounded-[8px] transition duration-200 cursor-pointer",
-        disabled ? "bg-[#E5E6EB]" : "bg-[#FF5100] hover:opacity-90"
+        "w-full h-[56px] rounded-[8px] transition duration-200",
+        disabled
+          ? "bg-[#E5E6EB] cursor-not-allowed"
+          : "bg-[#FF5100] hover:opacity-90 cursor-pointer"
       )}
       style={{
         color: disabled ? "var(--Grayscale-400, #9E9FAD)" : "#FFFFFF",

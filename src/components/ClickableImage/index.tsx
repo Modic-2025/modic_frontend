@@ -31,6 +31,7 @@ const ClickableImage = ({ ...rest }: ClickableImageType) => {
               layout="fill"
               width={undefined}
               height={undefined}
+              onMouseEnter={() => preload(rest.src, { as: "image" })}
               className={`!relative rounded-2xl motion-preset-expand motion-duration-300`}
             />
           </div>

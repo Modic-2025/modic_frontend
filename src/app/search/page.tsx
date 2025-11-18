@@ -1,10 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import SearchContentViewer from "@/components/SearchContentViewer";
 import useSearchPosts from "@/APIs/useSearchPosts";
 import { Art_thumbnail } from "@/types/Art";
-import Image from "next/image";
+import ContentViewer from "@/components/ContentViewer";
+import { NO_SEARCH_RESULTS } from "@/components/ContentViewer/placeholders";
+import Tab, { UITab } from "@/components/Tab";
+
+const TABS: UITab[] = [
+  {
+    name: "게시글",
+    activated: true,
+  },
+  {
+    name: "사용자",
+    activated: false,
+  },
+];
 
 export default function SearchPage() {
   const [keyword, setKeyword] = useState<string>("");
@@ -12,6 +24,7 @@ export default function SearchPage() {
   const [page, setPage] = useState<number>(0);
   const [allResults, setAllResults] = useState<Art_thumbnail[]>([]);
   const [hasNext, setHasNext] = useState<boolean>(false);
+  const [tabs, setTabs] = useState<UITab[]>(TABS);
 
   const { data, error, isLoading } = useSearchPosts(searchKeyword, page, 20);
 
@@ -45,7 +58,12 @@ export default function SearchPage() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNext && !isLoading && searchKeyword) {
+        if (
+          entries[0].isIntersecting &&
+          hasNext &&
+          !isLoading &&
+          searchKeyword
+        ) {
           setPage((prev) => prev + 1);
         }
       },
@@ -72,55 +90,37 @@ export default function SearchPage() {
   };
 
   return (
-    <main className="overflow-y-auto">
-      {/* 검색 입력 */}
-      <div className="sticky top-0 bg-white z-10 py-2">
-        {/* 중앙 정렬 컨테이너 */}
-        <div className="flex justify-center">
-          {/* 검색창 컨테이너 - 디자인 명세 적용 */}
-          <div className="flex items-center justify-between w-full max-w-[390px] h-[44px] pl-[14px] pr-[15px] py-[10px] border-b border-[#F3F4F6]">
-            <input
-              type="text"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="원하는 작품 및 작가를 검색하세요!"
-              autoFocus
-              className="flex-1 outline-none text-base"
-            />
-            <button
-              onClick={() => keyword.trim() && setSearchKeyword(keyword.trim())}
-              className="flex-shrink-0 ml-2"
-            >
-              <Image src="/Search.svg" alt="search" width={20} height={20} />
-            </button>
-          </div>
-        </div>
-      </div>
-
+    <main className="overflow-y-auto h-full flex flex-col gap-2">
       {/* 검색 결과 */}
-      <section className="px-4">
-        {!searchKeyword ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-gray-500">검색어를 입력해주세요</p>
-          </div>
-        ) : (
-          <>
-            <SearchContentViewer
+      {!searchKeyword ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <p className="text-gray-500">검색어를 입력해주세요</p>
+        </div>
+      ) : (
+        <>
+          <Tab tabs={tabs} />
+          <ContentViewer
+            arts={allResults}
+            grid={2}
+            mode="PRESENTATIONAL"
+            showTabs={false}
+          >
+            <NO_SEARCH_RESULTS />
+          </ContentViewer>
+          {/* <SearchContentViewer
               arts={allResults}
               isLoading={isLoading}
               error={error}
-            />
+            /> */}
 
-            {/* 무한 스크롤 로딩 인디케이터 */}
-            {hasNext && searchKeyword && !isLoading && allResults.length > 0 && (
-              <div ref={observerTarget} className="py-4 text-center">
-                <p className="text-gray-500">로딩 중...</p>
-              </div>
-            )}
-          </>
-        )}
-      </section>
+          {/* 무한 스크롤 로딩 인디케이터 */}
+          {hasNext && searchKeyword && !isLoading && allResults.length > 0 && (
+            <div ref={observerTarget} className="py-4 text-center">
+              <p className="text-gray-500">로딩 중...</p>
+            </div>
+          )}
+        </>
+      )}
     </main>
   );
 }

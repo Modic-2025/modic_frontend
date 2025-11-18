@@ -1,6 +1,6 @@
 "use client";
 import TabButton from "@/components/Tab/TabButton";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export type UITab = {
@@ -11,7 +11,15 @@ export type UITab = {
 export type _UITab = UITab & {
   id: number;
 };
-const Tab = ({ tabs }: { tabs: Array<UITab> }) => {
+const Tab = ({
+  tabs,
+  withQuery,
+}: {
+  tabs: Array<UITab>;
+  withQuery?: boolean;
+}) => {
+  const searchQuery = useSearchParams();
+
   const [_tabs, setTabs] = useState<Array<_UITab>>();
   const pathname = usePathname();
 
@@ -20,12 +28,13 @@ const Tab = ({ tabs }: { tabs: Array<UITab> }) => {
       setTabs(
         tabs.map((tab, i) => ({
           ...tab,
+          // href: withQuery ? `${tab.href}?${searchQuery.toString()}` : tab.href,
           id: ++i,
           activated: pathname == tab.href,
         }))
       );
     }
-  }, []);
+  }, [pathname]);
 
   const tabOnClickListener = (id: number) => {
     setTabs(_tabs?.map((tab) => ({ ...tab, activated: tab.id == id })));
@@ -36,7 +45,15 @@ const Tab = ({ tabs }: { tabs: Array<UITab> }) => {
       <div className="flex flex-row border-b border-gray-200 text-sm font-medium">
         {_tabs &&
           _tabs.map((tab) => (
-            <TabButton key={tab.id} {...tab} onClick={tabOnClickListener}>
+            <TabButton
+              key={tab.id}
+              {...tab}
+              max={_tabs.length}
+              onClick={tabOnClickListener}
+              href={
+                withQuery ? `${tab.href}?${searchQuery.toString()}` : tab.href
+              }
+            >
               {tab.name}
             </TabButton>
           ))}

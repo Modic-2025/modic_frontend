@@ -1,9 +1,8 @@
 "use client";
 
-// 1. Suspense를 import 합니다.
-import { Suspense, useState } from "react";
-// 2. useSearchParams를 LoginForm 내부에서 사용하도록 이동합니다.
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+// 1. useSearchParams 훅을 임포트합니다.
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import api from "@/libs/axiosInstance";
 import PrimaryButton from "@/components/Button/PrimaryButton";
@@ -39,7 +38,13 @@ const LoginForm = () => {
 
       // 5. redirectUrl 로직은 동일하게 유지합니다.
       const redirectUrl = searchParams.get("redirectUrl");
-      router.push(redirectUrl || "/");
+
+      // 5. redirectUrl이 있으면 해당 URL로, 없으면 '/art'로 이동합니다.
+      if (redirectUrl) {
+        router.replace(redirectUrl);
+      } else {
+        router.push("/art");
+      }
     } catch (err) {
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {

@@ -1,6 +1,7 @@
 import { Art_thumbnail } from "@/types/Art";
 import Image from "next/image";
 import Link from "next/link";
+import { preload } from "react-dom";
 
 const ArtCard = ({
   data,
@@ -29,6 +30,7 @@ const ArtCard = ({
           height={200}
           className="rounded-xl bg-gray-200 w-full"
           title={String(postId)}
+          onMouseEnter={() => preload(safeThumbnailUrl, { as: "image" })}
         />
       </figure>
     </Link>
@@ -41,6 +43,7 @@ const ArtCard = ({
       height={200}
       className="rounded-xl bg-gray-200 w-full cursor-pointer"
       title={String(postId)}
+      onMouseEnter={() => preload(safeThumbnailUrl, { as: "image" })}
     />
   );
 };

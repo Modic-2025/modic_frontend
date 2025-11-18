@@ -2,11 +2,17 @@
 import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
-import generateImage from "@/APIs/useGenerateImage";
+import generateImage from "@/APIs/chat/messages";
 import useRemainGens from "@/hooks/UseRemainGens";
 import { Art, ImageType } from "@/types/Art";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import {
+  ClipboardEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { SWRResponse, useSWRConfig } from "swr";
 import ClickableImage from "../ClickableImage";
 import Confirm from "../Popups/Confirm";
@@ -21,6 +27,10 @@ import { EventSourceMessage } from "@microsoft/fetch-event-source";
 import { TypeChat, TypeChatData } from "./types";
 import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { APIFailureMsg, DESC_401, TITLE_401 } from "@/APIs";
+import { renderDayOfWeek } from "./utils";
+import cancelRequest from "@/APIs/chat/messages/cancel";
 
 // Refactor chat data as type `TypeChat`
 const refacorChatData = (data: TypeChatData): TypeChat => {
@@ -37,6 +47,8 @@ type PropChat = {
   page: number;
 };
 const Chat = ({ artId, chatHistory, page }: PropChat) => {
+  const router = useRouter();
+
   let safeArtId: number = -1;
   try {
     safeArtId = Number(artId);
@@ -55,8 +67,9 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Popup window that buy permissions
   const [showBuyWindow, setShowBuyWindow] = useState<boolean>(false); // Confirm window
   // Popup window that failed to buy permissions
-  const [showBuyFailWindow, setShowBuyFailWindow] = useState<boolean>(false); // Fail window
-  const [buyFailTitle, setBuyFailTitle] = useState<string>(""); // Fail window
+  const [showFailWindow, setShowFailWindow] = useState<boolean>(false); // Fail window
+  const [failTitle, setFailTitle] = useState<string>(""); // Fail window
+  const [failDesc, setFailDesc] = useState<string>(""); // Fail window
   // Chat stack states
   const [chatStack, setChatStack] = useState<TypeChat[]>([]);
   // Remain generations of posts
@@ -67,7 +80,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   const [chatPage, setChatPage] = useState<number>(page);
   // Info overlay
   const [isInfoOverlayOpen, setIsInfoOverlayOpen] = useState<boolean>(false);
-
+  // 초기 스크롤 여부 flag
   const [isInitScrolled, setIsInitScrolled] = useState<boolean>(false);
 
   /**
@@ -92,6 +105,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // Refs
   const chatRef = useRef<HTMLDivElement>(null);
+  // Previous scroll height of chat stack
+  const prevScrollHeightRef = useRef<number>(0);
 
   // Form data
   const [inputText, setInputText] = useState<string>("");
@@ -130,9 +145,48 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       return;
       // inputFile && readFileAndSetImage(inputFile); // read file and run the process
     }
-    const { title } = response;
-    setShowBuyFailWindow(true);
-    setBuyFailTitle(title);
+    const { title, desc, code } = response;
+    setShowFailWindow(true);
+    setFailTitle(title);
+    setFailDesc(desc ?? "");
+    if (code === 401) {
+      setTimeout(() => {
+        router.refresh();
+      }, 2000);
+    }
+  };
+
+  // Handle paste action in text input field
+  const onPasteInput = (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    if (items.length > 0) {
+      const safeItem = items[0];
+
+      if (safeItem.kind === "file" && safeItem.type.includes("image")) {
+        const blob = safeItem.getAsFile(); // File 객체 추출
+        if (blob) {
+          const blob = safeItem.getAsFile();
+          if (!blob) return;
+
+          // Add timestamp
+          const timestamp = new Date().getTime();
+          const filename = `pasted_image_${timestamp}.png`;
+
+          // Wrapping
+          const file = new File([blob], filename, {
+            type: blob.type,
+            lastModified: new Date().getTime(),
+          });
+
+          // Upload image
+          setInputFile(file);
+
+          e.preventDefault();
+        }
+      }
+    }
   };
 
   /**
@@ -145,6 +199,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     if (!inputImage && !inputText) return;
     setInputText("");
+    setInputFile(null);
     setInputImage(null);
     setChatDisabled(true);
     const responseGenerateImage = await (
@@ -152,6 +207,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     ).json();
     const { status, isSuccess, data } = responseGenerateImage;
     if (!isSuccess) {
+      if (status === 401) {
+        setErrorInfo(TITLE_401, DESC_401);
+        setTimeout(() => {
+          router.refresh();
+        }, 2000);
+      }
       console.error("ERROR");
       setChatStack((prev) => [
         ...prev.filter((item) => !item.isLoading),
@@ -163,13 +224,13 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     }
     // Assign SSE
     if (status === 200) {
-      const { imageUrl } = data;
+      const { imageUrl, requestId } = data;
       await setChatStack([...chatStack, refacorChatData(data)]);
-      appendLoadingMsg(data);
+      appendLoadingMsg(requestId);
 
       chatScrollToEndWithDelay(Boolean(imageUrl)); // UI control
 
-      subsSSE(artId, data, handleMsgReceived);
+      subsSSE(artId, data.requestId, handleMsgReceived);
     }
   };
   const handleMsgReceived = async (e: EventSourceMessage) => {
@@ -177,41 +238,65 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     const chatResponse: TypeChatData = await JSON.parse(data);
     const safeChatResponse: TypeChat = refacorChatData(chatResponse);
 
-    const pendingRequest = getPendingReqById(artId);
-    // ERROR CASE: 현재 대기중인 요청이 없을 경우
-    if (!pendingRequest) {
-      console.error("ERROR CASE: 현재 대기중인 요청이 없을 경우");
-      return;
-    }
-    let safeRequest = null;
-    // Parse pending request
-    try {
-      safeRequest = JSON.parse(pendingRequest);
-    } catch (e) {
-      // ERROR CASE: 현재 대기중인 요청 데이터가 정상적이지 않을 경우
-      throw new Error(e);
-    }
-
     // Update status
     setChatStack((prev) => {
+      // const pendingRequests = prev.filter(
+      //   (chat) => chat.status === "REQUEST_PENDING"
+      // );
+      // // ERROR CASE: 현재 대기중인 요청이 없을 경우
+      // if (pendingRequests.length <= 0) {
+      //   console.error("ERROR CASE: 현재 대기중인 요청이 없을 경우");
+      //   return prev;
+      // }
+
       // Update `REQUEST_PENDING` to `REQUEST` (complete)
-      let safePrev = prev.map((item) => ({
-        ...item,
-        status:
-          item.requestId === safeRequest.requestId &&
+      let safePrev: TypeChat[] = prev.flatMap((item) => {
+        if (
+          item.requestId === safeChatResponse.requestId &&
+          item.senderType === "USER" &&
           item.status === "REQUEST_PENDING"
-            ? "REQUEST"
-            : item.status,
-      }));
+        ) {
+          return [{ ...item, status: "REQUEST" }, safeChatResponse];
+        }
+
+        return item;
+      });
       // Filtering loading state message
-      const result = safePrev
-        .filter((item) => !item.isLoading)
-        .concat(safeChatResponse);
+      const result = safePrev.filter((item) => !item.isLoading);
       return result;
     });
-    chatScrollToEndWithDelay(Boolean(chatResponse.imageUrl)); // UI control
 
-    setChatDisabled(false);
+    // After UI processes
+    setChatUIState(false, Boolean(chatResponse.imageUrl));
+  };
+
+  const onRequestStopClick = async (chat: TypeChat) => {
+    const response: TypeChatData | APIFailureMsg = await cancelRequest(
+      artId,
+      chat.messageId
+    );
+
+    if ("code" in response) {
+      setErrorInfo(response.title, response.desc);
+      return;
+    }
+
+    const safeChatResposne: TypeChat = refacorChatData(response);
+    const { messageId, requestId } = safeChatResposne;
+    setChatStack(
+      (prevChatStack) =>
+        prevChatStack.flatMap((prevChat) => {
+          if (prevChat.messageId === messageId) {
+            return safeChatResposne;
+          }
+          if (prevChat.isLoading && prevChat.requestId === requestId) {
+            return [];
+          }
+          return prevChat;
+        }) ?? prevChatStack
+    );
+
+    setChatUIState(false, Boolean(safeChatResposne.imageUrl));
   };
 
   /**
@@ -237,8 +322,23 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   };
   const appendLoadingMsg = (requestId: string) => {
     setChatStack((prev) => {
-      return [...prev, { ...CHAT_LOADING_MSG, reqeustId: requestId }];
+      return [...prev].concat({ ...CHAT_LOADING_MSG, requestId: requestId });
     });
+  };
+  const setErrorInfo = (title: string, desc?: string) => {
+    setShowFailWindow(true);
+    setFailTitle(title);
+    setFailDesc(desc ?? "");
+  };
+  // For ImageList component
+  const onDeleteImageList = (id: number) => {
+    setInputFile(null);
+    setInputImage(null);
+  };
+  // 메시지를 발신/수신후 수행해야할 공통 UI control 입니다.
+  const setChatUIState = (isBefore: boolean, bigDelay: boolean = false) => {
+    chatScrollToEndWithDelay(bigDelay);
+    setChatDisabled(isBefore);
   };
 
   /**
@@ -251,12 +351,22 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         chatScrollToEnd();
       }, 400);
 
-      const item = getPendingReqById(artId);
-      if (item) {
-        const chatData: TypeChat = JSON.parse(item);
-        subsSSE(artId, chatData, handleMsgReceived);
-        appendLoadingMsg(chatData.requestId);
+      const loadingMsgAppliedChatStack = [
+        ...chatStack.flatMap((chat) => {
+          if (chat.status === "REQUEST_PENDING") {
+            // subs
+            subsSSE(artId, chat.requestId, handleMsgReceived);
+            // return chat of two
+            return [chat, { ...CHAT_LOADING_MSG, requestId: chat.requestId }];
+          }
+          return [chat];
+        }),
+      ];
+
+      if (chatStack.length !== loadingMsgAppliedChatStack.length) {
+        setChatDisabled(true);
       }
+      setChatStack(loadingMsgAppliedChatStack);
 
       setIsInitScrolled(true);
     }
@@ -322,9 +432,28 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Fetch old messages
   useEffect(() => {
     if (isInView && !isChatFetching && art && chatPage >= 0) {
+      if (typeof chatRef.current?.scrollHeight === "number") {
+        prevScrollHeightRef.current = chatRef.current?.scrollHeight;
+      }
       _getChatMessages(art.postId, chatPage, 30);
     }
   }, [isInView]);
+
+  // 추가 채팅 로딩시 UI Scroll 보정을 수행
+  useLayoutEffect(() => {
+    if (!chatRef.current) return;
+
+    const currentScrollHeight = chatRef.current.scrollHeight;
+    const prevScrollHeight = prevScrollHeightRef.current;
+
+    // 이전 높이가 0이 아닐 때만 (초기 로딩 제외) 보정 수행
+    if (prevScrollHeight > 0) {
+      // 늘어난 길이만큼 스크롤을 아래로 밈
+      const heightDiff = currentScrollHeight - prevScrollHeight;
+      chatRef.current.scrollTop = heightDiff;
+    }
+  }, [chatStack]);
+
   const _getChatMessages = async (
     postId: number,
     page: number,
@@ -367,33 +496,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     setBuyPermCBState(false);
   };
 
-  // For ImageList component
-  const onDeleteImageList = (id: number) => {
-    setInputImage(null);
-  };
-
-  // Render function
-  const renderDayOfWeek = (day: number) => {
-    switch (day) {
-      case 0:
-        return "일";
-      case 1:
-        return "월";
-      case 2:
-        return "화";
-      case 3:
-        return "수";
-      case 4:
-        return "목";
-      case 5:
-        return "금";
-      case 6:
-        return "토";
-      default:
-        return "NONE";
-    }
-  };
-
   // Classnames
   const inputarea_classname = `fixed bottom-0 inset-x-0 mx-auto max-w-sm pb-0`;
 
@@ -417,22 +519,24 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         )}
 
         {/* Failed to buy permissions window */}
-        {showBuyFailWindow && (
+        {showFailWindow && (
           <Fail
-            title={buyFailTitle}
+            title={failTitle}
+            desc={failDesc}
             onCancel={() => {
-              setShowBuyFailWindow(false);
+              setShowFailWindow(false);
             }}
           />
         )}
 
         {isInfoOverlayOpen ? (
           <div
-            className="fixed top-14 left-[calc(50vw-180px)] w-[calc(384px-24px)] h-24 bg-white rounded-md shadow-xl flex gap-2 p-2 z-1 motion-preset-expand motion-duration-500"
+            className="fixed flex flex-col gap-2 top-14 left-[calc(50vw-180px)] w-[calc(384px-24px)] h-24 bg-white rounded-md shadow-xl p-2 z-1 motion-preset-expand motion-duration-500"
             onClick={() => setIsInfoOverlayOpen(false)}
           >
+            {/* <p className="text-(--color-gray-4)">현재 사용중인 그림:</p> */}
             {art && (
-              <>
+              <div className="flex gap-2 h-full">
                 <section className="relative basis-1/4 overflow-hidden rounded-lg">
                   <ClickableImage
                     src={art.images[0].imageUrl}
@@ -456,7 +560,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                     </p>
                   </div>
                 </section>
-              </>
+              </div>
             )}
           </div>
         ) : (
@@ -512,12 +616,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
                       alt="origin_image"
                       // layout="intrinsic"
                       width={240}
-                      height={180}
+                      height={200}
                       className="shadow-lg cursor-pointer rounded-2xl mb-4"
                     />
                   )}
                   {chat.textContent && (
-                    <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-bl-none">
+                    <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-1 rounded-2xl text-[#505050] rounded-bl-none">
                       {chat.textContent}
                     </p>
                   )}
@@ -526,20 +630,38 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
             ) : (
               <div
                 key={index}
-                className="me flex flex-col justify-end mb-4 items-end"
+                className={`flex flex-row justify-end mb-4 items-end ${chat.imageUrl && `min-h-[300px]`}`}
               >
+                {chat.status === "REQUEST_PENDING" && (
+                  <button
+                    onClick={() => onRequestStopClick(chat)}
+                    className="mr-2 w-8 h-8 rounded-full bg-(--color-gray-2) cursor-pointer"
+                  >
+                    <Image
+                      src="/player-stop-filled-gray-4.svg"
+                      className="m-auto"
+                      alt="요청 취소"
+                      width={22}
+                      height={22}
+                    />
+                  </button>
+                )}
+                {chat.status === "REQUEST_CANCELLED" && (
+                  <p className="text-(--color-gray-4) mr-2 text-sm">
+                    취소된 요청
+                  </p>
+                )}
                 {chat.imageUrl && (
                   <ClickableImage
                     src={chat.imageUrl}
                     alt="origin_image"
-                    // layout="intrinsic"
                     width={240}
-                    height={180}
-                    className="mb-4 shadow-lg cursor-pointer rounded-2xl"
+                    height={200}
+                    className="shadow-lg cursor-pointer rounded-2xl"
                   />
                 )}
                 {chat.textContent && (
-                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 mb-2 rounded-2xl text-[#505050] rounded-br-none">
+                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 rounded-2xl text-[#505050] rounded-br-none">
                     {chat.textContent}
                   </p>
                 )}
@@ -549,19 +671,23 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
         ))}
 
         <div className={inputarea_classname}>
-          {inputImage && (
+          {inputFile && (
             <div className="px-2">
-              <ImageList
-                items={[inputImage]}
-                max={1}
-                mode={"ONLY-ONE"}
-                onDelete={onDeleteImageList}
-              />
+              {inputImage ? (
+                <ImageList
+                  items={[inputImage]}
+                  max={1}
+                  mode={"ONLY-ONE"}
+                  onDelete={onDeleteImageList}
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-xl bg-(--color-gray-4) motion-preset-blink motion-duration-1000 [--motion-loop-opacity:0.4]"></div>
+              )}
             </div>
           )}
           <div className="flex flex-row h-16 bg-white gap-2 p-2">
             <label
-              className={`flex flex-1/10 justify-center cursor-pointer ${chatDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`flex flex-1/10 justify-center ${chatDisabled ? `cursor-not-allowed opacity-50` : `cursor-pointer`}`}
             >
               <Image
                 src="/gallery-add.svg"
@@ -579,7 +705,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               />
             </label>
             <input
-              className="w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md disabled:opacity-50"
+              className={`w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md ${chatDisabled && `cursor-not-allowed opacity-50`}`}
               placeholder={
                 remainingGen <= 0
                   ? "그림체를 변환하기 위해 구매가 필요해요"
@@ -589,8 +715,13 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               disabled={chatDisabled}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={textInputKeydownCheck}
+              onPaste={onPasteInput}
             />
-            <button className="cursor-pointer" onClick={() => sendMsg()}>
+            <button
+              className={`cursor-pointer disabled:cursor-not-allowed ${chatDisabled && `cursor-not-allowed`}`}
+              disabled={chatDisabled}
+              onClick={() => sendMsg()}
+            >
               <Image
                 src={
                   inputText.trim() !== "" || inputImage

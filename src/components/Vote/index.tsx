@@ -12,7 +12,7 @@ const VoteForm = ({
   const { derivedImageUrl, originalImageUrl } = vote;
 
   return (
-    <div className="flex flex-col h-full justify-center text-center">
+    <div className="flex flex-col h-full justify-end text-center">
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
           <ul>

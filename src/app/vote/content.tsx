@@ -2,21 +2,21 @@
 import { APIFailureMsg } from "@/APIs";
 import VoteDecision from "@/APIs/votes/decisions";
 import getRandomVote from "@/APIs/votes/random/client";
+import { AlertForm, CenteredLayout } from "@/components/Layout";
 import Fail from "@/components/Popups/Fail";
 import VoteForm from "@/components/Vote";
 import Streak from "@/components/Vote/Streak";
 import usePrevious from "@/hooks/UsePrevious";
-import { Vote } from "@/types/Vote";
+import { Vote, VoteDecisions } from "@/types/Vote";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 
-type TypeView = "DO_VOTE" | "RESULT";
+type TypeView = "DO_VOTE" | "RESULT" | "EXCEPTION";
 type TypeVotePresentational = Vote & {
   view: TypeView;
 };
-const NEXT_VOTE_DURATION = 5000; // Time for move to next vote from result
 const VoteContent = ({
   vote: _vote,
   streak: _streak,
@@ -29,7 +29,6 @@ const VoteContent = ({
   /**
    * Swiper state
    */
-  const swiper = useSwiper();
   const [currentSlideIdx, setCurrentSlideIdx] = useState<number>(0);
 
   /**
@@ -38,6 +37,9 @@ const VoteContent = ({
   const [votes, setVotes] = useState<TypeVotePresentational[]>([
     { ..._vote, view: "DO_VOTE" },
   ]);
+  const [voteException, setVoteException] = useState<
+    APIFailureMsg | undefined
+  >();
   const previousVotes: TypeVotePresentational[] = usePrevious(votes);
   const setViewOfCurrVote = async (view: TypeView) => {
     const temp = votes.map((vote, i) => ({
@@ -50,6 +52,13 @@ const VoteContent = ({
     const voteResponse: Vote | APIFailureMsg = await getRandomVote();
     if ("code" in voteResponse) {
       console.error("voteResponse", voteResponse);
+      setVoteException(voteResponse);
+      setVotes((prev) => [...votes, { ...prev[0], view: "EXCEPTION" }]);
+      // switch (code) {
+      //   case 404:
+      //     break;
+      //   default:
+      // }
       return;
     }
     setVotes([...votes, { ...voteResponse, view: "DO_VOTE" }]);
@@ -57,9 +66,20 @@ const VoteContent = ({
   const [streak, setStreak] = useState<number>(_streak);
 
   /**
+   * VoteForm state
+   * 마지막 decision을 저장합니다.
+   * 이 값은 서버에서 내려주지 않는 label값을 위해 만들어졌으며 isCorrectAnswer과 대조하여  대체하여 사용됩니다.
+   */
+  const [lastDecision, setLastDecision] = useState<VoteDecisions | undefined>();
+
+  /**
    * Result state
    */
-  const [isCorrect, setIsCorrect] = useState<undefined | boolean>(undefined);
+  const [isCorrect, setIsCorrect] = useState<boolean | undefined>();
+  // const [voteDecisionLabel, voteDecisionLabel] = useState<VoteDecisions | undefined>();
+  // useEffect(() => {
+
+  // }, [isCorrect])
 
   /**
    * Popups
@@ -83,7 +103,7 @@ const VoteContent = ({
     setTimeout(() => {
       if (1 <= currentSlideIdx) {
         const filteredResult = votes.filter((vote, i) => i >= votes.length - 1);
-        setVotes(filteredResult); // WIP: 여기 수정해서 올바르게 작동하도록 만들기
+        setVotes(filteredResult);
       }
     }, 500);
   }, [currentSlideIdx]);
@@ -113,11 +133,16 @@ const VoteContent = ({
   /**
    * Events
    */
-  const onVote = async (response: boolean) => {
+  const onVote = async (decision: boolean) => {
+    const safeDecision: VoteDecisions = decision ? "APPROVE" : "DENY";
     const voteResponse = await VoteDecision(
       votes[currentSlideIdx].voteId,
-      response ? "APPROVE" : "DENY"
+      safeDecision
     );
+
+    // Cache decision
+    setLastDecision(safeDecision);
+
     if ("code" in voteResponse) {
       const { code, title } = voteResponse;
       setWarnTitle(title);
@@ -157,7 +182,7 @@ const VoteContent = ({
       {/**
        * Streak overlay
        */}
-      <div className="absolute bg-white w-[calc(100%-32px)] min-h-18 rounded-xl top-4 left-4 shadow-lg p-4 z-1">
+      <div className="absolute bg-white w-[calc(100%-32px)] min-h-18 rounded-xl top-4 left-4 shadow-lg p-4 z-10">
         {giveTicketUI ? (
           <div className="flex gap-4 motion-preset-fade motion-duration-750">
             <section className="basis-1/4">
@@ -192,45 +217,99 @@ const VoteContent = ({
         className="mySwiper h-full overflow-hidden"
         onSlideChange={(e) => setCurrentSlideIdx(e.activeIndex)}
       >
-        {votes.map(({ view, ...rest }) => (
-          <SwiperSlide>
-            {view === "DO_VOTE" ? (
-              <VoteForm vote={rest} onVote={onVote} />
-            ) : (
-              <Result isCorrect={isCorrect} />
-            )}
-          </SwiperSlide>
-        ))}
+        {votes.map(({ view, ...rest }) => {
+          let content: React.ReactNode;
+          switch (view) {
+            case "DO_VOTE":
+              content = <VoteForm vote={rest} onVote={onVote} />;
+              break;
+            case "RESULT":
+              content = (
+                <ResultForm
+                  isCorrect={isCorrect}
+                  userVoteDecision={lastDecision}
+                />
+              );
+              break;
+            case "EXCEPTION":
+              content = <ExceptionForm voteException={voteException} />;
+              break;
+            default:
+              content = <p>adf</p>;
+          }
+          return <SwiperSlide>{content}</SwiperSlide>;
+        })}
       </Swiper>
     </>
   );
 };
 
-const Result = ({ isCorrect }: { isCorrect: undefined | boolean }) => (
-  <div className="flex flex-col h-full justify-center gap-4 text-center">
-    <section>
-      <Image
+/**
+ * Correct & label independent
+ * Correct & label inherit
+ * Wrong & label independent
+ * Wrong & label inherit
+ */
+
+const ResultForm = ({
+  isCorrect,
+  userVoteDecision,
+}: {
+  isCorrect: boolean | undefined;
+  userVoteDecision: VoteDecisions | undefined;
+}) => {
+  const booleanVoteDecision: boolean =
+    userVoteDecision === "APPROVE" ? true : false;
+  const isInheritCopyright =
+    isCorrect !== undefined &&
+    booleanVoteDecision !== undefined &&
+    isCorrect !== booleanVoteDecision;
+  return (
+    <CenteredLayout>
+      <div className="fixed flex items-center justify-center motion-preset-fade-lg bg-gradient-to-t from-gray-2 to-white w-full h-30 bottom-0">
+        <Image
+          src="/long-up-arrow-gray-4.svg"
+          alt="finger"
+          className="absolute opacity-60"
+          width={50}
+          height={100}
+        />
+        <Image
+          src="/hand-finger-gray-4.svg"
+          alt="finger"
+          className="ml-12 motion-safe:animate-fade-up-out"
+          width={48}
+          height={48}
+        />
+      </div>
+
+      <AlertForm
         src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
-        alt="X"
-        width="100"
-        height="100"
-        className="m-auto"
+        alt={isCorrect ? "정답" : "오답"}
+        title={isCorrect ? "정답입니다!" : "틀렸습니다 .."}
+        desc={`모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
+      저작권이 인정${isInheritCopyright ? "되지 않았습니다." : "되었습니다."}`}
       />
-    </section>
-    <section className="text-2xl font-bold">
-      {isCorrect ? "정답입니다!" : "틀렸습니다 .."}
-    </section>
-    <section className="font-bold text-(--color-gray-4)">
-      모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
-      저작권이 인정{isCorrect ? "되었습니다." : "되지 않았습니다."}
-    </section>
-    <section>
-      {/* CURRENT_VOTE_SECTION */}
-      {/* {isCorrect
-        ? "winning streak이 한 개 쌓였습니다!"
-        : "winning streak이 삭제 되었습니다 ㅠㅠ"} */}
-    </section>
-  </div>
+    </CenteredLayout>
+  );
+};
+
+export const ExceptionForm = ({
+  children,
+  voteException,
+}: {
+  children?: React.ReactNode;
+  voteException?: APIFailureMsg;
+}) => (
+  <CenteredLayout>
+    <AlertForm
+      src="/warning.svg"
+      alt="EXCEPTION"
+      title={voteException?.title || "에러가 발생하였습니다."}
+      desc={voteException?.desc || ""}
+    />
+    {children}
+  </CenteredLayout>
 );
 
 export default VoteContent;

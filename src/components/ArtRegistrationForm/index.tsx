@@ -8,6 +8,9 @@ import { useRouter } from "next/navigation";
 import InputSet from "../Inputs/InputSet";
 import { createDerivedPost } from "@/APIs/ai/derived-posts";
 import { APIFailureMsg } from "@/APIs";
+import createPost from "@/APIs/Art/Create";
+import updatePost from "@/APIs/Art/Update";
+import ToolTip from "../ToolTip";
 
 const MAX_TITLE_NUM = 20;
 const MAX_DESCRIPTION_LENGTH = 800;
@@ -15,17 +18,6 @@ const TEXT_IMAGE_RESTRICTION = `최소 1개 이상의 그림을 등록해주세�
 const TEXT_TITLE_RESTRICTION = `제목을 입력해주세요.`;
 const TEXT_COST_FREE = `해당 그림체를 무료로 게시하시겠습니까?`;
 const TEXT_DESC_RESTRICTION = `설명을 1자이상 입력해주세요.`;
-
-// On create post
-type CreatePostPayload = {
-  title: string;
-  description: string;
-  commercialPrice: number;
-  nonCommercialPrice: number;
-  ticketPrice: number;
-  imageIds: string[];
-  thumbnailImageId: number;
-};
 
 type ArtRegistrationFormProps = {
   art?: Art | Partial<Art>;
@@ -40,23 +32,26 @@ const ArtRegistrationForm = ({
 }: ArtRegistrationFormProps) => {
   const router = useRouter();
 
-  const [isEditing, setIsEditing] = useState<boolean>(Boolean(art));
+  const isEditingMode = Boolean(art);
 
   // Form data
   const [title, setTitle] = useState<string>(art?.title || "");
-  const [imageUrls, setImageUrls] = useState<ImageType[]>(art?.images || []);
+  const [description, setDescription] = useState<string>(
+    art?.description || ""
+  );
+  const [images, setImageUrls] = useState<ImageType[]>(art?.images || []);
   const [comCost, setComCost] = useState<number | undefined>(
     art?.commercialPrice ? art?.commercialPrice : undefined
   );
   const [nonComCost, setNonComCost] = useState<number | undefined>(
     art?.nonCommercialPrice ? art?.nonCommercialPrice : undefined
   );
-  const [description, setDescription] = useState<string>(
-    art?.description || ""
+  const [ticketCost, setTicketCost] = useState<number | undefined>(
+    art?.nonCommercialPrice ? art?.nonCommercialPrice : undefined
   );
 
   const onClickCreatePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (imageUrls.length < 1) {
+    if (images.length < 1) {
       alert(TEXT_IMAGE_RESTRICTION);
       return;
     }
@@ -71,95 +66,109 @@ const ArtRegistrationForm = ({
 
     // Confirmation of no-cost post
     if (!comCost && !nonComCost) if (!confirm(TEXT_COST_FREE)) return;
-    // Create derived post case
-    if (isDerived) {
-      // Derived post cannot set
-      const response: Number | APIFailureMsg = await createDerivedPost(
-        imageUrls[0].imageId,
-        title,
-        description,
-        comCost || 0,
-        nonComCost || 0,
-        10
-      );
 
-      // failure
-      if ("code" in response) {
-        const { code } = response;
-        switch (code) {
-          case 403: // no access to ai created image
-            alert("해당 AI 이미지에 대한 권한이 없습니다.");
-            break;
-          case 404: // cannot find ai created image
-            alert("해당 AI 이미지를 찾을 수 없습니다.");
-            break;
-          default:
-            alert(`서버에서 에러가 발생했습니다. (${code})`);
-        }
+    if (isDerived) {
+      handleCreateDrvPost();
+      return;
+    }
+
+    if (isEditingMode) {
+      if (art && typeof art.postId === "number") {
+        handleEditPost(art.postId);
         return;
       }
+      alert(
+        "수정하고자 하는 게시글의 정보를 찾을 수 없습니다. 새로고침후 다시 시도해주세요 (art or art.posttId is not exist)"
+      );
+      return;
+    }
 
-      // Success
-      if (typeof response === "number") {
-        router.push(`/${response}`);
+    handleCreatePost();
+  };
+
+  // 게시글 생성
+  const handleCreatePost = async () => {
+    const response: APIFailureMsg | number = await createPost(
+      title,
+      description,
+      10,
+      images.map((item) => item.imageId),
+      comCost,
+      nonComCost
+    );
+
+    if (typeof response !== "number") {
+      const { title } = response;
+      alert(title);
+      return;
+    }
+
+    const safePostId = response;
+    // Success routing
+    router.push("/art");
+    router.replace(`/art/${safePostId}`);
+  };
+
+  // 게시글 수정
+  const handleEditPost = async (id: number) => {
+    const response: boolean | APIFailureMsg = await updatePost(
+      id,
+      title,
+      description,
+      1,
+      images.map((item) => item.imageId),
+      comCost,
+      nonComCost
+    );
+
+    if (typeof response !== "boolean") {
+      const { title } = response;
+      alert(title);
+      return;
+    }
+
+    router.back();
+  };
+
+  // 2차 창작 게시글 생성
+  const handleCreateDrvPost = async () => {
+    // Derived post cannot set
+    const response: number | APIFailureMsg = await createDerivedPost(
+      images[0].imageId,
+      title,
+      description,
+      comCost || 0,
+      nonComCost || 0,
+      ticketCost || 1
+    );
+
+    // failure
+    if (typeof response !== "number") {
+      const { code, title } = response;
+      switch (code) {
+        case 400:
+          alert(`${title} (${code})`);
+          break;
+        case 403: // no access to ai created image
+          alert("해당 AI 이미지에 대한 권한이 없습니다.");
+          break;
+        case 404: // cannot find ai created image
+          alert("해당 AI 이미지를 찾을 수 없습니다.");
+          break;
+        case 409: // already registrated
+          alert("이미 등록된 AI 이미지 입니다.");
+          break;
+        default:
+          alert(`서버에서 에러가 발생했습니다. (${code})`);
       }
       return;
     }
 
-    // Create/Editing original post
-    const payload: CreatePostPayload = {
-      title: title,
-      description: description,
-      commercialPrice: comCost || 0,
-      nonCommercialPrice: nonComCost || 0,
-      imageIds: imageUrls.map((item) => String(item.imageId)),
-      thumbnailImageId: imageUrls[0].imageId,
-      // FOR DEVELOP
-      ticketPrice: 10,
-    };
-
-    const requestUrl = art
-      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts/${art.postId}`
-      : `${process.env.NEXT_PUBLIC_API_HOST}/api/posts`;
-    fetch(requestUrl, {
-      method: art ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => !art && response.json())
-      .then((data) => {
-        if (art) {
-        }
-        const { status, isSuccess } = data;
-
-        if (!isSuccess) {
-          const { code, message, reason } = data;
-          if (code == "C-001") {
-            const prefix = art ? "수정할 수" : "만들 수";
-            const alertMsg =
-              `게시글을 ${prefix} 없었습니다. (${message})` +
-              "\n" +
-              "- " +
-              reason.join("\n- ");
-            alert(alertMsg);
-          }
-          return;
-        }
-
-        const { postId } = data.data;
-        // Success routing
-        if (status == 201 && isSuccess) {
-          router.push("/");
-          router.replace(`/${postId}`);
-          return;
-        }
-      })
-      .catch((error) => {
-        console.error("에러:", error);
-      });
+    // Success
+    if (typeof response === "number") {
+      router.push(`/art/${response}`);
+    }
+    return;
   };
 
   const onChangeImages = (images: ImageType[]) => {
@@ -168,23 +177,50 @@ const ArtRegistrationForm = ({
 
   const onCostChange = (
     e: ChangeEvent<HTMLInputElement>,
-    type: "COM" | "NONCOM"
+    type: "COM" | "NONCOM" | "TICKET"
   ) => {
+    switch (type) {
+      case "COM":
+        handleComCost(e);
+        break;
+      case "NONCOM":
+        handleNonComCost(e);
+        break;
+      case "TICKET":
+        handleTicketCost(e);
+        break;
+      default: // ERROR: no target
+        alert("비용을 갱신할 수 없었습니다. 새로고침후 다시 시도해주세요");
+    }
+  };
+
+  // Handling costs
+  const handleComCost = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const numberValue = Number(value);
-    if (type === "COM") {
-      if (numberValue < 0 || !value) {
-        // Shows placeholder
-        setComCost(undefined);
-        e.target.value = "";
-      } else setComCost(numberValue);
-    } else {
-      if (numberValue < 0 || !value) {
-        // Shows placeholder
-        setNonComCost(undefined);
-        e.target.value = "";
-      } else setNonComCost(numberValue);
-    }
+    if (numberValue < 0 || !value) {
+      // Shows placeholder
+      setComCost(undefined);
+      e.target.value = "";
+    } else setComCost(numberValue);
+  };
+  const handleNonComCost = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const numberValue = Number(value);
+    if (numberValue < 0 || !value) {
+      // Shows placeholder
+      setNonComCost(undefined);
+      e.target.value = "";
+    } else setNonComCost(numberValue);
+  };
+  const handleTicketCost = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const numberValue = Number(value);
+    if (numberValue < 0 || !value) {
+      // Shows placeholder
+      setTicketCost(undefined);
+      e.target.value = "";
+    } else setTicketCost(numberValue);
   };
 
   // only-one image allowed in regist derived post
@@ -194,7 +230,7 @@ const ArtRegistrationForm = ({
     <>
       {/* 이미지 업로드 영역 */}
       <ImageList
-        items={imageUrls}
+        items={images}
         mode={imageListMode}
         onChange={onChangeImages}
       />
@@ -219,9 +255,9 @@ const ArtRegistrationForm = ({
 
       {/* 가격 입력란 */}
       <div className="mt-4">
-        <label className="block text-md font-semibold mb-2">코인</label>
+        <label className="block text-md font-semibold mb-2">비용</label>
         <div className="flex flex-row items-center gap-2">
-          <div className="relative basis-1/2">
+          <div className="relative basis-1/3">
             <input
               type="number"
               value={comCost}
@@ -231,15 +267,17 @@ const ArtRegistrationForm = ({
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
               placeholder="상업용"
             />
-            <Image
-              src="/copyright.svg"
-              alt="commercial cost"
-              width={24}
-              height={24}
-              className="absolute top-4 left-2"
-            />
+            <ToolTip text="상업용도로 사용될 때의 코인 개수">
+              <Image
+                src="/copyright.svg"
+                alt="commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </ToolTip>
           </div>
-          <div className="relative basis-1/2">
+          <div className="relative basis-1/3">
             <input
               type="number"
               value={nonComCost}
@@ -249,13 +287,35 @@ const ArtRegistrationForm = ({
               className="w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
               placeholder="비상업용"
             />
-            <Image
-              src="/copyright-off.svg"
-              alt="non-commercial cost"
-              width={24}
-              height={24}
-              className="absolute top-4 left-2"
+            <ToolTip text="비상업용도로 사용될 때의 코인 개수">
+              <Image
+                src="/copyright-off.svg"
+                alt="non-commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </ToolTip>
+          </div>
+          <div className="relative basis-1/3">
+            <input
+              type="number"
+              value={ticketCost}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                onCostChange(e, "TICKET");
+              }}
+              className="relative w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
+              placeholder="티켓"
             />
+            <ToolTip text="매 AI 편집을 시도할 때마다 소모시킬 티켓의 개수">
+              <Image
+                src="/ticket-gray-4.svg"
+                alt="non-commercial cost"
+                width={24}
+                height={24}
+                className="absolute top-4 left-2"
+              />
+            </ToolTip>
           </div>
         </div>
       </div>

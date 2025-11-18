@@ -10,7 +10,13 @@ export type TypeChatData = {
   requestId: string;
   imageUrl?: string;
   createdAt: Date;
-  status: "REQUEST" | "REQUEST_PENDING" | "REQUEST_FAILED" | "RESPONSE";
+  status:
+    | "REQUEST"
+    | "REQUEST_PENDING"
+    | "REQUEST_FAILED"
+    | "REQUEST_CANCELLED" // 취소된 요청
+    | "RESPONSE"
+    | "RESPONSE_FAILED"; // 코인 반납되는 겨웅
 };
 
 export type TypeChat = TypeChatUI & TypeChatData;

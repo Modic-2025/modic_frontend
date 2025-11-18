@@ -7,7 +7,7 @@ const ArtDetailContent = ({ art }: { art: Art }) => {
   return (
     <>
       {/* 본문 */}
-      <div className="px-4 py-4 text-sm text-gray-700 leading-relaxed">
+      <div className="px-4 py-4 pb-20 text-sm text-gray-700 leading-relaxed">
         <MDEditor.Markdown
           source={art.description}
           data-color-mode="light"

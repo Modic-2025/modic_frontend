@@ -10,7 +10,7 @@ const Search = ({ onClick }: { onClick?: () => void }) => {
     if (onClick) {
       onClick();
     } else {
-      router.push("/search");
+      router.push("/search/art");
     }
   };
 

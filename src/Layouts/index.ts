@@ -22,11 +22,19 @@ export type HeaderContentActionsType = {
  * header contents map by path
  */
 export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
-  "/": HEADER_CONTENTS_DEFAULT,
-  "/[art_id]": HEADER_CONTENTS_DEFAULT,
-  "/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,
-  "/[art_id]/reviews": HEADER_CONTENTS_DEFAULT,
-  "/search": {
+  "/art": HEADER_CONTENTS_DEFAULT,
+  "/art/[art_id]": HEADER_CONTENTS_DEFAULT,
+  "/art/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,
+  "/art/[art_id]/reviews": HEADER_CONTENTS_DEFAULT,
+  "/search/art": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "검색",
+      },
+    },
+  },
+  "/search/user": {
     elements: ["backward", "title"],
     actions: {
       title: {

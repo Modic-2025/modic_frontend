@@ -1,12 +1,11 @@
 "use client";
 import { Art_thumbnail } from "@/types/Art";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ArtCard from "@/components/ArtCard";
-import useArts, { sortType } from "@/APIs/useArts";
-import { Popup } from "../Popups";
+import useArts, { ArtPagingData, sortType } from "@/APIs/useArts";
 import Image from "next/image";
-import PrimaryButton from "../Button/PrimaryButton";
-import Link from "next/link";
+import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
+import { ERROR_FORM } from "./placeholders";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
 type artsByGridType = Array<Array<Art_thumbnail>>;
@@ -15,7 +14,6 @@ type tab = {
   value: string;
   name: string;
   selected?: boolean;
-  // onClick?: (e:EventListener) => string;
 };
 
 const C_TABS: Array<tab> = [
@@ -25,44 +23,77 @@ const C_TABS: Array<tab> = [
 ];
 
 const ContentViewer = ({
+  children,
   mode = "NORMAL",
   showTabs = true,
+  onClickPost,
   ...rest
 }: {
-  mode?: "NORMAL" | "POPUP"; // NORMAL: default, POPUP: use in my image gen page
+  children?: React.ReactNode; // use as placeholder
+  mode?: "NORMAL" | "DERIVED" | "PRESENTATIONAL"; // NORMAL: default, DERIVED: use in my image gen page
   grid: gridType;
   arts?: Art_thumbnail[]; // If set `arts`, component do not fetch arts
   showTabs?: boolean;
   userId?: number; // Get arts by user
   me?: boolean; // Get arts by own session
+  onClickPost?: (content: Art_thumbnail) => void;
 }) => {
+  // Intersection observer
+  const [observeRef, isInView] = useIntersectionObserver<HTMLDivElement>({
+    threshold: 0.6,
+  });
+
   const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
-  const [arts, setArts] = useState<Art_thumbnail[] | undefined>(
-    rest.arts ?? undefined
-  ); // prop arts
   const [grid, setGrid] = useState<gridType>(rest.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
 
-  // Popup states
-  const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [selectedArt, setSelectedArt] = useState<Art_thumbnail | null>(null);
-
   const selectedTab = tabs.find((item) => item.selected);
+  const getPagingKey = (index: number, prevPageData: ArtPagingData | null) => {
+    const searchParams = new URLSearchParams();
+    // searchParams.append("postType", "ALL");
+    searchParams.append("size", "20");
+    // 첫 페이지
+    if (!prevPageData) {
+      searchParams.append("page", "0");
+      return `${process.env.NEXT_PUBLIC_API_HOST}/api/posts?${searchParams.toString()}`;
+    }
+
+    // 마지막 페이지 도달
+    if (prevPageData.isLast) {
+      return null;
+    }
+
+    // 다음 페이지
+    searchParams.append("page", `${index + 1}`);
+    return `${process.env.NEXT_PUBLIC_API_HOST}/api/posts?${searchParams.toString()}`;
+  };
+  const [page, setPage] = useState<number>(0);
   const { data, error, isLoading } = useArts(
     rest.arts
       ? null
       : ((selectedTab ? selectedTab.value : "LATEST") as sortType),
-    0,
+    page,
     20,
+    getPagingKey,
     safeUserId
   );
 
+  /**
+   * mode === "PRESENTATIONAL"일 경우, prop의 art를 사용하게 됩니다.
+   */
+  const [targetArts, setTargetArts] = useState<Art_thumbnail[] | undefined>(
+    mode === "PRESENTATIONAL"
+      ? rest.arts
+      : data && data.flatMap((page) => page.content)
+  );
+
+  // 레이아웃 데이터 계산
   useEffect(() => {
-    if (arts) {
-      if (arts.length > 0 && grid) {
+    if (targetArts) {
+      if (targetArts.length > 0 && grid) {
         const artsByGrid: artsByGridType = [];
-        arts.map((art, index) => {
+        targetArts.map((art, index) => {
           const gridIndex = index % grid;
           if (artsByGrid[gridIndex]) {
             artsByGrid[gridIndex].push(art);
@@ -73,25 +104,31 @@ const ContentViewer = ({
         setArtsByGrid(artsByGrid);
       }
     }
-  }, [arts, grid]);
+  }, [targetArts, grid]);
+
+  // Sync SWR hook arts data or prop arts data to target arts state
+  useEffect(() => {
+    setTargetArts(
+      mode === "PRESENTATIONAL"
+        ? rest.arts
+        : data && data.flatMap((page) => page.content)
+    );
+  }, [data, rest.arts]);
+
+  // 추가 데이터를 fetch하는 시점을 감지한다.
+  useEffect(() => {
+    // 마지막 페이지의 isLast를 검사한다.
+    const isLastPage = data && data[data.length - 1].isLast;
+    console.log("isLastPage :>> ", isLastPage);
+    // last가 아닐 경우 fetch한다.
+    if (!isLastPage && isInView) {
+      setPage(page + 1);
+    }
+  }, [isInView]);
 
   useEffect(() => {
-    if (!error && data) {
-      let { content } = data.data;
-      if (content) {
-        setArts(content);
-      }
-    }
-  }, [data]);
-
-  if (error) {
-    return (
-      <>
-        <p> 작품 데이터를 가져오는중 오류가 발생했습니다. </p>
-        <p> 잠시 후 다시 시도해주세요 </p>
-      </>
-    );
-  }
+    console.log("page updated :>> ", page);
+  }, [page]);
 
   /**
    * Event listeners
@@ -105,58 +142,38 @@ const ContentViewer = ({
       }))
     );
   };
-  // On click ArtCard
-  const onClickArtCard = (data: Art_thumbnail) => {
-    setShowPopup(true);
-    setSelectedArt(data);
-  };
-  // On click create derived art
-  const onClickRegistDerivedArt = () => {};
 
   /**
    * Intuitive rendering flags
    */
   // Rendering tabs
   const isRenderTabs = typeof showTabs == "boolean" && showTabs;
-  // Rendering popups
-  // currently, used to created-images page
-  // this flag decides property of `ArtCard` Div's key
-  const usesPopup = mode === "POPUP";
+  const isDisplayDerivedPost = mode === "DERIVED";
 
-  /**
-   * Presentational rendering content
-   */
-  const safeImageUrl =
-    selectedArt && encodeURIComponent(selectedArt.images[0].imageUrl);
+  if (isLoading) {
+    return (
+      <div className="flex flex-col w-full h-full justify-center items-center">
+        <Image
+          src="/MODIC.svg"
+          alt="MODIC"
+          width={180}
+          height={100}
+          className="motion-preset-blink motion-duration-1000 [--motion-loop-opacity:0.6]"
+        />
+        <h1 className="text-(--color-gray-4) font-bold text-xl mt-4">
+          그림을 가져오는 중 ..
+        </h1>
+      </div>
+    );
+  }
+
+  // Error case
+  if (error) {
+    return <ERROR_FORM title={error.info.message} desc={error.status} />;
+  }
 
   return (
     <>
-      {/* Popups */}
-      {usesPopup && showPopup && selectedArt && (
-        <Popup onClick={() => setShowPopup(false)}>
-          {selectedArt && (
-            <>
-              <Image
-                src={selectedArt.images[0].imageUrl}
-                alt={selectedArt.images[0].imageUrl}
-                layout="responsive"
-                className="mb-4 rounded-xl"
-                width={200}
-                height={200}
-              />
-              <Link
-                href={`/regist/${selectedArt.images[0].imageId}?imageUrl=${safeImageUrl}`}
-              >
-                <PrimaryButton
-                  text="2차 창작물 등록하기"
-                  onClick={onClickRegistDerivedArt}
-                />
-              </Link>
-            </>
-          )}
-        </Popup>
-      )}
-
       {/* Tab */}
       {isRenderTabs && (
         <nav className="flex flex-row pb-4 font-semibold">
@@ -167,27 +184,36 @@ const ContentViewer = ({
       )}
 
       {/* Content */}
-      {isLoading ? (
-        <p> 작품 가져오는 중 .. </p>
+      {targetArts && targetArts.length <= 0 ? (
+        children
       ) : (
-        <div className={`content-viewer flex flex-row gap-4`}>
-          {artsByGrid &&
-            artsByGrid.map((_, index) => (
-              <div key={index} className="basis-1/2">
-                {_.map((art, index) => (
-                  <div
-                    key={usesPopup ? art.images[0].imageId : art.postId}
-                    className="mb-4"
-                  >
-                    <ArtCard
-                      data={art}
-                      onClick={usesPopup ? onClickArtCard : undefined}
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
-        </div>
+        <>
+          <div className={`content-viewer flex flex-row gap-4`}>
+            {artsByGrid &&
+              artsByGrid.map((_, index) => (
+                <div key={index} className="basis-1/2">
+                  {_.map((art, artIndex) => (
+                    <div
+                      key={
+                        isDisplayDerivedPost
+                          ? art.images[0].imageId
+                          : art.postId
+                      }
+                      className="mb-4"
+                    >
+                      <ArtCard
+                        data={art}
+                        onClick={isDisplayDerivedPost ? onClickPost : undefined}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+          </div>
+          {observeRef && typeof observeRef === "object" && (
+            <div ref={observeRef}></div>
+          )}
+        </>
       )}
     </>
   );

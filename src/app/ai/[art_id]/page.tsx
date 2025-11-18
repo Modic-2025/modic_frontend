@@ -1,7 +1,8 @@
 import { APIFailureMsg } from "@/APIs";
 import { TypeResponseData } from "@/APIs/posts/chat/messages/get/client";
 import getChatMessages from "@/APIs/posts/chat/messages/get/server";
-import Chat, { TypeChatData } from "@/components/Chat";
+import Chat from "@/components/Chat";
+import { TypeChatData } from "@/components/Chat/types";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;

@@ -3,6 +3,7 @@ import UserHeader from "../UserHeader";
 import { HEADER_CONTENTS } from "@/Layouts";
 import { User } from "@/types/User";
 import _fetch from "@/APIs/fetcher/ServerSide";
+import { NO_POSTS } from "@/components/ContentViewer/placeholders";
 
 const headerContents = [
   HEADER_CONTENTS.BACKWARD,
@@ -37,7 +38,9 @@ const Page = async ({ params }: { params: Promise<{ user_id: string }> }) => {
     <>
       <UserHeader user={user} except={["coin"]} />
       <section>
-        <ContentViewer grid={2} userId={safeUserId} />
+        <ContentViewer grid={2} userId={safeUserId}>
+          <NO_POSTS />
+        </ContentViewer>
       </section>
     </>
   );

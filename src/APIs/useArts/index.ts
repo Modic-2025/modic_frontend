@@ -1,5 +1,8 @@
 import useSWR from "swr";
+import useSWRInfinite from "swr/infinite";
 import _fetch from "../fetcher/ClientSide";
+import { Art_thumbnail } from "@/types/Art";
+import { TypePaging } from "@/types";
 
 export type sortType = "LATEST" | "HOTTEST" | "FOLLOWING";
 
@@ -9,18 +12,22 @@ export const fetchWithToken = async ([url]: [string]) => {
   return await _fetch(url, true).then((res) => res.json());
 };
 
+export type ArtPagingData = TypePaging & { content: Art_thumbnail[] };
 const useArts = (
   sort: sortType | null,
   page: number,
   size: number,
-  userId?: number // number -1 for own(session) arts
-  // authToken?: string // FOR DEVELOP
+  infKeyGetter: (
+    index: number,
+    previousPageData: ArtPagingData | null
+  ) => string | null,
+  userId?: number
 ) => {
   const shouldFetch = Boolean(sort);
   if (typeof userId === "number") {
     if (userId === -1) {
       // get by me
-      return useSWR(
+      return useSWRInfinite<ArtPagingData>(
         [
           shouldFetch
             ? `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/me/posts?page=${page || 0}&size=${size || 20}`
@@ -30,18 +37,16 @@ const useArts = (
       );
     }
     // get by user
-    return useSWR(
+    return useSWRInfinite<ArtPagingData>(
       shouldFetch
         ? `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles/posts?userId=${userId}&page=${page || 0}&size=${size || 20}`
         : null,
       (url: string) => _fetch(url, false).then((res) => res.json())
     );
   }
-  return useSWR(
-    shouldFetch
-      ? `${process.env.NEXT_PUBLIC_API_HOST}/api/posts?sort=${sort || "LATEST"}&page=${page || 0}&size=${size || 20}`
-      : null,
-    (url: string) => _fetch(url, false).then((res) => res.json())
+
+  return useSWRInfinite<ArtPagingData>(infKeyGetter, (url: string) =>
+    _fetch(url, false).then((res) => res.json().then((_res) => _res.data))
   );
 };
 

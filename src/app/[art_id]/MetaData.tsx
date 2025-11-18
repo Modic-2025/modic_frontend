@@ -28,6 +28,7 @@ const MetaData = ({
   isLogined: boolean;
 }) => {
   const [artLike, setArtLike] = useState<boolean>(art.isLikedByCurrentUser);
+  const [likeCount, setLikeCount] = useState<number>(art.likeCount ?? -1);
   const [showOption, setShowOption] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showFail, setShowFail] = useState(false);
@@ -60,35 +61,38 @@ const MetaData = ({
   const onClickLikeButton = async () => {
     const response = await LikeArt(art.postId);
     if (typeof response == "boolean" && response) {
+      setLikeCount(artLike ? likeCount - 1 : likeCount + 1);
       setArtLike(!artLike);
       return;
     }
 
     // Fail status cases
-    if (typeof response == "number") {
-      switch (response) {
-        case 401:
-          setFailTitle(ALERT_401_TEXT_TITLE);
-          setFailDesc(ALERT_401_TEXT_DESC);
-          setTimeout(() => {
-            router.push("/login");
-          }, 3000);
-          break;
-        case 404:
-          setFailTitle(ALERT_404_TEXT_TITLE);
-          setFailDesc(ALERT_404_TEXT_DESC);
-          setTimeout(() => {
-            router.push("/");
-          }, 3000);
-          break;
-        default:
-          // case 500:
-          setFailTitle(ALERT_500_TEXT_TITLE);
-          setFailDesc(ALERT_500_TEXT_DESC);
-      }
-      setShowFail(true);
+    // if (typeof response == "number") {
+    switch (response) {
+      case 401:
+        setFailTitle(ALERT_401_TEXT_TITLE);
+        setFailDesc(ALERT_401_TEXT_DESC);
+        setTimeout(() => {
+          router.push("/login");
+        }, 3000);
+        break;
+      case 404:
+        setFailTitle(ALERT_404_TEXT_TITLE);
+        setFailDesc(ALERT_404_TEXT_DESC);
+        setTimeout(() => {
+          router.push("/art");
+        }, 3000);
+        break;
+      default:
+        // case 500:
+        setFailTitle(ALERT_500_TEXT_TITLE);
+        setFailDesc(ALERT_500_TEXT_DESC);
     }
+    setShowFail(true);
+    // }
   };
+
+  const presentLikeCount = likeCount > 999 ? `${999}+` : likeCount;
 
   return (
     <>
@@ -137,23 +141,38 @@ const MetaData = ({
           />
         </div>
       ) : (
-        <div className="flex basis-5/10 ml-auto text-center text-[12px]">
-          <div className="ml-auto">
-            <p className="font-bold"> {art.commercialPrice}코인 </p>
+        <div className="flex basis-4/10 ml-auto text-center text-[12px]">
+          <div className="flex flex-col justify-between ml-auto basis-1/3">
+            <p className="font-bold text-sm"> {art.commercialPrice}코인 </p>
             <p className="text-[#989898]"> 상업적 </p>
           </div>
-          <div className="ml-2">
-            <p className="font-bold"> {art.nonCommercialPrice}코인 </p>
+          <div className="flex flex-col justify-between basis-1/3">
+            <p className="font-bold text-sm"> {art.nonCommercialPrice}코인 </p>
             <p className="text-[#989898]"> 비상업적 </p>
           </div>
           {isLogined && (
-            <button className="ml-4 cursor-pointer" onClick={onClickLikeButton}>
-              <Image
-                src={artLike ? "/Heart_filled.svg" : "/Heart.svg"}
-                alt="like"
-                width={24}
-                height={24}
-              />
+            <button
+              className="m-auto cursor-pointer basis-1/3 text-center"
+              onClick={onClickLikeButton}
+            >
+              {artLike ? (
+                <Image
+                  src="/Heart_filled.svg"
+                  className="mx-auto motion-preset-pop motion-duration-300"
+                  alt="like"
+                  width={24}
+                  height={24}
+                />
+              ) : (
+                <Image
+                  src="/Heart.svg"
+                  className="mx-auto"
+                  alt="like"
+                  width={24}
+                  height={24}
+                />
+              )}
+              <span className="text-(--color-gray-4)">{presentLikeCount}</span>
             </button>
           )}
         </div>
