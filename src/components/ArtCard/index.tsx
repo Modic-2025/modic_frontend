@@ -21,7 +21,7 @@ const ArtCard = ({
   };
 
   return isWrapImage ? (
-    <Link href={`/${postId}`}>
+    <Link href={`/art/${postId}`}>
       <figure>
         <Image
           src={safeThumbnailUrl}

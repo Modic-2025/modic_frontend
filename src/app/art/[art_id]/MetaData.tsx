@@ -105,7 +105,7 @@ const MetaData = ({
       )}
       {showOption && (
         <OverlayOption onClose={onCloseOverlayOption}>
-          <Option href={`/edit/${art.postId}`}>수정</Option>
+          <Option href={`/art/edit/${art.postId}`}>수정</Option>
           <Option onClick={onClickArtDelete} type="warn">
             삭제
           </Option>

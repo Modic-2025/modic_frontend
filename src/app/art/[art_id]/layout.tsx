@@ -45,15 +45,15 @@ const layout = async ({
   const tabs: Array<UITab> = [
     {
       name: "정보",
-      href: `/${postId}`,
+      href: `/art/${postId}`,
     },
     {
       name: "후기",
-      href: `/${postId}/reviews`,
+      href: `/art/${postId}/reviews`,
     },
     {
       name: "문의",
-      href: `/${postId}/qnas`,
+      href: `/art/${postId}/qnas`,
     },
   ];
   const isDerivedPost = postStatus.startsWith("DERIVED_");
