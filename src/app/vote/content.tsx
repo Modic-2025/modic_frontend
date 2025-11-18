@@ -7,7 +7,7 @@ import Fail from "@/components/Popups/Fail";
 import VoteForm from "@/components/Vote";
 import Streak from "@/components/Vote/Streak";
 import usePrevious from "@/hooks/UsePrevious";
-import { Vote } from "@/types/Vote";
+import { Vote, VoteDecisions } from "@/types/Vote";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Pagination } from "swiper/modules";
@@ -66,9 +66,20 @@ const VoteContent = ({
   const [streak, setStreak] = useState<number>(_streak);
 
   /**
+   * VoteForm state
+   * 마지막 decision을 저장합니다.
+   * 이 값은 서버에서 내려주지 않는 label값을 위해 만들어졌으며 isCorrectAnswer과 대조하여  대체하여 사용됩니다.
+   */
+  const [lastDecision, setLastDecision] = useState<VoteDecisions | undefined>();
+
+  /**
    * Result state
    */
-  const [isCorrect, setIsCorrect] = useState<undefined | boolean>(undefined);
+  const [isCorrect, setIsCorrect] = useState<boolean | undefined>();
+  // const [voteDecisionLabel, voteDecisionLabel] = useState<VoteDecisions | undefined>();
+  // useEffect(() => {
+
+  // }, [isCorrect])
 
   /**
    * Popups
@@ -122,11 +133,16 @@ const VoteContent = ({
   /**
    * Events
    */
-  const onVote = async (response: boolean) => {
+  const onVote = async (decision: boolean) => {
+    const safeDecision: VoteDecisions = decision ? "APPROVE" : "DENY";
     const voteResponse = await VoteDecision(
       votes[currentSlideIdx].voteId,
-      response ? "APPROVE" : "DENY"
+      safeDecision
     );
+
+    // Cache decision
+    setLastDecision(safeDecision);
+
     if ("code" in voteResponse) {
       const { code, title } = voteResponse;
       setWarnTitle(title);
@@ -198,7 +214,7 @@ const VoteContent = ({
           clickable: false,
         }}
         modules={[Pagination]}
-        className="mySwiper h-[76vh] overflow-hidden"
+        className="mySwiper h-full overflow-hidden"
         onSlideChange={(e) => setCurrentSlideIdx(e.activeIndex)}
       >
         {votes.map(({ view, ...rest }) => {
@@ -208,7 +224,12 @@ const VoteContent = ({
               content = <VoteForm vote={rest} onVote={onVote} />;
               break;
             case "RESULT":
-              content = <ResultForm isCorrect={isCorrect} />;
+              content = (
+                <ResultForm
+                  isCorrect={isCorrect}
+                  userVoteDecision={lastDecision}
+                />
+              );
               break;
             case "EXCEPTION":
               content = <ExceptionForm voteException={voteException} />;
@@ -223,17 +244,55 @@ const VoteContent = ({
   );
 };
 
-const ResultForm = ({ isCorrect }: { isCorrect: boolean | undefined }) => (
-  <CenteredLayout>
-    <AlertForm
-      src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
-      alt={isCorrect ? "정답" : "오답"}
-      title={isCorrect ? "정답입니다!" : "틀렸습니다 .."}
-      desc={`모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
-      저작권이 인정${isCorrect ? "되었습니다." : "되지 않았습니다."}`}
-    />
-  </CenteredLayout>
-);
+/**
+ * Correct & label independent
+ * Correct & label inherit
+ * Wrong & label independent
+ * Wrong & label inherit
+ */
+
+const ResultForm = ({
+  isCorrect,
+  userVoteDecision,
+}: {
+  isCorrect: boolean | undefined;
+  userVoteDecision: VoteDecisions | undefined;
+}) => {
+  const booleanVoteDecision: boolean =
+    userVoteDecision === "APPROVE" ? true : false;
+  const isInheritCopyright =
+    isCorrect !== undefined &&
+    booleanVoteDecision !== undefined &&
+    isCorrect !== booleanVoteDecision;
+  return (
+    <CenteredLayout>
+      <div className="fixed flex items-center justify-center motion-preset-fade-lg bg-gradient-to-t from-gray-2 to-white w-full h-30 bottom-0">
+        <Image
+          src="/long-up-arrow-gray-4.svg"
+          alt="finger"
+          className="absolute opacity-60"
+          width={50}
+          height={100}
+        />
+        <Image
+          src="/hand-finger-gray-4.svg"
+          alt="finger"
+          className="ml-12 motion-safe:animate-fade-up-out"
+          width={48}
+          height={48}
+        />
+      </div>
+
+      <AlertForm
+        src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
+        alt={isCorrect ? "정답" : "오답"}
+        title={isCorrect ? "정답입니다!" : "틀렸습니다 .."}
+        desc={`모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
+      저작권이 인정${isInheritCopyright ? "되지 않았습니다." : "되었습니다."}`}
+      />
+    </CenteredLayout>
+  );
+};
 
 export const ExceptionForm = ({
   children,
