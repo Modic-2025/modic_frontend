@@ -3,6 +3,7 @@ import { TypeResponseData } from "@/APIs/posts/chat/messages/get/client";
 import getChatMessages from "@/APIs/posts/chat/messages/get/server";
 import Chat from "@/components/Chat";
 import { TypeChatData } from "@/components/Chat/types";
+import { AlertForm, CenteredLayout } from "@/components/Layout";
 
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
@@ -15,20 +16,14 @@ const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
 
   if ("code" in response && response.code !== 404) {
     // except 404, because chat UI need to be shown during 404 state
-    switch (response.code) {
-      case 400:
-        return (
-          <p>
-            {response.title} ({response.code})
-          </p>
-        );
-      default:
-        return (
-          <p>
-            {response.title} ({response.code})
-          </p>
-        );
-    }
+    return (
+      <CenteredLayout>
+        <AlertForm
+          title={`${response.title} (${response.code})`}
+          desc={response.desc}
+        />
+      </CenteredLayout>
+    );
   }
 
   const { content, page } = response as TypeResponseData;
