@@ -22,7 +22,7 @@ import Fail from "../Popups/Fail";
 import ImageList from "../ImageList";
 import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
 import getChatMessages from "@/APIs/posts/chat/messages/get/client";
-import subsSSE, { getPendingReqById } from "./subscribeSSE";
+import subsSSE from "./subscribeSSE";
 import { EventSourceMessage } from "@microsoft/fetch-event-source";
 import { TypeChat, TypeChatData } from "./types";
 import { CHAT_ERROR_REFRESH, CHAT_LOADING_MSG } from "./datas";
@@ -385,9 +385,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Work as mount life cycle (fetch chat history)
   useEffect(() => {
     if (art && !isUIInitialized) {
-      const { images, postId } = art;
-
       if (chatHistory) {
+        const { images } = art;
         // Data refactoring for UI
         setChatStack(
           chatHistory && chatHistory.length > 0
@@ -408,7 +407,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
         // 첫 페이지(-1)가 아니고, 메시지가 10개 이하일 때, 메시지를 추가적으로 fetch 한다.
         if (chatPage >= 0 && chatHistory.length < 10) {
-          _getChatMessages(art.postId, chatPage, 30);
+          const { postId } = art;
+          _getChatMessages(postId, chatPage, 30);
         }
       }
 
@@ -441,18 +441,19 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // 추가 채팅 로딩시 UI Scroll 보정을 수행
   useLayoutEffect(() => {
+    console.log("보정 수행");
     if (!chatRef.current) return;
 
     const currentScrollHeight = chatRef.current.scrollHeight;
     const prevScrollHeight = prevScrollHeightRef.current;
 
     // 이전 높이가 0이 아닐 때만 (초기 로딩 제외) 보정 수행
-    if (prevScrollHeight > 0) {
+    if (!isChatFetching) {
       // 늘어난 길이만큼 스크롤을 아래로 밈
       const heightDiff = currentScrollHeight - prevScrollHeight;
       chatRef.current.scrollTop = heightDiff;
     }
-  }, [chatStack]);
+  }, [isChatFetching]);
 
   const _getChatMessages = async (
     postId: number,
@@ -630,41 +631,54 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
             ) : (
               <div
                 key={index}
-                className={`flex flex-row justify-end mb-4 items-end ${chat.imageUrl && `min-h-[300px]`}`}
+                className={`flex flex-row justify-end gap-4 mb-4 ${chat.imageUrl && `min-h-[200px]`}`}
               >
-                {chat.status === "REQUEST_PENDING" && (
-                  <button
-                    onClick={() => onRequestStopClick(chat)}
-                    className="mr-2 w-8 h-8 rounded-full bg-(--color-gray-2) cursor-pointer"
-                  >
-                    <Image
-                      src="/player-stop-filled-gray-4.svg"
-                      className="m-auto"
-                      alt="요청 취소"
-                      width={22}
-                      height={22}
-                    />
-                  </button>
-                )}
-                {chat.status === "REQUEST_CANCELLED" && (
-                  <p className="text-(--color-gray-4) mr-2 text-sm">
-                    취소된 요청
-                  </p>
-                )}
-                {chat.imageUrl && (
-                  <ClickableImage
-                    src={chat.imageUrl}
-                    alt="origin_image"
-                    width={240}
-                    height={200}
-                    className="shadow-lg cursor-pointer rounded-2xl"
-                  />
-                )}
-                {chat.textContent && (
-                  <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 rounded-2xl text-[#505050] rounded-br-none">
-                    {chat.textContent}
-                  </p>
-                )}
+                <div className="flex flex-col gap-4 items-end w-full">
+                  {chat.imageUrl && (
+                    <div className="flex flex-row gap-2 items-end">
+                      {!chat.textContent &&
+                        chat.status === "REQUEST_CANCELLED" && (
+                          <p className="text-(--color-gray-4) text-sm">
+                            취소된 요청
+                          </p>
+                        )}
+                      {!chat.textContent &&
+                        chat.status === "REQUEST_PENDING" && (
+                          <CancelButton
+                            chat={chat}
+                            onClick={onRequestStopClick}
+                          />
+                        )}
+                      <ClickableImage
+                        src={chat.imageUrl}
+                        alt="origin_image"
+                        width={240}
+                        height={200}
+                        className="shadow-lg cursor-pointer rounded-2xl"
+                      />
+                    </div>
+                  )}
+                  {chat.textContent && (
+                    <div className="w-full flex items-end justify-end gap-2">
+                      <>
+                        {chat.status === "REQUEST_CANCELLED" && (
+                          <p className="text-(--color-gray-4) text-sm">
+                            취소된 요청
+                          </p>
+                        )}
+                        {chat.status === "REQUEST_PENDING" && (
+                          <CancelButton
+                            chat={chat}
+                            onClick={onRequestStopClick}
+                          />
+                        )}
+                        <p className="max-w-4/5 bg-[#EEEEEE] p-2 px-4 rounded-2xl text-[#505050] rounded-br-none">
+                          {chat.textContent}
+                        </p>
+                      </>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </>
@@ -708,8 +722,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               className={`w-full h-full inset-0 flex-8/10 bg-(--color-gray-1) px-4 rounded-md ${chatDisabled && `cursor-not-allowed opacity-50`}`}
               placeholder={
                 remainingGen <= 0
-                  ? "그림체를 변환하기 위해 구매가 필요해요"
-                  : `앞으로 ${remainingGen}번 그림체 변환 가능합니다!`
+                  ? "그림을 편집하기 위해 구매가 필요해요"
+                  : `앞으로 ${remainingGen}번 그림 편집 가능합니다!`
               }
               value={inputText}
               disabled={chatDisabled}
@@ -739,5 +753,26 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     </>
   );
 };
+
+const CancelButton = ({
+  chat,
+  onClick,
+}: {
+  chat: TypeChat;
+  onClick: (_chat: TypeChat) => void;
+}) => (
+  <button
+    onClick={() => onClick(chat)}
+    className="w-8 h-8 rounded-full bg-(--color-gray-2) cursor-pointer"
+  >
+    <Image
+      src="/player-stop-filled-gray-4.svg"
+      className="m-auto"
+      alt="요청 취소"
+      width={22}
+      height={22}
+    />
+  </button>
+);
 
 export default Chat;
