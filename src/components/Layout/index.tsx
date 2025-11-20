@@ -7,7 +7,7 @@ export const CenteredLayout = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const AlertForm = ({
-  src,
+  src = "/warning.svg",
   alt,
   title,
   desc,
