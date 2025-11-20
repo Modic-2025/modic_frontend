@@ -1,6 +1,6 @@
 import { APIFailureMsg, TITLE_500 } from "@/APIs";
 import _fetch from "@/APIs/fetcher/ServerSide";
-import { TypeChatData } from "@/components/Chat";
+import { TypeChatData } from "@/components/Chat/types";
 
 export const sortChatMsg = (datas: TypeChatData[]) => {
   const ary = [...datas].sort((a, b) => a.messageOrder - b.messageOrder);
