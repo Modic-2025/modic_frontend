@@ -8,7 +8,13 @@ const AUTH_COOKIE_NAME = "accessToken";
 const PUBLIC_PATHS = ["/login", "/signup"];
 
 // 3. 인증이 "필요한" private 경로를 명시적으로 설정합니다.
-const PRIVATE_PATHS = ["/art/tree", "/art/ai", "/vote", "/search/user"];
+const PRIVATE_PATHS = [
+  "/art/tree",
+  "/art/ai",
+  "/vote",
+  "/search/user",
+  "/users/me",
+];
 
 /**
  * Next.js 미들웨어 함수
