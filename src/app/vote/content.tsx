@@ -2,6 +2,7 @@
 import { APIFailureMsg } from "@/APIs";
 import VoteDecision from "@/APIs/votes/decisions";
 import getRandomVote from "@/APIs/votes/random/client";
+import PrimaryButton from "@/components/Button/PrimaryButton";
 import { AlertForm, CenteredLayout } from "@/components/Layout";
 import Fail from "@/components/Popups/Fail";
 import VoteForm from "@/components/Vote";
@@ -9,6 +10,7 @@ import Streak from "@/components/Vote/Streak";
 import usePrevious from "@/hooks/UsePrevious";
 import { Vote, VoteDecisions } from "@/types/Vote";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
@@ -232,7 +234,13 @@ const VoteContent = ({
               );
               break;
             case "EXCEPTION":
-              content = <ExceptionForm voteException={voteException} />;
+              content = (
+                <ExceptionForm voteException={voteException}>
+                  <Link href="/users/me/created-images">
+                    <PrimaryButton text="2차 창작물 등록하러 가기" />
+                  </Link>
+                </ExceptionForm>
+              );
               break;
             default:
               content = <p>adf</p>;
@@ -266,7 +274,7 @@ const ResultForm = ({
     isCorrect !== booleanVoteDecision;
   return (
     <CenteredLayout>
-      <div className="fixed flex items-center justify-center motion-preset-fade-lg bg-gradient-to-t from-gray-2 to-white w-full h-30 bottom-0">
+      {/* <div className="fixed flex items-center justify-center motion-preset-fade-lg bg-gradient-to-t from-gray-2 to-white w-full h-30 bottom-0">
         <Image
           src="/long-up-arrow-gray-4.svg"
           alt="finger"
@@ -281,7 +289,7 @@ const ResultForm = ({
           width={48}
           height={48}
         />
-      </div>
+      </div> */}
 
       <AlertForm
         src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
