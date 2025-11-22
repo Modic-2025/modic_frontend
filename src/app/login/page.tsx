@@ -41,7 +41,9 @@ export default function LoginPage() {
 
       // 5. redirectUrl이 있으면 해당 URL로, 없으면 '/art'로 이동합니다.
       if (redirectUrl) {
-        router.replace(redirectUrl);
+        // 이전 페이지의 문맥 초기화를 위해 broswer method를 사용합니다
+        // ex) SWR를 사용하는 페이지에서 error 객체가 유지되는 문제
+        window.location.replace(redirectUrl);
       } else {
         router.push("/art");
       }

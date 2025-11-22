@@ -31,6 +31,6 @@ export const ERROR_FORM = ({
   desc?: string;
 }) => (
   <CenteredLayout>
-    <AlertForm src="/image-circle.svg" title={title} desc={desc} />
+    <AlertForm src="/warning.svg" title={title} desc={desc} />
   </CenteredLayout>
 );

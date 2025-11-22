@@ -1,14 +1,21 @@
 "use client";
-import { Art_thumbnail } from "@/types/Art";
-import React, { useEffect, useRef, useState } from "react";
+import { Art_thumbnail, GeneratedImageType } from "@/types/Art";
+import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
 import useArts, { ArtPagingData, sortType } from "@/APIs/useArts";
 import Image from "next/image";
 import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
 import { ERROR_FORM } from "./placeholders";
+import usePrevious from "@/hooks/UsePrevious";
+import { AlertForm, CenteredLayout } from "../Layout";
+import useSWRInfinite from "swr/infinite";
+import _fetch from "@/APIs/fetcher/ClientSide";
+import { useRouter } from "next/navigation";
+import Fail from "../Popups/Fail";
+import UsePopup from "@/hooks/UsePopup";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
-type artsByGridType = Array<Array<Art_thumbnail>>;
+type artsByGridType = (Art_thumbnail | GeneratedImageType)[][];
 
 type tab = {
   value: string;
@@ -22,6 +29,23 @@ const C_TABS: Array<tab> = [
   { value: "FOLLOWING", name: "팔로잉" },
 ];
 
+type TypeMode = "NORMAL" | "DERIVED" | "MY" | "USER" | "PRESENTATIONAL";
+const getAPIPathByMode = (mode: TypeMode) => {
+  switch (mode) {
+    case "NORMAL":
+      return "/api/posts";
+    case "DERIVED":
+      return "/api/ai/images/my-generated";
+    case "MY":
+      return "/api/profiles/me/posts";
+    case "USER":
+      return "/api/profiles/posts";
+    // case "PRESENTATIONAL":
+    //   return "/api/posts";
+    default:
+      return "/api/posts";
+  }
+};
 const ContentViewer = ({
   children,
   mode = "NORMAL",
@@ -30,62 +54,111 @@ const ContentViewer = ({
   ...rest
 }: {
   children?: React.ReactNode; // use as placeholder
-  mode?: "NORMAL" | "DERIVED" | "PRESENTATIONAL"; // NORMAL: default, DERIVED: use in my image gen page
+  // NORMAL: default
+  // DERIVED: use in my image gen page
+  // MY: Session own posts
+  // USER: User posts
+  // PRESENTATIONAL: work as presentational component
+  mode?: "NORMAL" | "DERIVED" | "MY" | "USER" | "PRESENTATIONAL";
   grid: gridType;
   arts?: Art_thumbnail[]; // If set `arts`, component do not fetch arts
   showTabs?: boolean;
   userId?: number; // Get arts by user
   me?: boolean; // Get arts by own session
-  onClickPost?: (content: Art_thumbnail) => void;
+  onClickPost?: (content: Art_thumbnail | GeneratedImageType) => void;
 }) => {
+  const router = useRouter();
+
   // Intersection observer
   const [observeRef, isInView] = useIntersectionObserver<HTMLDivElement>({
     threshold: 0.6,
   });
+  const prevIsInView = usePrevious(isInView);
 
   const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
   const [grid, setGrid] = useState<gridType>(rest.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
+  const [isOpen, setIsOpen, title, setTitle, desc, setDesc] = UsePopup(false);
 
   const selectedTab = tabs.find((item) => item.selected);
-  const getPagingKey = (index: number, prevPageData: ArtPagingData | null) => {
-    const searchParams = new URLSearchParams();
-    // searchParams.append("postType", "ALL");
-    searchParams.append("size", "20");
-    // 첫 페이지
-    if (!prevPageData) {
-      searchParams.append("page", "0");
-      return `${process.env.NEXT_PUBLIC_API_HOST}/api/posts?${searchParams.toString()}`;
-    }
+  // const getPagingKey = (index: number, prevPageData: ArtPagingData | null) => {
+  //   const searchParams = new URLSearchParams();
+  //   // searchParams.append("postType", "ALL");
+  //   searchParams.append("size", "20");
+  //   const apiPath: string = getAPIPathByMode(mode);
+  //   console.log("index :>> ", index);
+  //   console.log("prevPageData :>> ", prevPageData);
+  //   // 마지막 페이지 도달
+  //   if (prevPageData && prevPageData.isLast) {
+  //     return null;
+  //   }
 
-    // 마지막 페이지 도달
-    if (prevPageData.isLast) {
-      return null;
-    }
+  //   // // 첫 페이지
+  //   // if (!prevPageData) {
+  //   //   searchParams.append("page", "0");
+  //   //   return `${process.env.NEXT_PUBLIC_API_HOST}${apiPath}?${searchParams.toString()}`;
+  //   // }
 
-    // 다음 페이지
-    searchParams.append("page", `${index + 1}`);
-    return `${process.env.NEXT_PUBLIC_API_HOST}/api/posts?${searchParams.toString()}`;
-  };
-  const [page, setPage] = useState<number>(0);
-  const { data, error, isLoading } = useArts(
-    rest.arts
-      ? null
-      : ((selectedTab ? selectedTab.value : "LATEST") as sortType),
-    page,
-    20,
-    getPagingKey,
-    safeUserId
+  //   console.log("Next page :>> ", index);
+
+  //   // 다음 페이지
+  //   searchParams.append("page", `${index + 1}`);
+  //   return `${process.env.NEXT_PUBLIC_API_HOST}${apiPath}?${searchParams.toString()}`;
+  // };
+  const getPagingKey = React.useCallback(
+    (index: number, prevPageData: ArtPagingData | null) => {
+      // first page: index === 0, prevPageData === null (normal)
+      if (prevPageData && prevPageData.isLast) return null; // stop
+      const page = index; // API is 0-based -> index maps directly
+      const searchParams = new URLSearchParams({
+        size: "20",
+        page: String(page),
+      });
+      const apiPath: string = getAPIPathByMode(mode);
+      return `${process.env.NEXT_PUBLIC_API_HOST}${apiPath}?${searchParams.toString()}`;
+    },
+    [mode]
   );
+  const [page, setPage] = useState<number>(0);
+  const { data, error, isLoading, size, setSize } =
+    useSWRInfinite<ArtPagingData>(
+      getPagingKey,
+      (url: string) =>
+        _fetch(url, true).then(async (res) => {
+          const body = await res.json();
+          if (!body.isSuccess) {
+            throw body;
+          }
+          return body.data as ArtPagingData;
+        }),
+      {
+        revalidateIfStale: false, // 캐시가 있다면 마운트 시에도 요청 안 함
+        revalidateOnFocus: false, // 창 포커스 시 요청 안 함
+        revalidateOnReconnect: false, // 네트워크 복구 시 요청 안 함
+        revalidateFirstPage: false, // 추가 페이지 로드 시 첫 페이지 갱신 안 함
+        refreshInterval: 0, // 주기적 갱신 끔
+        persistSize: true, // 페이지 수 유지
+      }
+      // rest.arts
+      // ? null
+      // (selectedTab ? selectedTab.value : "LATEST") as sortType,
+      // page,
+      // 20,
+      // getPagingKey,
+      // safeUserId,
+    );
+  console.log("error :>> ", error);
 
   /**
    * mode === "PRESENTATIONAL"일 경우, prop의 art를 사용하게 됩니다.
    */
-  const [targetArts, setTargetArts] = useState<Art_thumbnail[] | undefined>(
-    mode === "PRESENTATIONAL"
-      ? rest.arts
-      : data && data.flatMap((page) => page.content)
+  const [targetArts, setTargetArts] = useState<
+    Art_thumbnail[] | GeneratedImageType[] | undefined
+  >(
+    // mode === "PRESENTATIONAL" || mode === "DERIVED"
+    // ? rest.arts
+    data && data.length > 0 ? data.flatMap((page) => page.content) : []
   );
 
   // 레이아웃 데이터 계산
@@ -109,26 +182,33 @@ const ContentViewer = ({
   // Sync SWR hook arts data or prop arts data to target arts state
   useEffect(() => {
     setTargetArts(
-      mode === "PRESENTATIONAL"
-        ? rest.arts
-        : data && data.flatMap((page) => page.content)
+      data && data.length > 0 ? data.flatMap((page) => page.content) : []
     );
   }, [data, rest.arts]);
 
-  // 추가 데이터를 fetch하는 시점을 감지한다.
   useEffect(() => {
     // 마지막 페이지의 isLast를 검사한다.
-    const isLastPage = data && data[data.length - 1].isLast;
-    console.log("isLastPage :>> ", isLastPage);
-    // last가 아닐 경우 fetch한다.
-    if (!isLastPage && isInView) {
-      setPage(page + 1);
+    const isLastPage = data && data[data.length - 1]?.isLast;
+    if (!isLastPage && isInView && !prevIsInView) {
+      // ask SWR to load next page
+      setSize((s: number) => (s ?? 0) + 1);
     }
-  }, [isInView]);
+  }, [isInView, prevIsInView, data, setSize]);
 
+  // 세션 만료 (401) redirecting 처리
   useEffect(() => {
-    console.log("page updated :>> ", page);
-  }, [page]);
+    if (error) {
+      const { status, message, code } = error;
+      setIsOpen(true);
+      setTitle(`${message} (${code})`);
+      if (status === 401) {
+        setDesc("잠시 후 로그인 페이지로 이동합니다.");
+        setTimeout(() => {
+          router.refresh();
+        }, 2000);
+      }
+    }
+  }, [error]);
 
   /**
    * Event listeners
@@ -168,18 +248,37 @@ const ContentViewer = ({
   }
 
   // Error case
-  if (error) {
-    return <ERROR_FORM title={error.info.message} desc={error.status} />;
-  }
+  // if (error) {
+  //   const { status, message, code } = error;
+  //   switch (status) {
+  //     case 401:
+  //       return (
+  //         <ERROR_FORM
+  //           title={`${message} (${code})`}
+  //           desc={`잠시후 로그인 페이지로 이동합니다.`}
+  //         />
+  //       );
+  //     default:
+  //       return (
+  //         <ERROR_FORM
+  //           title="서버에서 에러가 발생하였습니다."
+  //           desc="잠시후 다시 이용해주세요"
+  //         />
+  //       );
+  //   }
+  // }
 
   return (
     <>
+      {/* Popup */}
+      {isOpen && error && <Fail title={title} desc={desc} />}
+
       {/* Tab */}
       {isRenderTabs && (
         <nav className="flex flex-row pb-4 font-semibold">
           {tabs.map((item, idx) => (
             <Tab key={idx} item={item} onClick={tabOnClickListener} />
-          ))}{" "}
+          ))}
         </nav>
       )}
 
@@ -194,12 +293,8 @@ const ContentViewer = ({
                 <div key={index} className="basis-1/2">
                   {_.map((art, artIndex) => (
                     <div
-                      key={
-                        isDisplayDerivedPost
-                          ? art.images[0].imageId
-                          : art.postId
-                      }
-                      className="mb-4"
+                      key={isDisplayDerivedPost ? art.imageUrl : art.postId}
+                      className="relative mb-4"
                     >
                       <ArtCard
                         data={art}
