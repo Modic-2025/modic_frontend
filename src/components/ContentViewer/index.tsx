@@ -87,12 +87,21 @@ const ContentViewer = ({
     (index: number, prevPageData: ArtPagingData | null) => {
       // first page: index === 0, prevPageData === null (normal)
       if (prevPageData && prevPageData.isLast) return null; // stop
+      const apiPath: string = getAPIPathByMode(mode);
       const page = index; // API is 0-based -> index maps directly
       const searchParams = new URLSearchParams({
         size: "20",
         page: String(page),
       });
-      const apiPath: string = getAPIPathByMode(mode);
+      if (mode === "USER") {
+        if (!rest.userId) {
+          console.error(
+            "[ERROR] mode === 'USER' 이지만, rest.userId가 존재하지 않음"
+          );
+          return `${process.env.NEXT_PUBLIC_API_HOST}${apiPath}?${searchParams.toString()}`;
+        }
+        searchParams.append("userId", rest.userId?.toString() ?? "-1");
+      }
       return `${process.env.NEXT_PUBLIC_API_HOST}${apiPath}?${searchParams.toString()}`;
     },
     [mode]
@@ -132,10 +141,13 @@ const ContentViewer = ({
   const [targetArts, setTargetArts] = useState<
     Art_thumbnail[] | GeneratedImageType[] | undefined
   >(
-    // mode === "PRESENTATIONAL" || mode === "DERIVED"
-    // ? rest.arts
-    data && data.length > 0 ? data.flatMap((page) => page.content) : []
+    mode === "PRESENTATIONAL"
+      ? rest.arts
+      : data && data.length > 0
+        ? data.flatMap((page) => page.content)
+        : []
   );
+  // console.log("targetArts :>> ", targetArts);
 
   // 레이아웃 데이터 계산
   useEffect(() => {
@@ -158,13 +170,20 @@ const ContentViewer = ({
   // Sync SWR hook arts data or prop arts data to target arts state
   useEffect(() => {
     setTargetArts(
-      data && data.length > 0 ? data.flatMap((page) => page.content) : []
+      mode === "PRESENTATIONAL"
+        ? rest.arts
+        : data && data.length > 0
+          ? data.flatMap((page) => page.content)
+          : []
     );
   }, [data, rest.arts]);
 
   useEffect(() => {
     // 마지막 페이지의 isLast를 검사한다.
     const isLastPage = data && data[data.length - 1]?.isLast;
+    // console.log("isLastPage :>> ", isLastPage);
+    // console.log("isInView :>> ", isInView);
+    // console.log("prevIsInView :>> ", prevIsInView);
     if (!isLastPage && isInView && !prevIsInView) {
       // ask SWR to load next page
       setSize((s: number) => (s ?? 0) + 1);

@@ -38,7 +38,7 @@ const Page = async ({ params }: { params: Promise<{ user_id: string }> }) => {
     <>
       <UserHeader user={user} except={["coin"]} />
       <section>
-        <ContentViewer grid={2} userId={safeUserId}>
+        <ContentViewer grid={2} userId={safeUserId} mode="USER">
           <NO_POSTS />
         </ContentViewer>
       </section>

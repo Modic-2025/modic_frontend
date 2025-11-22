@@ -25,15 +25,13 @@ const MyPage = async () => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="">
       <section>
         <UserHeader user={user} isAboutMe={true} />
       </section>
-      <section className="h-full">
-        <ContentViewer grid={2} showTabs={false} me={true}>
-          <NO_POSTS />
-        </ContentViewer>
-      </section>
+      <ContentViewer grid={2} showTabs={false} mode="MY">
+        <NO_POSTS />
+      </ContentViewer>
     </div>
   );
 };

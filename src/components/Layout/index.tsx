@@ -29,7 +29,9 @@ export const AlertForm = ({
         />
       )}
     </section>
-    <section className="text-2xl font-bold">{title}</section>
+    <section className="text-2xl font-bold text-(--color-gray-8)">
+      {title}
+    </section>
     {desc && (
       <section className="font-bold text-(--color-gray-4)">{desc}</section>
     )}

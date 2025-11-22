@@ -13,13 +13,13 @@ export const SUGGEST_SEARCH_POSTS = () => (
 
 export const NO_POSTS = () => (
   <CenteredLayout>
-    <AlertForm src="/image-circle.svg" title="게시글이 없습니다." />
+    <AlertForm src="/image-circle-gray-8.svg" title="게시글이 없습니다." />
   </CenteredLayout>
 );
 
 export const NO_SEARCH_RESULTS = () => (
   <CenteredLayout>
-    <AlertForm src="/image-circle.svg" title="검색 결과가 없습니다." />
+    <AlertForm src="/image-circle-gray-8.svg" title="검색 결과가 없습니다." />
   </CenteredLayout>
 );
 
