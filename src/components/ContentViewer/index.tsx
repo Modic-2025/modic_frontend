@@ -82,30 +82,7 @@ const ContentViewer = ({
   const [isOpen, setIsOpen, title, setTitle, desc, setDesc] = UsePopup(false);
 
   const selectedTab = tabs.find((item) => item.selected);
-  // const getPagingKey = (index: number, prevPageData: ArtPagingData | null) => {
-  //   const searchParams = new URLSearchParams();
-  //   // searchParams.append("postType", "ALL");
-  //   searchParams.append("size", "20");
-  //   const apiPath: string = getAPIPathByMode(mode);
-  //   console.log("index :>> ", index);
-  //   console.log("prevPageData :>> ", prevPageData);
-  //   // 마지막 페이지 도달
-  //   if (prevPageData && prevPageData.isLast) {
-  //     return null;
-  //   }
 
-  //   // // 첫 페이지
-  //   // if (!prevPageData) {
-  //   //   searchParams.append("page", "0");
-  //   //   return `${process.env.NEXT_PUBLIC_API_HOST}${apiPath}?${searchParams.toString()}`;
-  //   // }
-
-  //   console.log("Next page :>> ", index);
-
-  //   // 다음 페이지
-  //   searchParams.append("page", `${index + 1}`);
-  //   return `${process.env.NEXT_PUBLIC_API_HOST}${apiPath}?${searchParams.toString()}`;
-  // };
   const getPagingKey = React.useCallback(
     (index: number, prevPageData: ArtPagingData | null) => {
       // first page: index === 0, prevPageData === null (normal)
@@ -148,7 +125,6 @@ const ContentViewer = ({
       // getPagingKey,
       // safeUserId,
     );
-  console.log("error :>> ", error);
 
   /**
    * mode === "PRESENTATIONAL"일 경우, prop의 art를 사용하게 됩니다.
