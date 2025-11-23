@@ -31,6 +31,8 @@ import { useRouter } from "next/navigation";
 import { APIFailureMsg, DESC_401, TITLE_401 } from "@/APIs";
 import { renderDayOfWeek } from "./utils";
 import cancelRequest from "@/APIs/chat/messages/cancel";
+import Switch from "../Switch";
+import buyPermissionWithTicket from "@/APIs/ai/image-permissions/buy-with-ticket";
 
 // Refactor chat data as type `TypeChat`
 const refacorChatData = (data: TypeChatData): TypeChat => {
@@ -66,6 +68,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   const [chatDisabled, setChatDisabled] = useState<boolean>(false); // For disable input text
   // Popup window that buy permissions
   const [showBuyWindow, setShowBuyWindow] = useState<boolean>(false); // Confirm window
+  const [usesTicket, setUsesTicket] = useState<boolean>(true);
   // Popup window that failed to buy permissions
   const [showFailWindow, setShowFailWindow] = useState<boolean>(false); // Fail window
   const [failTitle, setFailTitle] = useState<string>(""); // Fail window
@@ -74,6 +77,9 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   const [chatStack, setChatStack] = useState<TypeChat[]>([]);
   // Remain generations of posts
   const { data: remainingGen } = useRemainGens(Number(safeArtId));
+  const mutateRemainGens = () => {
+    mutate([`remaining-generations`, art?.postId]);
+  };
   // Coins of account
   const { data: coins } = UseCoins();
   // Page of chat stack
@@ -133,10 +139,12 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // on-click event on buy permission window
   const onClickBuy = async () => {
     setShowBuyWindow(false);
-    const response = await buyPermissionWithCoin(safeArtId);
+    const response = usesTicket
+      ? await buyPermissionWithTicket(safeArtId)
+      : await buyPermissionWithCoin(safeArtId);
     // On success
     if (typeof response === "boolean" && response) {
-      mutate([`remaining-generations`, art?.postId]);
+      mutateRemainGens();
       if (buyPermCallbackState) {
         UploadCurrentImage();
         return;
@@ -149,6 +157,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     setShowFailWindow(true);
     setFailTitle(title);
     setFailDesc(desc ?? "");
+    setInputFile(null); // code for Trigged from upload file case
     if (code === 401) {
       setTimeout(() => {
         router.refresh();
@@ -159,6 +168,8 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   // Handle paste action in text input field
   const onPasteInput = (e: ClipboardEvent) => {
     const items = e.clipboardData?.items;
+
+    console.log("items :>> ", items);
     if (!items) return;
 
     if (items.length > 0) {
@@ -370,6 +381,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
       setIsInitScrolled(true);
     }
+    mutateRemainGens();
   }, [chatStack]);
 
   /**
@@ -420,7 +432,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
    * PROCESSING INPUT FILE
    */
   useEffect(() => {
-    if (remainingGen <= 0) {
+    if (inputFile && remainingGen <= 0) {
       setShowBuyWindow(true);
       return;
     }
@@ -516,7 +528,15 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
               setShowBuyWindow(false);
               setInputFile(null); // also cancel input files
             }}
-          />
+          >
+            <section className="flex justify-end items-center my-2">
+              <span className="mr-2 text-(--color-gray-4)">티켓 사용하기</span>
+              <Switch
+                checked={usesTicket}
+                onChange={(checked) => setUsesTicket(checked)}
+              />
+            </section>
+          </Confirm>
         )}
 
         {/* Failed to buy permissions window */}

@@ -4,6 +4,7 @@ import PrimaryButton from "../Button/PrimaryButton";
 import SecondartButton from "../Button/SecondaryButton";
 
 type ConfirmProps = {
+  children?: React.ReactNode;
   title: string;
   desc?: string;
   confirmText?: string;
@@ -13,6 +14,7 @@ type ConfirmProps = {
   noBg?: boolean;
 };
 const Confirm = ({
+  children,
   title,
   desc,
   confirmText = "확인",
@@ -27,7 +29,7 @@ const Confirm = ({
         <Image
           src="/warning.svg"
           alt="warning"
-          className="mx-auto mb-6"
+          className="mx-auto mb-4"
           width={84}
           height={84}
         />
@@ -35,9 +37,10 @@ const Confirm = ({
           {title}
         </h1>
         {desc && <p>{desc}</p>}
+        {children}
         {confirmText && (
           <>
-            <p className="mb-6"></p>
+            <p className="mb-2"></p>
             <PrimaryButton text={confirmText} onClick={onConfirm} />
           </>
         )}
