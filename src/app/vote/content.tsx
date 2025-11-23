@@ -1,6 +1,6 @@
 "use client";
 import { APIFailureMsg } from "@/APIs";
-import VoteDecision from "@/APIs/votes/decisions";
+import VoteDecision, { VoteDecisionResponseData } from "@/APIs/votes/decisions";
 import getRandomVote from "@/APIs/votes/random/client";
 import PrimaryButton from "@/components/Button/PrimaryButton";
 import { AlertForm, CenteredLayout } from "@/components/Layout";
@@ -56,16 +56,11 @@ const VoteContent = ({
       console.error("voteResponse", voteResponse);
       setVoteException(voteResponse);
       setVotes((prev) => [...votes, { ...prev[0], view: "EXCEPTION" }]);
-      // switch (code) {
-      //   case 404:
-      //     break;
-      //   default:
-      // }
+
       return;
     }
     setVotes([...votes, { ...voteResponse, view: "DO_VOTE" }]);
   };
-  const [streak, setStreak] = useState<number>(_streak);
 
   /**
    * VoteForm state
@@ -77,11 +72,16 @@ const VoteContent = ({
   /**
    * Result state
    */
-  const [isCorrect, setIsCorrect] = useState<boolean | undefined>();
-  // const [voteDecisionLabel, voteDecisionLabel] = useState<VoteDecisions | undefined>();
-  // useEffect(() => {
-
-  // }, [isCorrect])
+  const [voteDecisionResult, setVoteDecisionResult] = useState<
+    VoteDecisionResponseData | undefined
+  >();
+  const [streak, setStreak] = useState<number>(_streak);
+  useEffect(() => {
+    if (voteDecisionResult) {
+      const { currentStreak } = voteDecisionResult;
+      setStreak(currentStreak);
+    }
+  }, [voteDecisionResult]);
 
   /**
    * Popups
@@ -137,10 +137,8 @@ const VoteContent = ({
    */
   const onVote = async (decision: boolean) => {
     const safeDecision: VoteDecisions = decision ? "APPROVE" : "DENY";
-    const voteResponse = await VoteDecision(
-      votes[currentSlideIdx].voteId,
-      safeDecision
-    );
+    const voteResponse: VoteDecisionResponseData | APIFailureMsg =
+      await VoteDecision(votes[currentSlideIdx].voteId, safeDecision);
 
     // Cache decision
     setLastDecision(safeDecision);
@@ -159,14 +157,15 @@ const VoteContent = ({
     //   receivedTicket: streak + 1 >= 3 ? true : false,
     // };
     // Save vote result
-    const { isCorrectAnswer, currentStreak, receivedTicket } = voteResponse;
+    const { currentStreak } = voteResponse;
+    setVoteDecisionResult(voteResponse);
     setStreak(currentStreak);
-    setIsCorrect(isCorrectAnswer);
+    // setIsCorrect(isCorrectAnswer);
 
     // check ticket received
     // if user not received ticket, UI state to false
     // reason: to show streak directly in vote action
-    setGiveTicketUI(receivedTicket ? receivedTicket : false);
+    // setGiveTicketUI(receivedTicket ? receivedTicket : false);
 
     // Change view of current vote
     setViewOfCurrVote("RESULT");
@@ -185,7 +184,7 @@ const VoteContent = ({
        * Streak overlay
        */}
       <div className="absolute bg-white w-[calc(100%-32px)] min-h-18 rounded-xl top-4 left-4 shadow-lg p-4 z-10">
-        {giveTicketUI ? (
+        {voteDecisionResult?.receivedTicket ? (
           <div className="flex gap-4 motion-preset-fade motion-duration-750">
             <section className="basis-1/4">
               <Image
@@ -226,11 +225,13 @@ const VoteContent = ({
               content = <VoteForm vote={rest} onVote={onVote} />;
               break;
             case "RESULT":
-              content = (
+              content = voteDecisionResult ? (
                 <ResultForm
-                  isCorrect={isCorrect}
+                  voteDecisionResult={voteDecisionResult}
                   userVoteDecision={lastDecision}
                 />
+              ) : (
+                <AlertForm title="투표 결과를 반영하는 중.." />
               );
               break;
             case "EXCEPTION":
@@ -260,47 +261,61 @@ const VoteContent = ({
  */
 
 const ResultForm = ({
-  isCorrect,
+  voteDecisionResult,
   userVoteDecision,
 }: {
-  isCorrect: boolean | undefined;
+  voteDecisionResult: VoteDecisionResponseData;
   userVoteDecision: VoteDecisions | undefined;
 }) => {
+  const { isCorrectAnswer, approveRate, denyRate } = voteDecisionResult;
   const booleanVoteDecision: boolean =
     userVoteDecision === "APPROVE" ? true : false;
   const isInheritCopyright =
-    isCorrect !== undefined &&
+    isCorrectAnswer !== undefined &&
     booleanVoteDecision !== undefined &&
-    isCorrect !== booleanVoteDecision;
+    isCorrectAnswer !== booleanVoteDecision;
   return (
     <CenteredLayout>
-      {/* <div className="fixed flex items-center justify-center motion-preset-fade-lg bg-gradient-to-t from-gray-2 to-white w-full h-30 bottom-0">
-        <Image
-          src="/long-up-arrow-gray-4.svg"
-          alt="finger"
-          className="absolute opacity-60"
-          width={50}
-          height={100}
-        />
-        <Image
-          src="/hand-finger-gray-4.svg"
-          alt="finger"
-          className="ml-12 motion-safe:animate-fade-up-out"
-          width={48}
-          height={48}
-        />
-      </div> */}
-
-      <AlertForm
-        src={isCorrect ? "/done_1.svg" : `/alert_x.svg`}
-        alt={isCorrect ? "정답" : "오답"}
-        title={isCorrect ? "정답입니다!" : "틀렸습니다 .."}
-        desc={`모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
+      <>
+        <AlertForm
+          src={isCorrectAnswer ? "/done_1.svg" : `/alert_x.svg`}
+          alt={isCorrectAnswer ? "정답" : "오답"}
+          title={isCorrectAnswer ? "정답입니다!" : "틀렸습니다 .."}
+          desc={`모딕 저작권 시스템의 판단에 의거하면, 이 그림은 원작과 비교하여 독립된
       저작권이 인정${isInheritCopyright ? "되지 않았습니다." : "되었습니다."}`}
-      />
+        />
+        <section className="flex flex-col gap-2">
+          <RateBar value={approveRate} isActive={approveRate > denyRate}>
+            예
+          </RateBar>
+          <RateBar value={denyRate} isActive={approveRate < denyRate}>
+            아니오
+          </RateBar>
+        </section>
+      </>
     </CenteredLayout>
   );
 };
+const RateBar = ({
+  children,
+  value,
+  isActive = false,
+}: {
+  children: React.ReactNode;
+  value: number;
+  isActive?: boolean;
+}) => (
+  <div className="relative w-full h-16 rounded-2xl overflow-hidden bg-(--color-gray-2) text-lg">
+    <span
+      className={`flex flex-col items-start justify-center h-full ml-0 pl-4 ${isActive ? "bg-(--color-main)" : "bg-(--color-gray-4)"}`}
+      style={{ width: `${Math.round(value)}%` }}
+    ></span>
+    <p className="absolute left-4 top-4.5 text-white font-bold">{children}</p>
+    <span className="absolute right-4 top-4.5 text-(--color-gray-9) font-bold">
+      {Math.round(value)}%
+    </span>
+  </div>
+);
 
 export const ExceptionForm = ({
   children,

@@ -3,16 +3,18 @@ import { ALERT_500_TEXT_TITLE } from "@/APIs/Art/Like";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import { VoteDecisions } from "@/types/Vote";
 
-type TypeResponseData = {
+export type VoteDecisionResponseData = {
   voteId: number;
   isCorrectAnswer: boolean;
   currentStreak: number;
   receivedTicket: boolean;
+  approveRate: number;
+  denyRate: number;
 };
 const VoteDecision: (
   id: number,
   decision: VoteDecisions
-) => Promise<TypeResponseData | APIFailureMsg> = async (
+) => Promise<VoteDecisionResponseData | APIFailureMsg> = async (
   id: number,
   decision: VoteDecisions
 ) => {
@@ -27,7 +29,7 @@ const VoteDecision: (
     }
   );
 
-  const { status, data }: { status: number; data: TypeResponseData } =
+  const { status, data }: { status: number; data: VoteDecisionResponseData } =
     await http.json();
 
   if (status !== 200) {
