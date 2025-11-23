@@ -242,27 +242,6 @@ const ContentViewer = ({
     );
   }
 
-  // Error case
-  // if (error) {
-  //   const { status, message, code } = error;
-  //   switch (status) {
-  //     case 401:
-  //       return (
-  //         <ERROR_FORM
-  //           title={`${message} (${code})`}
-  //           desc={`잠시후 로그인 페이지로 이동합니다.`}
-  //         />
-  //       );
-  //     default:
-  //       return (
-  //         <ERROR_FORM
-  //           title="서버에서 에러가 발생하였습니다."
-  //           desc="잠시후 다시 이용해주세요"
-  //         />
-  //       );
-  //   }
-  // }
-
   return (
     <>
       {/* Popup */}
