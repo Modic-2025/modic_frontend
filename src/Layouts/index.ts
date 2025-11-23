@@ -118,7 +118,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
     },
   },
   "/users/[user_id]": {
-    elements: ["logo", "title", "option_dotted"],
+    elements: ["backward", "title", "option_dotted"],
   },
   "/art/ai/[art_id]": {
     elements: ["backward", "title"],
