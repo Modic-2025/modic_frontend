@@ -19,7 +19,7 @@ const NotificationTemplate = ({
   href?: string;
 }) => (
   <li
-    className={`min-h-18 py-2 ${isUnread ? "bg-(--color-light-main)" : "bg-white"} border-b-(--color-gray-2) border-b-1 last:border-none`}
+    className={`py-2 px-1 ${isUnread ? "bg-(--color-light-main)" : "bg-white"} border-b-(--color-gray-2) border-b-1 last:border-none`}
   >
     <Link href={href} className="flex flex-row gap-2">
       <section className="flex basis-12">
@@ -72,7 +72,9 @@ export const timeAgo = (date: Date | string | number): string => {
   return "방금 전";
 };
 const DateAgo = ({ date }: { date: Date }) => {
-  return <p className="text-(--color-gray-4) text-sm">{timeAgo(date)}</p>;
+  return (
+    <p className="text-(--color-gray-4) text-xs text-right">{timeAgo(date)}</p>
+  );
 };
 
 const NotiTextTemplate = ({ value }: { value: string }) => (

@@ -25,14 +25,14 @@ const NAV_BUTTONS: Array<NavButtonType> = [
     icon: "/IconHome.svg",
     selectedIcon: "/IconHomeSelected.svg",
   },
-  {
-    value: MENUS.MESSAGE,
-    href: "/message",
-    alt: "메시지",
-    selected: false,
-    icon: "/IconMessage.svg",
-    selectedIcon: "/IconMessageSelected.svg",
-  },
+  // {
+  //   value: MENUS.MESSAGE,
+  //   href: "/message",
+  //   alt: "메시지",
+  //   selected: false,
+  //   icon: "/IconMessage.svg",
+  //   selectedIcon: "/IconMessageSelected.svg",
+  // },
   {
     value: MENUS.VOTE,
     href: "/vote",
@@ -147,7 +147,7 @@ const NavButton = ({
   return (
     <Link
       href={href}
-      className="basis-1/5 flex justify-center items-center cursor-pointer"
+      className="basis-1/4 flex justify-center items-center cursor-pointer"
     >
       <button
         onClick={(e) => onClick && onClick(value)}
