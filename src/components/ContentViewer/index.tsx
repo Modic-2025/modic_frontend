@@ -2,12 +2,10 @@
 import { Art_thumbnail, GeneratedImageType } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
-import useArts, { ArtPagingData, sortType } from "@/APIs/useArts";
+import { ArtPagingData } from "@/APIs/useArts";
 import Image from "next/image";
 import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
-import { ERROR_FORM } from "./placeholders";
 import usePrevious from "@/hooks/UsePrevious";
-import { AlertForm, CenteredLayout } from "../Layout";
 import useSWRInfinite from "swr/infinite";
 import _fetch from "@/APIs/fetcher/ClientSide";
 import { useRouter } from "next/navigation";
@@ -106,7 +104,6 @@ const ContentViewer = ({
     },
     [mode]
   );
-  const [page, setPage] = useState<number>(0);
   const { data, error, isLoading, size, setSize } =
     useSWRInfinite<ArtPagingData>(
       getPagingKey,
@@ -126,13 +123,6 @@ const ContentViewer = ({
         refreshInterval: 0, // 주기적 갱신 끔
         persistSize: true, // 페이지 수 유지
       }
-      // rest.arts
-      // ? null
-      // (selectedTab ? selectedTab.value : "LATEST") as sortType,
-      // page,
-      // 20,
-      // getPagingKey,
-      // safeUserId,
     );
 
   /**
@@ -147,7 +137,6 @@ const ContentViewer = ({
         ? data.flatMap((page) => page.content)
         : []
   );
-  // console.log("targetArts :>> ", targetArts);
 
   // 레이아웃 데이터 계산
   useEffect(() => {
