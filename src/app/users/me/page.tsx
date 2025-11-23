@@ -7,6 +7,7 @@ import { NO_POSTS } from "@/components/ContentViewer/placeholders";
 
 const MyPage = async () => {
   const user = await getUserMe();
+  console.log("user :>> ", user);
   if (!user) {
     return (
       <>
@@ -25,14 +26,16 @@ const MyPage = async () => {
   }
 
   return (
-    <div className="">
+    // <div className="h-full">
+    <>
       <section>
         <UserHeader user={user} isAboutMe={true} />
       </section>
       <ContentViewer grid={2} showTabs={false} mode="MY">
         <NO_POSTS />
       </ContentViewer>
-    </div>
+    </>
+    // </div>
   );
 };
 

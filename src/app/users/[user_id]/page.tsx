@@ -34,6 +34,7 @@ const Page = async ({ params }: { params: Promise<{ user_id: string }> }) => {
     return <p> failed to load user {safeUserId}</p>;
   }
   const user: User = { ...custom_response.data, id: safeUserId };
+  console.log("user :>> ", user);
   return (
     <>
       <UserHeader user={user} except={["coin"]} />

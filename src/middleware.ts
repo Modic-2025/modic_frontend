@@ -14,6 +14,7 @@ const PRIVATE_PATHS = [
   "/vote",
   "/search/user",
   "/users/me",
+  "/notifications",
 ];
 
 /**

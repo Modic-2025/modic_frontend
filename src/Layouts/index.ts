@@ -152,6 +152,14 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/notifications": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "알림",
+      },
+    },
+  },
 };
 
 // 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
