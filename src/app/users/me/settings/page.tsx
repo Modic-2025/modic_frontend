@@ -1,9 +1,14 @@
+import { APIFailureMsg } from "@/APIs";
+import logout from "@/APIs/auth/logout";
+import _fetch from "@/APIs/fetcher/ClientSide";
 import { getUserMe } from "@/APIs/UserAPI";
 import Image from "next/image";
 import Link from "next/link";
+import LogoutButton from "./LogoutButton";
 
 const Settings = async () => {
   const me = await getUserMe();
+
   return (
     <>
       <div className="py-6 mb-4 flex gap-6 border-b border-(--color-gray-4)">
@@ -62,9 +67,7 @@ const Settings = async () => {
       </List>
 
       <ul className="px-4">
-        <li className="mb-2 text-(--color-point-red)">
-          <Link href="/me/logout">로그아웃</Link>
-        </li>
+        <LogoutButton />
         <li>
           <Link href="/users/secession">회원 탈퇴</Link>
         </li>
