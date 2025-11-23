@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { convertToRoutePattern } from ".";
+import useNotificationCount from "@/hooks/UseNotificationCount";
 
 // Footer 메뉴들의 constants
 const MENUS = {
@@ -41,14 +42,6 @@ const NAV_BUTTONS: Array<NavButtonType> = [
     icon: "/vote.svg",
     selectedIcon: "/vote_selected.svg",
   },
-  // {
-  //   value: MENUS.CREATE_ART,
-  //   href: "/art/regist",
-  //   alt: "그림체 등록",
-  //   selected: false,
-  //   icon: "/IconCreateArt.svg",
-  //   selectedIcon: "/IconCreateArt.svg",
-  // },
   {
     value: MENUS.NOTIFICATION,
     href: "/notifications",
@@ -97,8 +90,12 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
   const [navButtons, setNavButtons] =
     useState<Array<NavButtonType>>(NAV_BUTTONS);
 
+  const { data: notiCount, mutate } = useNotificationCount();
   // Update `selectedTab` by current pathname
   useEffect(() => {
+    if (pathname === "/notifications") {
+      mutate();
+    }
     setSelectedTab(matchPathnameToTab(pathname));
   }, [pathname]);
 
@@ -117,6 +114,9 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
             {...navButton}
             onClick={setSelectedTab}
             selected={navButton.value == selectedTab}
+            showsBadge={
+              navButton.value === "notification" ? Boolean(notiCount) : false
+            }
           />
         ))}
       </div>
@@ -132,6 +132,7 @@ type NavButtonType = {
   selected: boolean;
   icon: string;
   selectedIcon: string;
+  showsBadge?: boolean;
 };
 const NavButton = ({
   value,
@@ -141,6 +142,7 @@ const NavButton = ({
   selected,
   icon,
   selectedIcon,
+  showsBadge,
 }: NavButtonType) => {
   const [_value, setValue] = useState<MenuType>(value);
 
@@ -149,6 +151,9 @@ const NavButton = ({
       href={href}
       className="basis-1/4 flex justify-center items-center cursor-pointer"
     >
+      {showsBadge && (
+        <span className="absolute rounded-full w-3 h-3 top-3 ml-4 bg-(--color-main) motion-preset-fade"></span>
+      )}
       <button
         onClick={(e) => onClick && onClick(value)}
         className="w-full cursor-pointer"
