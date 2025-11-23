@@ -17,9 +17,14 @@ export const NO_POSTS = () => (
   </CenteredLayout>
 );
 
-export const NO_SEARCH_RESULTS = () => (
+export const NO_SEARCH_RESULTS_POST = () => (
   <CenteredLayout>
     <AlertForm src="/image-circle-gray-8.svg" title="검색 결과가 없습니다." />
+  </CenteredLayout>
+);
+export const NO_SEARCH_RESULTS_USER = () => (
+  <CenteredLayout>
+    <AlertForm src="/IconMyInfo.svg" title="검색 결과가 없습니다." />
   </CenteredLayout>
 );
 

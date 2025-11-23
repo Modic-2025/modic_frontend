@@ -2,7 +2,7 @@
 
 import { TypeSearchContent } from "@/APIs/search";
 import ContentViewer from "@/components/ContentViewer";
-import { NO_SEARCH_RESULTS } from "@/components/ContentViewer/placeholders";
+import { NO_SEARCH_RESULTS_POST } from "@/components/ContentViewer/placeholders";
 import { Art_thumbnail } from "@/types/Art";
 
 type TypeProp = {
@@ -18,7 +18,7 @@ const SearchArtContent = ({ data }: TypeProp) => {
       grid={2}
       mode={"PRESENTATIONAL"}
     >
-      <NO_SEARCH_RESULTS />
+      <NO_SEARCH_RESULTS_POST />
     </ContentViewer>
   );
 };

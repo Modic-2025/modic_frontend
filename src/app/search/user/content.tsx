@@ -2,7 +2,7 @@
 
 import _fetch from "@/APIs/fetcher/ClientSide";
 import search, { TypeSearchContent } from "@/APIs/search";
-import { NO_SEARCH_RESULTS } from "@/components/ContentViewer/placeholders";
+import { NO_SEARCH_RESULTS_USER } from "@/components/ContentViewer/placeholders";
 import TemplateLoading from "@/components/Templates";
 import UserInfo from "@/components/UserInfo";
 import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
@@ -36,7 +36,7 @@ const SearchUserContent = ({ keyword }: { keyword: string }) => {
     <TemplateLoading title={"사용자 검색 중 .."} />;
   }
   if (users && users.length <= 0) {
-    return <NO_SEARCH_RESULTS />;
+    return <NO_SEARCH_RESULTS_USER />;
   }
 
   const onMoreUsers = () => {
