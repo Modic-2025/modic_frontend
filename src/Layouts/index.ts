@@ -22,6 +22,9 @@ export type HeaderContentActionsType = {
  * header contents map by path
  */
 export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
+  "/login": {
+    elements: ["backward"],
+  },
   "/art": HEADER_CONTENTS_DEFAULT,
   "/art/[art_id]": HEADER_CONTENTS_DEFAULT,
   "/art/[art_id]/qnas": HEADER_CONTENTS_DEFAULT,

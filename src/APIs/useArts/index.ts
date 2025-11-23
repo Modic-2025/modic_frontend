@@ -1,4 +1,3 @@
-import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 import _fetch from "../fetcher/ClientSide";
 import { Art_thumbnail } from "@/types/Art";
