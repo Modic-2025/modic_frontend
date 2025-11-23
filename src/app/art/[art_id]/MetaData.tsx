@@ -141,18 +141,18 @@ const MetaData = ({
           />
         </div>
       ) : (
-        <div className="flex basis-4/10 ml-auto text-center text-[12px]">
-          <div className="flex flex-col justify-between ml-auto basis-1/3">
+        <div className="flex basis-1/10 text-center text-[12px]">
+          {/* <div className="flex flex-col justify-between ml-auto basis-1/3">
             <p className="font-bold text-sm"> {art.commercialPrice}코인 </p>
             <p className="text-[#989898]"> 상업적 </p>
           </div>
           <div className="flex flex-col justify-between basis-1/3">
             <p className="font-bold text-sm"> {art.nonCommercialPrice}코인 </p>
             <p className="text-[#989898]"> 비상업적 </p>
-          </div>
+          </div> */}
           {isLogined && (
             <button
-              className="m-auto cursor-pointer basis-1/3 text-center"
+              className="m-auto cursor-pointer text-center"
               onClick={onClickLikeButton}
             >
               {artLike ? (

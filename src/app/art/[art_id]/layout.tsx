@@ -9,6 +9,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { APIFailureMsg } from "@/APIs";
 import publicGetPost from "@/APIs/public/posts";
+import Image from "next/image";
 
 const layout = async ({
   children,
@@ -60,7 +61,7 @@ const layout = async ({
   return (
     <>
       <Slider items={images} />
-      <div className="flex items-center justify-between gap-1 py-4 border-b border-gray-200">
+      <div className="flex items-center justify-between gap-1 py-4 border-b border-(--color-gray-2)">
         <MetaData
           art={response}
           isAuthor={isAuthor}
@@ -69,7 +70,7 @@ const layout = async ({
       </div>
 
       {/* 제목 */}
-      <div className="flex flex-col gap-1 py-3 border-b-4 border-[#F3F4F6]">
+      <div className="flex flex-col gap-1 py-3 border-b border-(--color-gray-2)">
         <Link
           href={`/art/tree/${postId}`}
           className={`block rounded-full text-sm mr-1 underline text-(--color-gray-4)`}
@@ -82,10 +83,56 @@ const layout = async ({
         </h1>
       </div>
 
+      <div className="py-2 border-b-4 border-(--color-gray-2) text-sm text-(--color-gray-8)">
+        <ul>
+          <CostItem value={`${response.commercialPrice}코인`}>
+            <Image
+              src="/copyright.svg"
+              alt=""
+              width={24}
+              height={24}
+              className="inline"
+            />
+          </CostItem>
+          <CostItem value={`${response.nonCommercialPrice}코인`}>
+            <Image
+              src="/copyright-off.svg"
+              alt=""
+              width={24}
+              height={24}
+              className="inline"
+            />
+          </CostItem>
+          <CostItem value={`${response.ticketPrice}티켓`}>
+            <Image
+              src="/ticket.svg"
+              alt=""
+              width={24}
+              height={24}
+              className="inline"
+            />
+          </CostItem>
+        </ul>
+      </div>
+
       <Tab tabs={tabs} />
       {children}
     </>
   );
 };
 
+const CostItem = ({
+  children,
+  value,
+}: {
+  children: React.ReactNode;
+  value: string;
+}) => (
+  <li className="mr-4 inline-block">
+    <div className="flex flex-row justify-center items-center gap-1">
+      <div>{children}</div>
+      <div>{value}</div>
+    </div>
+  </li>
+);
 export default layout;
