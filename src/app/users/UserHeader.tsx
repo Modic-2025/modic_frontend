@@ -1,4 +1,5 @@
 "use client";
+import _fetch from "@/APIs/fetcher/ClientSide";
 import toggleFollowState from "@/APIs/follows/toggle";
 import BlackButton from "@/components/Button/BlackButton";
 import GrayBorderButton from "@/components/Button/GrayBorderButton";
@@ -9,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import useSWR from "swr";
 
 type Counter = {
   title: string;
@@ -81,7 +83,23 @@ const UserHeader = ({
   );
 
   // states
-  const [isFollow, setIsFollow] = useState<boolean>(false);
+  const {
+    data: isFollow,
+    isLoading,
+    error,
+    mutate: mutateFollowStatus,
+  } = useSWR<boolean>(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/follows/status`,
+    (url: string) => {
+      const searchParams = new URLSearchParams();
+      searchParams.append("userId", user.userId.toString());
+
+      return _fetch(`${url}?${searchParams.toString()}`, true).then(
+        async (res) => (await res.json()).data.isFollowing
+      );
+    }
+  );
+  // const [isFollow, setIsFollow] = useState<boolean>(false);
   // popups
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [popupTitle, setPopupTitle] = useState<string>("");
@@ -91,7 +109,7 @@ const UserHeader = ({
   const onClickFollowBtn = async (_isFollow: boolean) => {
     const response = await toggleFollowState(user.userId, !isFollow);
     if (typeof response === "boolean" && response) {
-      setIsFollow(!_isFollow);
+      mutateFollowStatus();
 
       // update followers counter
       setCounters(
@@ -158,7 +176,9 @@ const UserHeader = ({
           </>
         ) : (
           <>
-            <FollowButton isFollow={isFollow} onClick={onClickFollowBtn} />
+            {!isLoading && isFollow !== undefined && (
+              <FollowButton isFollow={isFollow} onClick={onClickFollowBtn} />
+            )}
             <GrayBorderButton href={`/users/${user.userId}/dm`}>
               메시지
             </GrayBorderButton>
