@@ -21,11 +21,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  header,
 }: {
   children: React.ReactNode;
-  header: React.ReactNode;
 }) {
+  // const headerList = await headers();
+  // const pathname = headerList.get("x-pathname") || "/";
+  // const isLandingPage = pathname === "/";
+  // console.log("isLandingPage :>> ", isLandingPage);
   return (
     <html lang="ko" data-color-mode="light">
       <head>
@@ -46,6 +48,7 @@ export default function RootLayout({
         style={{ fontFamily: "Pretendard, Inter, sans-serif" }}
       >
         <MasterLayout>{children}</MasterLayout>
+        {/* {isLandingPage ? children : <MasterLayout>{children}</MasterLayout>} */}
       </body>
     </html>
   );
