@@ -179,9 +179,9 @@ const UserHeader = ({
             {!isLoading && isFollow !== undefined && (
               <FollowButton isFollow={isFollow} onClick={onClickFollowBtn} />
             )}
-            <GrayBorderButton href={`/users/${user.userId}/dm`}>
+            {/* <GrayBorderButton href={`/users/${user.userId}/dm`}>
               메시지
-            </GrayBorderButton>
+            </GrayBorderButton> */}
           </>
         )}
       </div>
