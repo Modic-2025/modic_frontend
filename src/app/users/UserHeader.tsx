@@ -63,7 +63,6 @@ const UserHeader = ({
   isAboutMe?: boolean;
   except?: UserCounterKey[];
 }) => {
-  console.log("user :>> ", user);
   const router = useRouter();
   // "postCount", "coin" 은 무시됩니다.
   const getUserHref = (
@@ -147,12 +146,13 @@ const UserHeader = ({
       )}
       <div className="flex flex-row justify-between gap-6 mb-6 px-2">
         <div className="basis-1/4">
-          <Image
-            src={user.userImageUrl ?? "/temporary/anonymous.svg"}
-            alt="Profile image"
-            width={128}
-            height={128}
-          />
+          <div className="relative overflow-hidden w-full h-full rounded-full">
+            <Image
+              src={user.userImageUrl ?? "/temporary/anonymous.svg"}
+              alt="Profile image"
+              fill
+            />
+          </div>
         </div>
         <div className="basis-3/4">
           <p className="mb-2 font-bold">
