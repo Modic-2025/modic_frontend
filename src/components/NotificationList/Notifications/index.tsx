@@ -19,9 +19,9 @@ const NotificationTemplate = ({
   href?: string;
 }) => (
   <li
-    className={`py-2 px-1 ${isUnread ? "bg-(--color-light-main)" : "bg-white"} border-b-(--color-gray-2) border-b-1 last:border-none`}
+    className={`flex items-center min-h-20 ${isUnread ? "bg-(--color-light-main)" : "bg-white"} border-b-(--color-gray-2) border-b-1 last:border-none`}
   >
-    <Link href={href} className="flex flex-row gap-2">
+    <Link href={href} className="flex flex-row gap-2 px-1">
       <section className="flex basis-12">
         <Image src={iconSrc} alt={iconSrc} width={48} height={48} />
       </section>
@@ -29,7 +29,7 @@ const NotificationTemplate = ({
         <NotiTextTemplate value={title} />
         {children}
       </section>
-      <section className="basis-10 flex items-center">
+      <section className="basis-10 flex items-center justify-end">
         <DateAgo date={date} />
       </section>
     </Link>
@@ -73,7 +73,9 @@ export const timeAgo = (date: Date | string | number): string => {
 };
 const DateAgo = ({ date }: { date: Date }) => {
   return (
-    <p className="text-(--color-gray-4) text-xs text-right">{timeAgo(date)}</p>
+    <p className="text-(--color-gray-4) text-[10px] text-right">
+      {timeAgo(date)}
+    </p>
   );
 };
 
