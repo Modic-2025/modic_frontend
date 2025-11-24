@@ -9,7 +9,7 @@ import { TypePaging } from "@/types";
  * @param size
  * @param postType
  */
-export type TypeSearchContent<T> = TypePaging & {
+export type PagingContent<T> = TypePaging & {
   content: T[];
 };
 const search = async <T>(
@@ -18,7 +18,7 @@ const search = async <T>(
   page: number,
   size: number,
   postType?: "ALL" | "ORIGINAL" | "AI_DERIVED"
-): Promise<APIFailureMsg | TypeSearchContent<T>> => {
+): Promise<APIFailureMsg | PagingContent<T>> => {
   const params = new URLSearchParams();
   params.append("keyword", keyword);
   params.append("page", page.toString());
@@ -50,7 +50,7 @@ const search = async <T>(
     }
   }
 
-  const data: TypeSearchContent<T> = response.data;
+  const data: TypePagingContent<T> = response.data;
 
   return data;
 };

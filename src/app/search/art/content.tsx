@@ -1,12 +1,12 @@
 "use client";
 
-import { TypeSearchContent } from "@/APIs/search";
+import { PagingContent } from "@/APIs/search";
 import ContentViewer from "@/components/ContentViewer";
 import { NO_SEARCH_RESULTS_POST } from "@/components/ContentViewer/placeholders";
 import { Art_thumbnail } from "@/types/Art";
 
 type TypeProp = {
-  data: TypeSearchContent<Art_thumbnail>;
+  data: PagingContent<Art_thumbnail>;
 };
 const SearchArtContent = ({ data }: TypeProp) => {
   const { content } = data;

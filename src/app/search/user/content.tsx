@@ -1,7 +1,7 @@
 "use client";
 
 import _fetch from "@/APIs/fetcher/ClientSide";
-import search, { TypeSearchContent } from "@/APIs/search";
+import search, { PagingContent } from "@/APIs/search";
 import { NO_SEARCH_RESULTS_USER } from "@/components/ContentViewer/placeholders";
 import TemplateLoading from "@/components/Templates";
 import UserInfo from "@/components/UserInfo";
@@ -13,9 +13,7 @@ import useSWRInfinite from "swr/infinite";
 const SearchUserContent = ({ keyword }: { keyword: string }) => {
   const [page, setPage] = useState<number>(0);
 
-  const { data, isLoading, error } = useSWRInfinite<
-    TypeSearchContent<FollowUser>
-  >(
+  const { data, isLoading, error } = useSWRInfinite<PagingContent<FollowUser>>(
     () => {
       const params = new URLSearchParams();
       params.append("keyword", keyword);
