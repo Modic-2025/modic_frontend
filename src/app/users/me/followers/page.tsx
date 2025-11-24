@@ -9,7 +9,7 @@ const Page = async () => {
     return [];
   };
 
-  return <FollowList users={safeUsers} onScrollEnd={fetchUsers} />;
+  return <FollowList mode={"FOLLOWERS_ME"} />;
 };
 
 export default Page;

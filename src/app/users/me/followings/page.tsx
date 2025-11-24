@@ -3,14 +3,7 @@ import FollowList from "@/components/Follow/List";
 import { FollowUser } from "@/types/User";
 
 const Page = async () => {
-  const users = await getFollowingsMe();
-  const safeUsers: FollowUser[] = Array.isArray(users) ? users : [];
-
-  const fetchUsers = () => {
-    return [];
-  };
-
-  return <FollowList users={safeUsers} onScrollEnd={fetchUsers} />;
+  return <FollowList mode="FOLLOWINGS_ME" />;
 };
 
 export default Page;

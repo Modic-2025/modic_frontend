@@ -4,7 +4,6 @@ export type User = UserMe & {
   postCount?: number;
   followerCount?: number;
   followingCount?: number;
-  coin?: number;
 };
 
 export type FollowUser = {
@@ -14,6 +13,10 @@ export type FollowUser = {
   userName: string;
   userEmail: string;
 };
+// in session
+export type FollowUserWithStatus = FollowUser & {
+  isFollowing: boolean;
+};
 
 export type UserMe = {
   userId: number;
@@ -21,6 +24,7 @@ export type UserMe = {
   userName: string;
   hasUserImage: boolean;
   userImageUrl: string;
+  userImageId: number;
   postCount: number;
   followerCount: number;
   followingCount: number;

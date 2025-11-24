@@ -101,6 +101,22 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/users/[user_id]/followings": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "팔로잉",
+      },
+    },
+  },
+  "/users/[user_id]/followers": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "팔로워",
+      },
+    },
+  },
   "/users/me/edit": {
     elements: ["backward", "title"],
     actions: {

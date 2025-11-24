@@ -61,11 +61,22 @@ const UserHeader = ({
   isAboutMe?: boolean;
   except?: UserCounterKey[];
 }) => {
+  console.log("user :>> ", user);
   const router = useRouter();
+  // "postCount", "coin" 은 무시됩니다.
+  const getUserHref = (
+    value: "postCount" | "followerCount" | "followingCount" | "coin"
+  ) => {
+    if (value === "followerCount") {
+      return `/users/${user.userId}/followers`;
+    }
+    return `/users/${user.userId}/followings`;
+  };
   const [counters, setCounters] = useState<UI_Counter[]>(
     UI_COUNTERS.map((item) => ({
       ...item,
       value: user[item.key] ?? item.value, // item.value: 서버로부터 받아온 값의 property명이 바뀐 경우 기본 값(-1) 그대로
+      href: !isAboutMe ? getUserHref(item.key) : item.href,
     }))
   );
 
@@ -119,7 +130,7 @@ const UserHeader = ({
       <div className="flex flex-row justify-between gap-6 mb-6 px-2">
         <div className="basis-1/4">
           <Image
-            src="/temporary/anonymous.svg"
+            src={user.userImageUrl ?? "/temporary/anonymous.svg"}
             alt="Profile image"
             width={128}
             height={128}
@@ -127,7 +138,6 @@ const UserHeader = ({
         </div>
         <div className="basis-3/4">
           <p className="mb-2 font-bold">
-            {" "}
             {isAboutMe ? user.userName : user.userEmail}{" "}
           </p>
           <ul className="flex flex-row gap-4 text-center">
