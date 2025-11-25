@@ -14,5 +14,8 @@ export type Notification = {
   title: string;
   body: string;
   postId: number;
+  senderId: number; // userId
+  hasSenderImage: boolean;
+  senderImageUrl: string; // userImage
   createdAt: Date;
 };

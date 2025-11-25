@@ -83,22 +83,21 @@ const UserHeader = ({
 
   // states
   const {
-    data: isFollow,
+    data: followData,
     isLoading,
     error,
     mutate: mutateFollowStatus,
-  } = useSWR<boolean>(
+  } = useSWR<{ isFollowing: boolean; isSelf: boolean }>(
     `${process.env.NEXT_PUBLIC_API_HOST}/api/follows/status`,
     (url: string) => {
       const searchParams = new URLSearchParams();
       searchParams.append("userId", user.userId.toString());
 
       return _fetch(`${url}?${searchParams.toString()}`, true).then(
-        async (res) => (await res.json()).data.isFollowing
+        async (res) => (await res.json()).data
       );
     }
   );
-  // const [isFollow, setIsFollow] = useState<boolean>(false);
   // popups
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [popupTitle, setPopupTitle] = useState<string>("");
@@ -106,7 +105,10 @@ const UserHeader = ({
 
   // onClick handlers
   const onClickFollowBtn = async (_isFollow: boolean) => {
-    const response = await toggleFollowState(user.userId, !isFollow);
+    const response = await toggleFollowState(
+      user.userId,
+      !followData?.isFollowing
+    );
     if (typeof response === "boolean" && response) {
       mutateFollowStatus();
 
@@ -176,8 +178,11 @@ const UserHeader = ({
           </>
         ) : (
           <>
-            {!isLoading && isFollow !== undefined && (
-              <FollowButton isFollow={isFollow} onClick={onClickFollowBtn} />
+            {!isLoading && followData?.isFollowing && !followData?.isSelf && (
+              <FollowButton
+                isFollow={followData?.isFollowing}
+                onClick={onClickFollowBtn}
+              />
             )}
             {/* <GrayBorderButton href={`/users/${user.userId}/dm`}>
               메시지

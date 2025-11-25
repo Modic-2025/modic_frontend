@@ -3,13 +3,15 @@ import NotificationTemplate from "..";
 
 const Followed = ({ data }: { data: Notification }) => (
   <NotificationTemplate
-    iconSrc="/temporary/anonymous.svg"
+    iconSrc={
+      data.hasSenderImage ? data.senderImageUrl : "/temporary/anonymous.svg"
+    }
     title={data.title}
     date={data.createdAt}
     body={data.body}
     isUnread={data.status === "UNREAD"}
     postId={data.postId}
-    href={`/users/me/followers`}
+    href={`/users/${data.senderId}/followers`}
   />
 );
 

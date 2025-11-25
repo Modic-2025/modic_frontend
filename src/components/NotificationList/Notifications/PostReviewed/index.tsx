@@ -3,7 +3,9 @@ import NotificationTemplate from "..";
 
 const PostReviewed = ({ data }: { data: Notification }) => (
   <NotificationTemplate
-    iconSrc="/modic-coin.svg"
+    iconSrc={
+      data.hasSenderImage ? data.senderImageUrl : "/temporary/anonymous.svg"
+    }
     title={data.body}
     date={data.createdAt}
     body={data.body}
