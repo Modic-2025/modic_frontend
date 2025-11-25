@@ -7,7 +7,6 @@ const logout = async (): Promise<boolean | APIFailureMsg> => {
       method: "POST",
     })
   ).json();
-  console.log("response :>> ", response);
   const { isSuccess, status } = response;
   if (!isSuccess) {
     switch (status) {

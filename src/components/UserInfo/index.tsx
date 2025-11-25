@@ -16,9 +16,9 @@ type UserInfoProp = CommonProp & {
 };
 
 const UserInfo = (prop: UserInfoProp) => (
-  <div className={`flex ${prop.className || ""}`}>
+  <div className={`flex w-full ${prop.className || ""}`}>
     {prop.href ? (
-      <Link href={prop.href || "#"} className="flex">
+      <Link href={prop.href || "#"} className="flex w-full">
         <Commons {...prop} />
       </Link>
     ) : (
@@ -27,20 +27,22 @@ const UserInfo = (prop: UserInfoProp) => (
   </div>
 );
 
-const Commons = ({ title, desc, src }: CommonProp) => (
-  <>
-    <Image
-      src={src || "/temporary/anonymous.svg"}
-      alt="Profile"
-      width={48}
-      height={48}
-      className="rounded-full inline"
-    />
-    <span className="inline-flex flex-col justify-center ml-[12px] h-[48px]">
-      <p className="text-[16px] font-bold leading-tight mb-1">{title}</p>
-      <p className="text-sm text-gray-400">{desc}</p>
-    </span>
-  </>
-);
+const Commons = ({ title, desc, src }: CommonProp) => {
+  return (
+    <>
+      <Image
+        src={src ?? "/temporary/anonymous.svg"}
+        alt="Profile"
+        width={48}
+        height={48}
+        className="rounded-full inline"
+      />
+      <div className="flex flex-col w-full justify-center ml-[12px] h-[48px]">
+        <p className="text-[16px] font-bold leading-tight mb-1">{title}</p>
+        <p className="text-sm text-gray-400">{desc}</p>
+      </div>
+    </>
+  );
+};
 
 export default UserInfo;

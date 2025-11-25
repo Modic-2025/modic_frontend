@@ -25,9 +25,7 @@ const Content = ({ content, page, size, hasNext }: RESPONSE_BODY_TYPE) => {
   const [selectedArt, setSelectedArt] = useState<GeneratedImageType | null>(
     null
   );
-  useEffect(() => {
-    console.log("selectedArt :>> ", selectedArt);
-  }, [selectedArt]);
+  useEffect(() => {}, [selectedArt]);
 
   // URL Parameterize
   const urlSafeImageUrl =

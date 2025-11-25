@@ -7,7 +7,6 @@ import { NO_POSTS } from "@/components/ContentViewer/placeholders";
 
 const MyPage = async () => {
   const user = await getUserMe();
-  console.log("user :>> ", user);
   if (!user) {
     return (
       <>

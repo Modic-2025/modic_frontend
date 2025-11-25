@@ -23,22 +23,3 @@ export const getUserMe = async (): Promise<UserMe | null> => {
 
   return data;
 };
-
-export const getUser = async (userId: string): Promise<User | null> => {
-  if (!userId) {
-    return null;
-  }
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/profiles?userId=${userId}`
-  );
-  if (!res.ok) {
-    // 에러 처리
-    throw new Error("Failed to fetch user info");
-  }
-  const custom_response = await res.json();
-  if (!custom_response.isSuccess) {
-    throw new Error("Failed to load user info");
-  }
-  const user = custom_response.data;
-  return user;
-};

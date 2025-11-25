@@ -182,13 +182,39 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
 // 동적 path일 경우 이 함수를 통해 전처리를 해주어야 합니다.
 // .replace(target_regex, replace_string)
 export const convertToRoutePattern = (pathName: string) => {
-  return pathName
-    .replace(/^\/art\/(\d+)/, "/art/[art_id]")
-    .replace(/^\/art\/edit\/(\d+)/, "/art/edit/[art_id]")
-    .replace(/^\/users\/(\d+)/, "/users/[user_id]")
-    .replace(/^\/art\/ai\/(\d+)/, "/art/ai/[art_id]")
-    .replace(/^\/art\/regist\/(\d+)/, "/art/regist/[image_id]")
-    .replace(/^\/art\/tree\/(\d+)/, "/art/tree/[art_id]");
+  // 1. 매칭 규칙 정의 (순서가 중요합니다: 구체적이고 긴 경로가 위로 가야 합니다)
+  const routePatterns = [
+    // [Users 관련]
+    // 오타 수정: followowers -> followers
+    {
+      regex: /^\/users\/\d+\/followings$/,
+      replacement: "/users/[user_id]/followings",
+    },
+    {
+      regex: /^\/users\/\d+\/followers$/,
+      replacement: "/users/[user_id]/followers",
+    },
+    { regex: /^\/users\/\d+$/, replacement: "/users/[user_id]" }, // $를 붙여서 정확히 ID로 끝나는 경우만 잡습니다.
+
+    // [Art 관련]
+    { regex: /^\/art\/edit\/\d+/, replacement: "/art/edit/[art_id]" },
+    { regex: /^\/art\/ai\/\d+/, replacement: "/art/ai/[art_id]" },
+    { regex: /^\/art\/regist\/\d+/, replacement: "/art/regist/[image_id]" },
+    { regex: /^\/art\/tree\/\d+/, replacement: "/art/tree/[art_id]" },
+    // 가장 일반적인 /art/:id 는 다른 art 하위 경로들이 다 체크된 후에 검사합니다.
+    { regex: /^\/art\/\d+/, replacement: "/art/[art_id]" },
+  ];
+
+  // 2. 순회하며 매칭 검사
+  for (const { regex, replacement } of routePatterns) {
+    if (regex.test(pathName)) {
+      // 매칭되면 교체 후 즉시 반환 (뒤에 있는 규칙들이 실행되지 않음)
+      return pathName.replace(regex, replacement);
+    }
+  }
+
+  // 3. 매칭되는 규칙이 없으면 원본 그대로 반환
+  return pathName;
 };
 
 export interface HeaderContent {

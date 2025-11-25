@@ -21,6 +21,8 @@ import { usePathname } from "next/navigation";
 import { User, UserMe } from "@/types/User";
 import { getCookie } from "cookies-next";
 import useUserMe from "@/hooks/UseUserMe";
+import { getUser } from "@/APIs/profiles";
+import useUser from "@/hooks/UseUser";
 
 const getHeaderComponent = (
   content: HeaderContentType,
@@ -51,24 +53,77 @@ const getHeaderComponent = (
   }
 };
 
+/**
+ * 경로에서 유저 ID(Integer)를 안전하게 추출합니다.
+ * @param pathName URL 경로 (예: "/users/123/followers")
+ * @returns 추출된 숫자 ID 또는 null (추출 실패 시)
+ */
+export const extractUserIdFromPath = (pathName: string): number | null => {
+  if (!pathName) return null;
+
+  try {
+    // 정규식 설명:
+    // ^\/users\/  -> /users/ 로 시작
+    // (\d+)       -> 숫자만 캡처 (Capture Group 1)
+    // (?:\/|$)    -> 뒤에 '/'가 오거나 문장이 끝나야 함 (즉, /users/123abc 방지)
+    const match = pathName.match(/^\/users\/(\d+)(?:\/|$)/);
+
+    if (match && match[1]) {
+      const parsedId = parseInt(match[1], 10);
+
+      // 안전장치: 혹시나 NaN이 나오거나 Infinity가 나오는지 확인
+      if (Number.isInteger(parsedId)) {
+        return parsedId;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    // 예기치 못한 에러 발생 시 안전하게 null 반환
+    console.error("ID extraction error:", error);
+    return null;
+  }
+};
+
 const Header = () => {
   const pathName = usePathname();
 
   const token = getCookie("accessToken")?.toString();
-  const { data: user }: { data: UserMe | undefined } = useUserMe(token || "");
+  const { data: userMe }: { data: UserMe | undefined } = useUserMe(token || "");
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useUser(extractUserIdFromPath(pathName) ?? -1);
+  // const user: User | null = getUser(extractUserIdFromPath(pathName) ?? -1);
 
   const headerContent =
     SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)];
 
   // User 프로필 페이지 flag
+  const isUserMePage = /^\/users\/me/.test(pathName);
   const isUserPage = /^\/users\/(\d+)/.test(pathName);
+  const titleValue = (() => {
+    if (isUserMePage) {
+      return userMe?.userName;
+    }
+    if (isUserPage) {
+      return user?.userName; // 해당 유저 이름
+    }
+    return headerContent?.actions?.title?.value;
+  })();
   // actions를 통해 header 요소의 optional한 설정 세팅
   const actions = {
     ...headerContent?.actions,
     title: {
-      value: isUserPage ? user?.userName : headerContent?.actions?.title?.value,
+      value: titleValue,
+      // value: isUserMePage
+      //   ? userMe?.userName
+      //   : headerContent?.actions?.title?.value,
     },
-    coins: { value: user?.coin !== undefined ? String(user.coin) : undefined },
+    coins: {
+      value: userMe?.coin !== undefined ? String(userMe.coin) : undefined,
+    },
   };
 
   return (

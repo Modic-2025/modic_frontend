@@ -125,6 +125,7 @@ const MetaData = ({
         title={art.userName}
         desc={art.userEmail}
         href={`/users/${art.userId}`}
+        src={art.userImageUrl}
       />
       {/* <AuthorProfile art={art} /> */}
       {isAuthor ? (

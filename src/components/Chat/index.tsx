@@ -169,7 +169,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   const onPasteInput = (e: ClipboardEvent) => {
     const items = e.clipboardData?.items;
 
-    console.log("items :>> ", items);
     if (!items) return;
 
     if (items.length > 0) {
@@ -453,7 +452,6 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // 추가 채팅 로딩시 UI Scroll 보정을 수행
   useLayoutEffect(() => {
-    console.log("보정 수행");
     if (!chatRef.current) return;
 
     const currentScrollHeight = chatRef.current.scrollHeight;

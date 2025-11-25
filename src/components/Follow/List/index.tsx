@@ -51,7 +51,7 @@ const FollowList = ({
   };
   const getKey = (
     index: number,
-    prevPage: PagingContent<FollowUser | User | FollowUserWithStatus>
+    prevPage: PagingContent<FollowUserWithStatus>
   ) => {
     const searchParams = new URLSearchParams();
     if (userId) {
@@ -66,16 +66,29 @@ const FollowList = ({
     data: users,
     isLoading,
     error,
-  } = useSWRInfinite<PagingContent<FollowUser | User | FollowUserWithStatus>>(
-    getKey,
-    (url) =>
-      _fetch(url, true).then(async (res) => {
-        const body = await res.json();
-        if (!body.isSuccess) {
-          throw body;
-        }
-        return body.data;
-      })
+  } = useSWRInfinite<PagingContent<FollowUserWithStatus>>(getKey, (url) =>
+    _fetch(url, true).then(async (res) => {
+      const body = await res.json();
+      if (!body.isSuccess) {
+        throw body;
+      }
+      const followUsers = body.data;
+
+      const isWithStatus =
+        mode === "FOLLOWERS_WITH_STATUS" || mode === "FOLLOWINGS_WITH_STATUS";
+      return {
+        // refactor
+        ...followUsers,
+        content: followUsers.content.map(
+          (user: FollowUserWithStatus | FollowUser) => ({
+            ...user,
+            isFollowing: isWithStatus
+              ? (user as FollowUserWithStatus).isFollowing
+              : undefined,
+          })
+        ),
+      };
+    })
   );
 
   if (isLoading) {
@@ -83,9 +96,7 @@ const FollowList = ({
       <TemplateLoading title={`팔로우 정보를 가져오는 중 ..`} />
     </CenteredLayout>;
   }
-
   const safeUsers = users?.flatMap((page) => page.content);
-
   if (!safeUsers || safeUsers.length <= 0) {
     return <p className="text-center"> 목록이 없습니다. </p>;
   }
@@ -99,16 +110,20 @@ const FollowList = ({
   );
 };
 
-const Item = ({ user }: { user: FollowUser }) => (
+const Item = ({ user }: { user: FollowUser | FollowUserWithStatus }) => (
   <li className="flex items-center py-4 border-b border-(--color-gray-1)">
     <div className="w-full">
       <UserInfo
+        src={user.userImageUrl}
         href={`/users/${user.userId}`}
         title={user.userName}
         desc={user.userEmail}
       />
     </div>
-    <FollowButton state={false} />
+
+    {"isFollowing" in user && user.isFollowing && (
+      <FollowButton state={user.isFollowing} />
+    )}
   </li>
 );
 

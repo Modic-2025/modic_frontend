@@ -136,7 +136,7 @@ const UserHeader = ({
   };
 
   return (
-    <header className="mb-6">
+    <header className="mb-3">
       {showPopup && (
         <Fail
           title={popupTitle}
@@ -144,7 +144,7 @@ const UserHeader = ({
           onCancel={() => setShowPopup(false)}
         />
       )}
-      <div className="flex flex-row justify-between gap-6 mb-6 px-2">
+      <div className="flex flex-row justify-between gap-6 px-2">
         <div className="basis-1/4">
           <div className="relative overflow-hidden w-full h-full rounded-full">
             <Image
@@ -168,7 +168,7 @@ const UserHeader = ({
           </ul>
         </div>
       </div>
-      <div className="flex flex-row w-full gap-2 font-bold">
+      <div className="flex flex-row w-full gap-2 font-bold my-3">
         {isAboutMe ? (
           <>
             <BlackButton href="/users/me/edit">프로필 편집 </BlackButton>

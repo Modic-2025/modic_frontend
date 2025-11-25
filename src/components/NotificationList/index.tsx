@@ -64,20 +64,21 @@ const NotificationList = () => {
   const renderNotiByType = (noti: Notification) => {
     switch (noti.type) {
       case "COIN_RECEIVED":
-        return <CoinReceived data={noti} />;
+        return <CoinReceived key={noti.notificationId} data={noti} />;
       case "DERIVED_POST_CREATED":
-        return <DerivedPostCreated data={noti} />;
+        return <DerivedPostCreated key={noti.notificationId} data={noti} />;
       case "FOLLOWED":
-        return <Followed data={noti} />;
+        return <Followed key={noti.notificationId} data={noti} />;
       case "POST_PURCHASED_BY_COIN":
-        return <PostPurchasedByCoin data={noti} />;
+        return <PostPurchasedByCoin key={noti.notificationId} data={noti} />;
       case "POST_PURCHASED_BY_TICKET":
-        return <PostPurchasedByTicket data={noti} />;
+        return <PostPurchasedByTicket key={noti.notificationId} data={noti} />;
       case "POST_REVIEWED":
-        return <PostReviewed data={noti} />;
+        return <PostReviewed key={noti.notificationId} data={noti} />;
       default:
         return (
           <NotificationTemplate
+            key={NOT_DEFINED_NOTIFICATION.notificationId}
             iconSrc="/warning.svg"
             title={NOT_DEFINED_NOTIFICATION.title}
             date={NOT_DEFINED_NOTIFICATION.createdAt}

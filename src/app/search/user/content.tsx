@@ -59,19 +59,20 @@ const UserList = ({
   useEffect(() => {
     onMoreUsers();
   }, [isInView]);
-
   return (
     <ul>
       {users.map((user) => (
-        <>
-          <li className="py-4 border-b border-(--color-gray-1) last:border-none">
-            <UserInfo
-              title={user.userName}
-              href={`/users/${user.userId}`}
-              src={user.userImageUrl}
-            />
-          </li>
-        </>
+        <li
+          key={user.userId}
+          className="py-4 border-b border-(--color-gray-1) last:border-none"
+        >
+          <UserInfo
+            title={user.userName}
+            href={`/users/${user.userId}`}
+            src={""}
+            // src={user.userImageUrl}
+          />
+        </li>
       ))}
       {ref && typeof ref === "object" && <div ref={ref}></div>}
     </ul>
