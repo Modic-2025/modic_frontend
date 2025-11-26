@@ -4,7 +4,7 @@ import Link from "next/link";
 const Logo = () => {
   return (
     <div className="header-left">
-      <Link href="/art">
+      <Link href="/">
         <Image
           src="/MODIC.svg"
           alt="MODIC"

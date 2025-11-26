@@ -15,7 +15,7 @@ export default function KakaoRedirectPage() {
 
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
-          router.push("/art");
+          router.push("/");
         } else {
           throw new Error("토큰 없음");
         }

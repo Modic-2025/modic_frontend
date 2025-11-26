@@ -45,7 +45,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/edit/[art_id]": {
+  "/edit/[art_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -53,7 +53,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/regist": {
+  "/regist": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -61,7 +61,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/regist/[image_id]": {
+  "/regist/[image_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -136,7 +136,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
   "/users/[user_id]": {
     elements: ["backward", "title"],
   },
-  "/art/ai/[art_id]": {
+  "/ai/[art_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {
@@ -160,7 +160,7 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
-  "/art/tree/[art_id]": {
+  "/tree/[art_id]": {
     elements: ["backward", "title"],
     actions: {
       title: {

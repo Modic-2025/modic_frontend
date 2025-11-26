@@ -26,7 +26,7 @@ export default function GoogleRedirectPage() {
 
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
-          router.push("/art");
+          router.push("/");
         } else {
           throw new Error("accessToken 없음");
         }
@@ -39,7 +39,5 @@ export default function GoogleRedirectPage() {
     loginWithGoogle();
   }, [router]);
 
-  return (
-    <div className="text-center mt-40">구글 로그인 처리 중입니다...</div>
-  );
+  return <div className="text-center mt-40">구글 로그인 처리 중입니다...</div>;
 }

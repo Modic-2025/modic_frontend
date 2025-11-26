@@ -51,7 +51,7 @@ export function middleware(request: NextRequest) {
   // 쿠키가 있고 & 현재 경로가 "public" 경로인 경우
   if (accessToken && isPublic) {
     // 메인 대시보드 페이지('/')로 리다이렉트
-    return NextResponse.redirect(new URL("/art", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   // 9. 그 외 모든 경우 (e.g., public 경로에 비로그인 접근, private 경로에 로그인 접근,

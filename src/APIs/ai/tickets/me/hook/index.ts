@@ -48,9 +48,9 @@ const ticketFetcher = async (): Promise<number> => {
     // _fetch 자체의 예외 처리 (e.g., 네트워크 단절, JSON 파싱 실패 등)
     // 이것도 SWR의 'error'로 전달하기 위해 throw 합니다.
     const errorMsg: APIFailureMsg = {
-      code: (err as Error).name || "FETCH_ERROR",
+      code: 500,
       title: TITLE_500 || "클라이언트 에러", // TITLE_500 import
-      message: (err as Error).message || "티켓을 불러오지 못했습니다.",
+      desc: (err as Error).message || "티켓을 불러오지 못했습니다.",
     };
     throw errorMsg;
   }

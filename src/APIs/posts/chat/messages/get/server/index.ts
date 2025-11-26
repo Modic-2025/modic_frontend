@@ -10,6 +10,7 @@ export const sortChatMsg = (datas: TypeChatData[]) => {
 type TypeResponseData = {
   page: number;
   content: TypeChatData[];
+  isFirst: boolean;
 };
 const getChatMessages: (
   postId: number,
@@ -48,7 +49,7 @@ const getChatMessages: (
         return { code: status, title: TITLE_500 };
     }
   }
-  const { content, page } = data;
+  const { content, page, isFirst } = data;
 
   // refactor data
   const safeContent: TypeChatData[] = sortChatMsg(
@@ -62,6 +63,7 @@ const getChatMessages: (
   return {
     page,
     content: safeContent,
+    isFirst: isFirst,
   };
 };
 

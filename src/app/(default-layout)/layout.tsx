@@ -29,7 +29,7 @@ export default function RootLayout({
       <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
         <header className="flex flex-row items-center gap-3 h-14 px-4 py-2 bg-white border-[#E8E8E8]">
           <div className="header-left">
-            <Link href="/art">
+            <Link href="/">
               <Image
                 src="/MODIC.svg"
                 alt="MODIC"
@@ -67,7 +67,12 @@ export default function RootLayout({
               <Image src="/IconHome.svg" width={28} height={28} alt="홈" />
             </button>
             <button className="basis-1/4 flex justify-center items-center">
-              <Image src="/IconMessage.svg" width={28} height={28} alt="메시지" />
+              <Image
+                src="/IconMessage.svg"
+                width={28}
+                height={28}
+                alt="메시지"
+              />
             </button>
             <button className="basis-1/4 flex justify-center items-center">
               <Image
