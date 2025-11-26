@@ -4,6 +4,7 @@ import toggleFollowState from "@/APIs/follows/toggle";
 import BlackButton from "@/components/Button/BlackButton";
 import GrayBorderButton from "@/components/Button/GrayBorderButton";
 import GrayButton from "@/components/Button/GrayButton";
+import ClickableImage from "@/components/ClickableImage";
 import Fail from "@/components/Popups/Fail";
 import { User } from "@/types/User";
 import Image from "next/image";
@@ -149,7 +150,7 @@ const UserHeader = ({
       <div className="flex flex-row justify-between gap-6 px-2">
         <div className="basis-1/4">
           <div className="relative overflow-hidden w-full h-full rounded-full">
-            <Image
+            <ClickableImage
               src={user.userImageUrl ?? "/temporary/anonymous.svg"}
               alt="Profile image"
               fill
@@ -174,7 +175,7 @@ const UserHeader = ({
         {isAboutMe ? (
           <>
             <BlackButton href="/users/me/edit">프로필 편집 </BlackButton>
-            <GrayBorderButton href="/coin">코인 충전</GrayBorderButton>
+            {/* <GrayBorderButton href="/coin">코인 충전</GrayBorderButton> */}
           </>
         ) : (
           <>

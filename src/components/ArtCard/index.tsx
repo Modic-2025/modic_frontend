@@ -54,7 +54,7 @@ const ArtCard = ({
     //   isImageLoaded ? "opacity-100" : "opacity-0"
     // }`,
     title: String(postId),
-    onMouseEnter: () => preload && preload(safeThumbnailUrl, { as: "image" }),
+    // onMouseEnter: () => preload && preload(safeThumbnailUrl, { as: "image" }),
     onLoadingComplete: handleImageLoadComplete,
   };
 

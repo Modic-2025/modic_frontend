@@ -176,6 +176,14 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/users/secession": {
+    elements: ["backward", "title"],
+    actions: {
+      title: {
+        value: "계정 탈퇴",
+      },
+    },
+  },
 };
 
 // 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수

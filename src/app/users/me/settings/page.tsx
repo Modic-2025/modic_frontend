@@ -30,24 +30,24 @@ const Settings = async () => {
         </Item>
       </List>
       <List>
-        <Item href="/users/me/cash/withdrawal" name="수익 출금">
+        {/* <Item href="/users/me/cash/withdrawal" name="수익 출금">
           <Image
             src="/cash-withdrawal.svg"
             alt="아이콘"
             width={24}
             height={24}
           />
-        </Item>
+        </Item> */}
         <Item href="/users/me/purchases" name="구매 내역">
           <Image src="/receipt.svg" alt="아이콘" width={24} height={24} />
         </Item>
       </List>
-      <List>
+      {/* <List>
         <Item href="/users/me/block-users" name="차단한 계정 관리">
           <Image src="/user-cancel.svg" alt="아이콘" width={24} height={24} />
         </Item>
-      </List>
-      <List>
+      </List> */}
+      {/* <List>
         <Item href="/privacy-policy" name="개인정보 처리방침">
           <Image
             src="/information-circle.svg"
@@ -64,7 +64,7 @@ const Settings = async () => {
             height={24}
           />
         </Item>
-      </List>
+      </List> */}
 
       <ul className="px-4">
         <LogoutButton />

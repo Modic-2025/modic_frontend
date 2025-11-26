@@ -307,7 +307,7 @@ const ArtRegistrationForm = ({
               className="relative w-full rounded-lg bg-[#EDEEEF] border-none focus:ring-2 focus:ring-black pl-10 py-4 text-sm outline-none placeholder-gray-400"
               placeholder="티켓"
             />
-            <ToolTip text="매 AI 편집을 시도할 때마다 소모시킬 티켓의 개수">
+            <ToolTip text="AI 편집 권한 20개를 구매하기위한 티켓의 개수">
               <Image
                 src="/ticket-gray-4.svg"
                 alt="non-commercial cost"
