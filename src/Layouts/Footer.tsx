@@ -83,6 +83,17 @@ const matchPathnameToTab = (pathname: string) => {
 // excepts: 랜더링 하지 않을 경로를 지정합니다.
 const Footer = ({ excepts }: { excepts: string[] }) => {
   const pathname = usePathname();
+  const [isNoFooter, setIsNoFooter] = useState<boolean>(false);
+  console.log("pathname :>> ", pathname);
+  console.log("isNoFooter :>> ", isNoFooter);
+  useEffect(() => {
+    setIsNoFooter(
+      Boolean(
+        excepts &&
+          excepts.find((item) => item === convertToRoutePattern(pathname))
+      )
+    );
+  }, [pathname]);
 
   const [selectedTab, setSelectedTab] = useState<MenuType>(
     matchPathnameToTab(pathname)
@@ -90,7 +101,7 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
   const [navButtons, setNavButtons] =
     useState<Array<NavButtonType>>(NAV_BUTTONS);
 
-  const { data: notiCount, mutate } = useNotificationCount();
+  const { data: notiCount, mutate } = useNotificationCount(!isNoFooter);
   // Update `selectedTab` by current pathname
   useEffect(() => {
     if (pathname === "/notifications") {
@@ -99,11 +110,9 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
     setSelectedTab(matchPathnameToTab(pathname));
   }, [pathname]);
 
-  if (
-    excepts &&
-    excepts.find((item) => item === convertToRoutePattern(pathname))
-  )
+  if (isNoFooter) {
     return null;
+  }
 
   return (
     <footer className="absolute h-14 w-full bottom-0 bg-white z-1">
