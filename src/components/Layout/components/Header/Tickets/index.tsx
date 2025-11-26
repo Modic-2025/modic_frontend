@@ -15,7 +15,7 @@ const Tickets = ({ onClick }: { onClick?: () => void }) => {
     >
       <span className="inline-flex items-center gap-1 ml-auto">
         <Image
-          src="/Ticket.svg"
+          src="/ticket-gray-2.svg"
           alt="back"
           className="ml-auto"
           width={18}
