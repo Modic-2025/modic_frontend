@@ -104,7 +104,7 @@ const LandingPage = () => {
             - min-h-0: flex container 안에서 내용물이 넘칠 때 줄어들 수 있게 함 (중요)
             - overflow-hidden: 화면이 작아지면 폰 이미지가 잘리더라도 레이아웃을 깨지 않음
         */}
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0 overflow-hidden relative">
+        <div className="flex-1 flex flex-col items-center justify-between min-h-0 overflow-hidden relative">
           {/* 타이포그래피 (화면 높이가 아주 작으면 숨김) */}
           <div className="text-left w-full px-8 mb-4 md:mb-8 shrink-0 z-20 transition-all duration-300">
             <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter transition-all">
