@@ -106,7 +106,7 @@ const LandingPage = () => {
         */}
         <div className="flex-1 flex flex-col items-center justify-between min-h-0 overflow-hidden relative">
           {/* 타이포그래피 (화면 높이가 아주 작으면 숨김) */}
-          <div className="text-left w-full px-8 mb-4 md:mb-8 shrink-0 z-20 transition-all duration-300">
+          <div className="text-left w-full px-4 mb-4 md:mb-8 shrink-0 z-20 transition-all duration-300">
             <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter transition-all">
               MODIC
             </h1>
@@ -264,7 +264,7 @@ const LandingPage = () => {
               href="/art"
               className="underline text-(--color-gray-4) text-center text-xs"
             >
-              혹은 간단히 둘러보기
+              간단히 둘러보기
             </Link>
           </form>
 
