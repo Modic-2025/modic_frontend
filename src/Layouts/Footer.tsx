@@ -96,6 +96,9 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
   const [selectedTab, setSelectedTab] = useState<MenuType>(
     matchPathnameToTab(pathname)
   );
+  useEffect(() => {
+    setSelectedTab(matchPathnameToTab(pathname));
+  }, [pathname]);
   const [navButtons, setNavButtons] =
     useState<Array<NavButtonType>>(NAV_BUTTONS);
 
