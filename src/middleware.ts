@@ -21,6 +21,11 @@ const PRIVATE_PATHS = [
  * Next.js 미들웨어 함수
  */
 export function middleware(request: NextRequest) {
+  // 기존 헤더를 복사하여 새 헤더 객체를 만듭니다.
+  // Server-side에서 pathname을 사용하기 위해 x-pathname을 설정합니다.
+  // const requestHeaders = new Headers(request.headers);
+  // requestHeaders.set("x-pathname", request.nextUrl.pathname);
+
   // 4. 현재 요청 경로
   const { pathname } = request.nextUrl;
 
@@ -52,6 +57,11 @@ export function middleware(request: NextRequest) {
   // 9. 그 외 모든 경우 (e.g., public 경로에 비로그인 접근, private 경로에 로그인 접근,
   //    혹은 public/private 모두 아닌 경로 접근)는 요청을 그대로 통과시킵니다.
   return NextResponse.next();
+  // return NextResponse.next({
+  //   request: {
+  //     headers: requestHeaders,
+  //   },
+  // });
 }
 
 /**

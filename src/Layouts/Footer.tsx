@@ -84,8 +84,6 @@ const matchPathnameToTab = (pathname: string) => {
 const Footer = ({ excepts }: { excepts: string[] }) => {
   const pathname = usePathname();
   const [isNoFooter, setIsNoFooter] = useState<boolean>(false);
-  console.log("pathname :>> ", pathname);
-  console.log("isNoFooter :>> ", isNoFooter);
   useEffect(() => {
     setIsNoFooter(
       Boolean(
