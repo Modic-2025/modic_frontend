@@ -2,7 +2,6 @@
 import Footer from "./Footer";
 import Header from "./Header";
 // import { GoogleOAuthProvider } from "@react-oauth/google";
-import "./layout.css";
 
 const NO_FOOTER_PATHS = ["/art/ai/[art_id]", "/login", "/"];
 
