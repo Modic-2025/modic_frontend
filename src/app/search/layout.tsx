@@ -3,6 +3,7 @@ import SearchBar from "@/components/SearchBar";
 import Tab, { UITab } from "@/components/Tab";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 
 const TABS: UITab[] = [
   {
@@ -31,13 +32,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <main className="overflow-y-auto h-full flex flex-col gap-2">
-      <SearchBar initKeyword={searchQuery || ""} onSearch={onSearch} />
-      {searchQuery && <Tab tabs={TABS} withQuery={true} />}
-      {/* <section className="h-full"> */}
-      {children}
-      {/* </section> */}
-    </main>
+    <Suspense>
+      <main className="overflow-y-auto h-full flex flex-col gap-2">
+        <SearchBar initKeyword={searchQuery || ""} onSearch={onSearch} />
+        {searchQuery && <Tab tabs={TABS} withQuery={true} />}
+        {children}
+      </main>
+    </Suspense>
   );
 };
 

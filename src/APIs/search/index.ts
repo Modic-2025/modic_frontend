@@ -50,7 +50,7 @@ const search = async <T>(
     }
   }
 
-  const data: TypePagingContent<T> = response.data;
+  const data: PagingContent<T> = response.data;
 
   return data;
 };

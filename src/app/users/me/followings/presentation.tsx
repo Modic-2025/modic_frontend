@@ -11,7 +11,7 @@ const PresentationPage = ({
   children: React.ReactNode;
   failureMsg: APIFailureMsg;
 }) => {
-  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [showPopup] = useState<boolean>(false);
 
   return (
     <>

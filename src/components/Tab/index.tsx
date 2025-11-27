@@ -1,7 +1,7 @@
 "use client";
 import TabButton from "@/components/Tab/TabButton";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 export type UITab = {
   name: string;
@@ -42,22 +42,24 @@ const Tab = ({
 
   return (
     tabs && (
-      <div className="flex border-b border-gray-200 text-sm font-medium">
-        {_tabs &&
-          _tabs.map((tab) => (
-            <TabButton
-              key={tab.id}
-              {...tab}
-              max={_tabs.length}
-              onClick={tabOnClickListener}
-              href={
-                withQuery ? `${tab.href}?${searchQuery.toString()}` : tab.href
-              }
-            >
-              {tab.name}
-            </TabButton>
-          ))}
-      </div>
+      <Suspense>
+        <div className="flex border-b border-gray-200 text-sm font-medium">
+          {_tabs &&
+            _tabs.map((tab) => (
+              <TabButton
+                key={tab.id}
+                {...tab}
+                max={_tabs.length}
+                onClick={tabOnClickListener}
+                href={
+                  withQuery ? `${tab.href}?${searchQuery.toString()}` : tab.href
+                }
+              >
+                {tab.name}
+              </TabButton>
+            ))}
+        </div>
+      </Suspense>
     )
   );
 };

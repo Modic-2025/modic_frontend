@@ -8,11 +8,7 @@ import { AlertForm, CenteredLayout } from "@/components/Layout";
 const Page = async ({ params }: { params: Promise<{ art_id: number }> }) => {
   const { art_id } = await params;
 
-  const response: TypeResponseData | APIFailureMsg = await getChatMessages(
-    art_id,
-    -1,
-    30
-  );
+  const response = await getChatMessages(art_id, -1, 30);
 
   if ("code" in response && response.code !== 404) {
     // except 404, because chat UI need to be shown during 404 state

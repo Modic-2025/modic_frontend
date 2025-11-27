@@ -1,5 +1,4 @@
 "use client";
-import _fetch from "@/APIs/fetcher/ClientSide";
 import UploadImage from "@/APIs/ImageUploader";
 import useArt from "@/APIs/useArt";
 import generateImage from "@/APIs/chat/messages";
@@ -55,6 +54,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   try {
     safeArtId = Number(artId);
   } catch (e) {
+    console.error(e);
     console.error(`artId: ${artId}를 Number 형으로 변환하지 못하였습니다.`);
   }
   /**
@@ -260,7 +260,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
       // }
 
       // Update `REQUEST_PENDING` to `REQUEST` (complete)
-      let safePrev: TypeChat[] = prev.flatMap((item) => {
+      const safePrev: TypeChat[] = prev.flatMap((item) => {
         if (
           item.requestId === safeChatResponse.requestId &&
           item.senderType === "USER" &&
@@ -341,7 +341,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
     setFailDesc(desc ?? "");
   };
   // For ImageList component
-  const onDeleteImageList = (id: number) => {
+  const onDeleteImageList = () => {
     setInputFile(null);
     setInputImage(null);
   };
@@ -489,15 +489,19 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
 
   // Uploads current selected image
   const UploadCurrentImage = () => {
-    inputFile && UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
+    if (inputFile) {
+      UploadImage(inputFile, imageOnUpload, "AI_REQUEST", artId);
+    }
   };
 
   const imageOnUpload = async (r: [string, string, string], e: unknown) => {
     if (e) {
-      console.error("Error occured in image upload");
+      console.error("Error occured in image upload :>>", e);
       return;
     }
-    const [imageUrl, imagePath, imageId] = r;
+
+    const imageUrl = r[0];
+    const imageId = r[2];
 
     setInputImage({
       imageUrl,

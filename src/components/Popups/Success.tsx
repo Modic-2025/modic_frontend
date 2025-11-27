@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Background, PopupWrapper } from ".";
 import PrimaryButton from "../Button/PrimaryButton";
 

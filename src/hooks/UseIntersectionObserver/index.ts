@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const useIntersectionObserver = <T extends Element = Element>(
   options: IntersectionObserverInit | undefined

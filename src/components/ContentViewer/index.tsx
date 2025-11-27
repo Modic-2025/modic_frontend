@@ -2,7 +2,6 @@
 import { Art_thumbnail, GeneratedImageType } from "@/types/Art";
 import React, { useEffect, useState } from "react";
 import ArtCard from "@/components/ArtCard";
-import { ArtPagingData } from "@/APIs/useArts";
 import Image from "next/image";
 import useIntersectionObserver from "@/hooks/UseIntersectionObserver";
 import usePrevious from "@/hooks/UsePrevious";
@@ -11,6 +10,7 @@ import _fetch from "@/APIs/fetcher/ClientSide";
 import { useRouter } from "next/navigation";
 import Fail from "../Popups/Fail";
 import UsePopup from "@/hooks/UsePopup";
+import { PagingContent } from "@/APIs/search";
 
 type gridType = 2 | 3 | 4 | 5 | 6;
 type artsByGridType = (Art_thumbnail | GeneratedImageType)[][];
@@ -20,6 +20,8 @@ type tab = {
   name: string;
   selected?: boolean;
 };
+
+type ArtPagingData = PagingContent<Art_thumbnail | GeneratedImageType>;
 
 const C_TABS: Array<tab> = [
   { value: "LATEST", name: "최신순", selected: true },
@@ -68,18 +70,23 @@ const ContentViewer = ({
   const router = useRouter();
 
   // Intersection observer
-  const [observeRef, isInView] = useIntersectionObserver<HTMLDivElement>({
+  const intersectionResult = useIntersectionObserver<HTMLDivElement>({
     threshold: 0.6,
   });
-  const prevIsInView = usePrevious(isInView);
+  const observeRef = Array.isArray(intersectionResult)
+    ? intersectionResult[0]
+    : undefined;
+  const isInView = Array.isArray(intersectionResult)
+    ? intersectionResult[1]
+    : false;
+  const prevIsInView = usePrevious<boolean>(
+    typeof isInView === "boolean" ? isInView : false
+  );
 
-  const safeUserId = typeof rest.me === "boolean" && rest.me ? -1 : rest.userId;
-  const [grid, setGrid] = useState<gridType>(rest.grid); // grid number
+  const [grid] = useState<gridType>(rest.grid); // grid number
   const [artsByGrid, setArtsByGrid] = useState<artsByGridType>(); // grid에 맞게 배치된 arts
   const [tabs, setTabs] = useState<Array<tab>>(C_TABS); // Category tabs
   const [isOpen, setIsOpen, title, setTitle, desc, setDesc] = UsePopup(false);
-
-  const selectedTab = tabs.find((item) => item.selected);
 
   const getPagingKey = React.useCallback(
     (index: number, prevPageData: ArtPagingData | null) => {
@@ -104,32 +111,31 @@ const ContentViewer = ({
     },
     [mode]
   );
-  const { data, error, isLoading, size, setSize } =
-    useSWRInfinite<ArtPagingData>(
-      getPagingKey,
-      (url: string) =>
-        _fetch(url, true).then(async (res) => {
-          const body = await res.json();
-          if (!body.isSuccess) {
-            throw body;
-          }
-          return body.data as ArtPagingData;
-        }),
-      {
-        revalidateIfStale: false, // 캐시가 있다면 마운트 시에도 요청 안 함
-        revalidateOnFocus: false, // 창 포커스 시 요청 안 함
-        revalidateOnReconnect: false, // 네트워크 복구 시 요청 안 함
-        revalidateFirstPage: false, // 추가 페이지 로드 시 첫 페이지 갱신 안 함
-        refreshInterval: 0, // 주기적 갱신 끔
-        persistSize: true, // 페이지 수 유지
-      }
-    );
+  const { data, error, isLoading, setSize } = useSWRInfinite<ArtPagingData>(
+    getPagingKey,
+    (url: string) =>
+      _fetch(url, true).then(async (res) => {
+        const body = await res.json();
+        if (!body.isSuccess) {
+          throw body;
+        }
+        return body.data as ArtPagingData;
+      }),
+    {
+      revalidateIfStale: false, // 캐시가 있다면 마운트 시에도 요청 안 함
+      revalidateOnFocus: false, // 창 포커스 시 요청 안 함
+      revalidateOnReconnect: false, // 네트워크 복구 시 요청 안 함
+      revalidateFirstPage: false, // 추가 페이지 로드 시 첫 페이지 갱신 안 함
+      refreshInterval: 0, // 주기적 갱신 끔
+      persistSize: true, // 페이지 수 유지
+    }
+  );
 
   /**
    * mode === "PRESENTATIONAL"일 경우, prop의 art를 사용하게 됩니다.
    */
   const [targetArts, setTargetArts] = useState<
-    Art_thumbnail[] | GeneratedImageType[] | undefined
+    (Art_thumbnail | GeneratedImageType)[] | undefined
   >(
     mode === "PRESENTATIONAL"
       ? rest.arts
@@ -254,9 +260,15 @@ const ContentViewer = ({
             {artsByGrid &&
               artsByGrid.map((_, index) => (
                 <div key={index} className="basis-1/2">
-                  {_.map((art, artIndex) => (
+                  {_.map((art) => (
                     <div
-                      key={isDisplayDerivedPost ? art.imageUrl : art.postId}
+                      key={
+                        isDisplayDerivedPost
+                          ? "imageUrl" in art
+                            ? art.imageUrl
+                            : art.postId
+                          : art.postId
+                      }
                       className="relative mb-4"
                     >
                       <ArtCard

@@ -26,8 +26,9 @@ const SearchBar = ({ initKeyword, onSearch }: TypeProp) => {
 
   const handleOnSearch = (_keyword: string) => {
     if (!_keyword && !_keyword.trim()) return;
-
-    onSearch && onSearch(_keyword);
+    if (onSearch) {
+      onSearch(_keyword);
+    }
   };
 
   return (

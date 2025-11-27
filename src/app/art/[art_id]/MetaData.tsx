@@ -6,7 +6,7 @@ import UserInfo from "@/components/UserInfo";
 import { Art } from "@/types/Art";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ALERT_401_TEXT_DESC,
   ALERT_401_TEXT_TITLE,

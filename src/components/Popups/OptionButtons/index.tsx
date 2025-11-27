@@ -32,7 +32,6 @@ type OptionProps = {
 };
 export const Option = ({
   children,
-  blocked,
   onClick,
   href,
   type = "normal",
@@ -41,7 +40,9 @@ export const Option = ({
     className={`flex w-full items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer border-b-1 border-gray-400 text-center last:border-b-0 ${type == "warn" && "text-[#C71313]"}`}
     onClick={(e) => {
       e.stopPropagation();
-      onClick && onClick(e);
+      if (onClick) {
+        onClick(e);
+      }
     }}
   >
     <A href={href}>{children}</A>{" "}

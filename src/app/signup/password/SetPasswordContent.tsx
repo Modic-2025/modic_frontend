@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import PrimaryButton from "@/components/Button/PrimaryButton";
 
-export default function PasswordSetupPage() {
+const PasswordSetupPageContent = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +19,6 @@ export default function PasswordSetupPage() {
   const name = searchParams.get("name");
   const code = searchParams.get("code");
 
-
   const isPasswordValid =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-])[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]{8,20}$/.test(
       password
@@ -30,7 +29,6 @@ export default function PasswordSetupPage() {
 
   const togglePassword = () => setShowPassword((prev) => !prev);
   const toggleConfirm = () => setShowConfirm((prev) => !prev);
-  
 
   const handleSignup = async () => {
     if (!email || !name) {
@@ -53,7 +51,7 @@ export default function PasswordSetupPage() {
             name,
             email,
             password,
-            code
+            code,
           }),
         }
       );
@@ -213,4 +211,12 @@ export default function PasswordSetupPage() {
       </div>
     </div>
   );
-}
+};
+
+const PasswordSetupPage = () => (
+  <Suspense>
+    <PasswordSetupPageContent />
+  </Suspense>
+);
+
+export default PasswordSetupPage;

@@ -1,21 +1,7 @@
-import _fetch from "../fetcher/ClientSide";
-
 interface SaveUrlResponse {
   data: {
     imagePath: string;
     imageSaveUrl: string;
-  };
-}
-
-interface CallbackResponse {
-  data: {
-    imageId: string;
-  };
-}
-
-interface GetUrlResponse {
-  data: {
-    imageGetUrl: string;
   };
 }
 
@@ -123,25 +109,6 @@ const UploadImage = async (
   }
 
   return data;
-};
-
-const UploadImageAI = (
-  file: File,
-  callback: (r: [string, string], e?: unknown) => void,
-  type: UploadType
-): Promise<{ r: [string, string]; e?: unknown } | false> => {
-  const response_saveUrl = _fetch(
-    `${process.env.NEXT_PUBLIC_API_HOST}/api/ai/images/save-url`,
-    true,
-    {
-      body: JSON.stringify({
-        imageUsagePurpose: type,
-        fileName: name,
-      }),
-    }
-  );
-
-  return Promise.resolve(false);
 };
 
 export default UploadImage;

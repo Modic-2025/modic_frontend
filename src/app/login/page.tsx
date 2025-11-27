@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 // 1. useSearchParams 훅을 임포트합니다.
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 // 2. 경로 별칭(@/)을 상대 경로로 수정합니다.
 import api from "../../libs/axiosInstance";
 import PrimaryButton from "../../components/Button/PrimaryButton";
 import { setCookie } from "cookies-next/client";
 
-export default function LoginPage() {
+const LoginPageContent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,19 +48,20 @@ export default function LoginPage() {
         router.push("/art");
       }
     } catch (err) {
+      console.log("err :>> ", err);
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = "https://api.modic.kr/oauth2/authorization/google";
-  };
+  // const handleGoogleLogin = () => {
+  //   window.location.href = "https://api.modic.kr/oauth2/authorization/google";
+  // };
 
-  const handleKakaoLogin = () => {
-    window.location.href = "https://api.modic.kr/oauth2/authorization/kakao";
-  };
+  // const handleKakaoLogin = () => {
+  //   window.location.href = "https://api.modic.kr/oauth2/authorization/kakao";
+  // };
 
   return (
     <div className="w-full h-full bg-white flex flex-col items-center px-6">
@@ -168,4 +169,12 @@ export default function LoginPage() {
       </div> */}
     </div>
   );
-}
+};
+
+const LoginPage = () => (
+  <Suspense fallback={<div>로딩중...(in Suspense)</div>}>
+    <LoginPageContent />
+  </Suspense>
+);
+
+export default LoginPage;

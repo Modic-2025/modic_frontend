@@ -1,7 +1,7 @@
 "use client";
 import UserInfo from "@/components/UserInfo";
 import FollowButton from "../Button";
-import { FollowUser, FollowUserWithStatus, User } from "@/types/User";
+import { FollowUser, FollowUserWithStatus } from "@/types/User";
 import useSWRInfinite from "swr/infinite";
 import { PagingContent } from "@/APIs/search";
 import _fetch from "@/APIs/fetcher/ClientSide";
@@ -49,10 +49,7 @@ const FollowList = ({
     }
     return path;
   };
-  const getKey = (
-    index: number,
-    prevPage: PagingContent<FollowUserWithStatus>
-  ) => {
+  const getKey = (index: number) => {
     const searchParams = new URLSearchParams();
     if (userId) {
       searchParams.append("userId", userId.toString());
@@ -62,11 +59,9 @@ const FollowList = ({
 
     return `${process.env.NEXT_PUBLIC_API_HOST}${getAPIPath(mode)}?${searchParams.toString()}`;
   };
-  const {
-    data: users,
-    isLoading,
-    error,
-  } = useSWRInfinite<PagingContent<FollowUserWithStatus>>(getKey, (url) =>
+  const { data: users, isLoading } = useSWRInfinite<
+    PagingContent<FollowUserWithStatus>
+  >(getKey, (url) =>
     _fetch(url, true).then(async (res) => {
       const body = await res.json();
       if (!body.isSuccess) {

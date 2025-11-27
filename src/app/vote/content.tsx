@@ -42,7 +42,8 @@ const VoteContent = ({
   const [voteException, setVoteException] = useState<
     APIFailureMsg | undefined
   >();
-  const previousVotes: TypeVotePresentational[] = usePrevious(votes);
+  const previousVotes: TypeVotePresentational[] | undefined =
+    usePrevious<TypeVotePresentational[]>(votes);
   const setViewOfCurrVote = async (view: TypeView) => {
     const temp = votes.map((vote, i) => ({
       ...vote,
@@ -144,7 +145,7 @@ const VoteContent = ({
     setLastDecision(safeDecision);
 
     if ("code" in voteResponse) {
-      const { code, title } = voteResponse;
+      const { title } = voteResponse;
       setWarnTitle(title);
       setShowWarn(true);
       return;
@@ -244,9 +245,15 @@ const VoteContent = ({
               );
               break;
             default:
-              content = <p>adf</p>;
+              content = (
+                <ExceptionForm voteException={voteException}>
+                  <Link href="/users/me/created-images">
+                    <PrimaryButton text="2차 창작물 등록하러 가기" />
+                  </Link>
+                </ExceptionForm>
+              );
           }
-          return <SwiperSlide>{content}</SwiperSlide>;
+          return <SwiperSlide key={rest.voteId}>{content}</SwiperSlide>;
         })}
       </Swiper>
     </>

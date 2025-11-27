@@ -2,12 +2,10 @@
 import _fetch from "@/APIs/fetcher/ClientSide";
 import toggleFollowState from "@/APIs/follows/toggle";
 import BlackButton from "@/components/Button/BlackButton";
-import GrayBorderButton from "@/components/Button/GrayBorderButton";
 import GrayButton from "@/components/Button/GrayButton";
 import ClickableImage from "@/components/ClickableImage";
 import Fail from "@/components/Popups/Fail";
 import { User } from "@/types/User";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,14 +16,14 @@ type Counter = {
   value: number;
   href?: string;
 };
-const USER_COUNTER_KEYS = [
-  "postCount",
-  "followerCount",
-  "followingCount",
-  "coin",
-] as const;
+// const USER_COUNTER_KEYS = [
+//   "postCount",
+//   "followerCount",
+//   "followingCount",
+//   "coin",
+// ] as const;
 // 외부에서 보이고 싶지 않은 요소를 지정할 때에도 사용합니다.
-type UserCounterKey = (typeof USER_COUNTER_KEYS)[number];
+type UserCounterKey = "postCount" | "followerCount" | "followingCount" | "coin";
 type UI_Counter = Counter & {
   key: UserCounterKey;
 };
@@ -86,7 +84,6 @@ const UserHeader = ({
   const {
     data: followData,
     isLoading,
-    error,
     mutate: mutateFollowStatus,
   } = useSWR<{ isFollowing: boolean; isSelf: boolean }>(
     `${process.env.NEXT_PUBLIC_API_HOST}/api/follows/status`,
@@ -163,7 +160,7 @@ const UserHeader = ({
           </p>
           <ul className="flex flex-row gap-4 text-center">
             {counters.map(
-              (item, i) =>
+              (item) =>
                 !except?.find((_item) => _item == item.key) && (
                   <Counter {...item} key={item.key} />
                 )

@@ -1,6 +1,3 @@
-import { APIFailureMsg } from "@/APIs";
-import logout from "@/APIs/auth/logout";
-import _fetch from "@/APIs/fetcher/ClientSide";
 import { getUserMe } from "@/APIs/UserAPI";
 import Image from "next/image";
 import Link from "next/link";

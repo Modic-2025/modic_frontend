@@ -1,10 +1,4 @@
-import {
-  APIFailureMsg,
-  DESC_401,
-  DESC_500,
-  TITLE_401,
-  TITLE_500,
-} from "@/APIs";
+import { APIFailureMsg, DESC_401, TITLE_401 } from "@/APIs";
 import _fetch from "@/APIs/fetcher/ClientSide";
 
 export const BUY_PERMISSION_COIN_400 = "코인이 부족합니다.";

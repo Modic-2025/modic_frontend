@@ -41,6 +41,7 @@ export default function ProfileEditAuthPage() {
         setShowErrorPopup(true);
       }
     } catch (error) {
+      console.log("error :>> ", error);
       setErrorMessage("비밀번호 확인 중 오류가 발생했습니다.");
       setShowErrorPopup(true);
     } finally {
