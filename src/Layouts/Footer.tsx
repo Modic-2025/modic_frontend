@@ -20,7 +20,7 @@ type MenuType = (typeof MENUS)[keyof typeof MENUS];
 const NAV_BUTTONS: Array<NavButtonType> = [
   {
     value: MENUS.HOME,
-    href: "/",
+    href: "/art",
     alt: "피드",
     selected: true,
     icon: "/IconHome.svg",
