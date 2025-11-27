@@ -312,6 +312,9 @@ const LandingPage = () => {
             </div>
           </div> */}
 
+          <div className="text-center text-gray-400 text-[10px] mt-4">
+            Contact: hellomodic@gmail.com
+          </div>
           <div className="text-center text-gray-300 text-[10px] mt-4">
             © 2026 Team MODIC. All rights reserved
           </div>
