@@ -44,9 +44,12 @@ const ArtCard = ({
     setIsImageLoaded(true);
   };
 
+  const safeAlt =
+    "imageUrl" in data ? `Image ${data.imageId}` : `Image ${postId}`;
+
   const commonImageProps = {
     src: safeThumbnailUrl,
-    alt: safeThumbnailUrl,
+    alt: safeAlt,
     width: 200,
     height: 200,
     className: `w-full h-full object-cover transition-opacity duration-300`,
