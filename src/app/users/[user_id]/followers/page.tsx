@@ -1,10 +1,10 @@
 import FollowList from "@/components/Follow/List";
 import { cookies } from "next/headers";
 
-const Page = async ({ params }: { params: { user_id: number } }) => {
+const Page = async ({ params }: { params: Promise<{ user_id: number }> }) => {
   const cookieList = await cookies();
   const token = cookieList.get("accessToken");
-  const { user_id } = params;
+  const { user_id } = await params;
   return (
     <FollowList
       mode={token ? "FOLLOWERS_WITH_STATUS" : "FOLLOWERS"}

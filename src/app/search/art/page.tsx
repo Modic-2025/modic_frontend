@@ -4,14 +4,17 @@ import SearchArtContent from "./content";
 import { APIFailureMsg } from "@/APIs";
 import PlaceHolder from "..";
 import Error from "../_error";
+import { Suspense } from "react";
 
-const SearchArtPage = async ({
+export const dynamic = "force-dynamic";
+
+const SearchArtPageContent = async ({
   searchParams,
 }: {
-  searchParams: { q: string };
+  searchParams: any;
 }) => {
-  const q = searchParams.q ?? "";
-  const safeKeyword = q && q.trim();
+  const q = (searchParams?.q as string) ?? "";
+  const safeKeyword = q.trim();
   if (!safeKeyword) {
     return <PlaceHolder />;
   }
@@ -24,5 +27,11 @@ const SearchArtPage = async ({
 
   return <SearchArtContent data={response} />;
 };
+
+const SearchArtPage = ({ searchParams }: { searchParams: any }) => (
+  <Suspense>
+    <SearchArtPageContent searchParams={searchParams} />
+  </Suspense>
+);
 
 export default SearchArtPage;

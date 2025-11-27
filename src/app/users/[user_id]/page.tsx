@@ -1,15 +1,8 @@
 import ContentViewer from "@/components/ContentViewer";
 import UserHeader from "../UserHeader";
-import { HEADER_CONTENTS } from "@/Layouts";
 import { User } from "@/types/User";
 import _fetch from "@/APIs/fetcher/ServerSide";
 import { NO_POSTS } from "@/components/ContentViewer/placeholders";
-
-const headerContents = [
-  HEADER_CONTENTS.BACKWARD,
-  HEADER_CONTENTS.TITLE,
-  { ...HEADER_CONTENTS.OPTION_DOTTED, goTo: "/settings" },
-];
 
 const Page = async ({ params }: { params: Promise<{ user_id: string }> }) => {
   const { user_id } = await params;
@@ -17,6 +10,7 @@ const Page = async ({ params }: { params: Promise<{ user_id: string }> }) => {
   try {
     safeUserId = Number(user_id);
   } catch (e) {
+    console.error(e);
     console.error(
       `Path '/users/[user_id]' 에서 user_id를 number 형으로 변환하지 못했습니다.\nuser_id: ${user_id}, safeUserId: ${safeUserId}`
     );
@@ -34,7 +28,7 @@ const Page = async ({ params }: { params: Promise<{ user_id: string }> }) => {
     return <p> failed to load user {safeUserId}</p>;
   }
   const user: User = { ...custom_response.data, id: safeUserId };
-  console.log("user :>> ", user);
+
   return (
     <>
       <UserHeader user={user} except={["coin"]} />

@@ -35,7 +35,7 @@ const layout = async ({
     );
   }
 
-  const { userId, postId, postStatus, title, images } = response;
+  const { postId, postStatus, title, images } = response;
 
   const user = await getUserMe();
   const isAuthor: boolean = Boolean(user && response.userId == user.userId);

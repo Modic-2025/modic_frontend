@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Background } from "../Popups";
 import Image from "next/image";
-import { preload } from "react-dom";
 
 type ClickableImageType = {
   src: string;

@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+// import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const clientId = process.env.GOOGLE_ID!;
   const redirectUri = process.env.GOOGLE_REDIRECT_URI!;
   const scope = process.env.GOOGLE_SCOPE!;

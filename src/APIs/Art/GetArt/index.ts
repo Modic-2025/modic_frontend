@@ -2,7 +2,7 @@ import { APIFailureMsg, TITLE_500 } from "@/APIs";
 import _fetch from "@/APIs/fetcher/ServerSide";
 import { Art } from "@/types/Art";
 
-type ApiResponse<T> = {
+type ApiResponse = {
   isSuccess: boolean;
   status: number;
   data?: Art;
@@ -21,7 +21,7 @@ const GetPost = async (
     // 4. JSON 파싱
     // 만약 _fetch가 5xx 에러 시 HTML을 반환하면 .json()에서 에러가 발생하여
     // 아래 catch 블록으로 이동합니다.
-    const responseData: ApiResponse<Art> = await response.json();
+    const responseData: ApiResponse = await response.json();
 
     const { status, data, message } = responseData;
 

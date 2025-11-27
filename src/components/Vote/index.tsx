@@ -1,5 +1,4 @@
 import { Vote } from "@/types/Vote";
-import Image from "next/image";
 import ClickableImage from "../ClickableImage";
 
 const VoteForm = ({

@@ -19,13 +19,16 @@ const NOT_DEFINED_NOTIFICATION: Notification = {
   title: "정의되지 않은 알림",
   body: "",
   postId: -1,
+  senderId: -1, // userId
+  hasSenderImage: false,
+  senderImageUrl: "", // userImage
   createdAt: new Date(),
 };
 type NotificationPagingData = TypePaging & {
   content: Notification[];
 };
 const NotificationList = () => {
-  const { data, isLoading, error } = useSWRInfinite<NotificationPagingData>(
+  const { data, isLoading } = useSWRInfinite<NotificationPagingData>(
     (index, prevPageData) => {
       if (prevPageData && prevPageData.isLast) return null; // stop
       const page = index; // API is 0-based -> index maps directly

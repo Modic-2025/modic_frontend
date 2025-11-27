@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { APIFailureMsg, TITLE_500 } from "@/APIs"; // 👈 APIFailureMsg의 실제 경로로 수정하세요.
 import getTickets from "..";
 import useSWR from "swr";

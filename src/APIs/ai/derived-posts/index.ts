@@ -31,7 +31,7 @@ export const createDerivedPost = async (
     )
   ).json();
 
-  const { status, code, message, isSuccess } = response;
+  const { status, message, isSuccess } = response;
 
   if (!isSuccess) {
     switch (status) {
@@ -68,6 +68,6 @@ export const createDerivedPost = async (
   }
 
   // Success
-  let { postId } = response.data;
+  const { postId } = response.data;
   return postId;
 };

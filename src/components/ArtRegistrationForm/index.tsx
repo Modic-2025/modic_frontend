@@ -50,7 +50,7 @@ const ArtRegistrationForm = ({
     art?.nonCommercialPrice ? art?.nonCommercialPrice : undefined
   );
 
-  const onClickCreatePost = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onClickCreatePost = async () => {
     if (images.length < 1) {
       alert(TEXT_IMAGE_RESTRICTION);
       return;

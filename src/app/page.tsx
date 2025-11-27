@@ -1,11 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import {
   Mail,
   Lock,
   ArrowRight,
-  Apple,
-  MessageCircle,
   Image as ImageIcon,
   AlertCircle,
 } from "lucide-react";
@@ -15,7 +13,7 @@ import { setCookie } from "cookies-next";
 import Link from "next/link";
 import Image from "next/image";
 
-const LandingPage = () => {
+const LandingPageContent = () => {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,6 +67,7 @@ const LandingPage = () => {
         router.push("/art");
       }
     } catch (err) {
+      console.error(err);
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
@@ -341,5 +340,11 @@ const LandingPage = () => {
     </div>
   );
 };
+
+const LandingPage = () => (
+  <Suspense fallback={<div>로딩중...(in Suspense)</div>}>
+    <LandingPageContent />
+  </Suspense>
+);
 
 export default LandingPage;

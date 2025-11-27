@@ -2,14 +2,13 @@
 
 import { Suspense, useState } from "react";
 // 1. useSearchParams 훅을 임포트합니다.
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import api from "@/libs/axiosInstance";
 import PrimaryButton from "@/components/Button/PrimaryButton";
 import { setCookie } from "cookies-next/client";
 
-// 3. 기존의 모든 로직을 LoginForm이라는 내부 컴포넌트로 옮깁니다.
-const LoginForm = () => {
+const LoginPageContent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,19 +47,20 @@ const LoginForm = () => {
         router.push("/art");
       }
     } catch (err) {
+      console.log("err :>> ", err);
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = "https://api.modic.kr/oauth2/authorization/google";
-  };
+  // const handleGoogleLogin = () => {
+  //   window.location.href = "https://api.modic.kr/oauth2/authorization/google";
+  // };
 
-  const handleKakaoLogin = () => {
-    window.location.href = "https://api.modic.kr/oauth2/authorization/kakao";
-  };
+  // const handleKakaoLogin = () => {
+  //   window.location.href = "https://api.modic.kr/oauth2/authorization/kakao";
+  // };
 
   // 6. 기존의 모든 JSX를 여기서 반환합니다.
   return (
@@ -171,36 +171,10 @@ const LoginForm = () => {
   );
 };
 
-// 7. export default하는 페이지 컴포넌트입니다.
-export default function LoginPage() {
-  // 8. 여기서 <Suspense>로 LoginForm을 감싸줍니다.
-  return (
-    <Suspense fallback={<LoginPageLoading />}>
-      <LoginForm />
-    </Suspense>
-  );
-}
+const LoginPage = () => (
+  <Suspense fallback={<div>로딩중...(in Suspense)</div>}>
+    <LoginPageContent />
+  </Suspense>
+);
 
-// 9. Suspense의 fallback으로 보여줄 간단한 로딩 컴포넌트입니다.
-//    (더 복잡한 스켈레톤 UI로 대체할 수 있습니다.)
-const LoginPageLoading = () => {
-  return (
-    <div className="w-full h-full bg-white flex flex-col items-center px-6 animate-pulse">
-      <h1
-        className="text-[57.736px] font-[900] text-gray-300 mt-[120px] mb-[40px] text-center"
-        style={{ fontFamily: "Inter" }}
-      >
-        MODIC
-      </h1>
-      <div className="flex flex-col items-center gap-4 w-full max-w-xs">
-        <div className="w-full h-[58px] rounded-[8px] bg-gray-200" />
-        <div className="relative w-full mt-[16px]">
-          <div className="w-full h-[58px] rounded-[8px] bg-gray-200" />
-        </div>
-        <div className="mt-[24px] w-full">
-          <div className="w-full h-[58px] rounded-[8px] bg-gray-300" />
-        </div>
-      </div>
-    </div>
-  );
-};
+export default LoginPage;

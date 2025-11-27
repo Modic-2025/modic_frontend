@@ -16,11 +16,11 @@ export default function ProfileEditPage() {
   const router = useRouter();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [updateToken, setUpdateToken] = useState<string | null>(null);
-  const { data: user, error } = useUserMe(accessToken);
+  const { data: user } = useUserMe(accessToken);
 
   // 프로필 이미지 변경 상태
   const [imageChanged, setImageChanged] = useState(false);
-  const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
+  // const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
 
   // 비밀번호 변경 상태
   const [newPassword, setNewPassword] = useState("");
@@ -51,9 +51,9 @@ export default function ProfileEditPage() {
     setUpdateToken(editToken);
   }, [router]);
 
-  const handleUploadSuccess = (imageUrl: string, imageId: string) => {
+  const handleUploadSuccess = () => {
     setImageChanged(true);
-    setUploadedImageId(imageId);
+    // setUploadedImageId(imageId);
     // SWR 캐시 갱신
     if (accessToken) {
       mutate([
@@ -123,6 +123,7 @@ export default function ProfileEditPage() {
           return;
         }
       } catch (error) {
+        console.log("error :>> ", error);
         setErrorMessage("비밀번호 변경 중 오류가 발생했습니다.");
         setShowErrorPopup(true);
         setIsLoading(false);

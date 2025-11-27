@@ -9,7 +9,7 @@ const getAiUrl = async (requestId: string): Promise<string | APIFailureMsg> => {
     )
   ).json();
 
-  const { isSuccess, status, data } = response;
+  const { status, data } = response;
 
   if (status === 200) {
     const { imageGetUrl } = data;

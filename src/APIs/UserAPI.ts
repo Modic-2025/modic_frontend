@@ -1,4 +1,4 @@
-import { User, UserMe } from "@/types/User";
+import { UserMe } from "@/types/User";
 
 import serverFetch from "./fetcher/ServerSide";
 

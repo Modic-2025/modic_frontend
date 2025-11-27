@@ -13,10 +13,12 @@ import ReactFlow, {
   Connection,
   ConnectionLineType,
   NodeProps,
-  // 1. ReactFlowProvider를 임포트합니다.
   ReactFlowProvider,
   useReactFlow,
   Background,
+  OnNodesChange,
+  OnEdgesChange,
+  NodeTypes,
 } from "reactflow";
 
 // React Flow CSS 임포트
@@ -120,10 +122,10 @@ const TreeCanvas = ({
 }: {
   nodes: Node<PostNodeData>[];
   edges: Edge[];
-  onNodesChange: any; // UseNodesState의 onNodesChange 타입
-  onEdgesChange: any; // UseEdgesState의 onEdgesChange 타입
+  onNodesChange: OnNodesChange; // UseNodesState의 onNodesChange 타입
+  onEdgesChange: OnEdgesChange; // UseEdgesState의 onEdgesChange 타입
   onConnect: (params: Connection) => void;
-  nodeTypes: any; // useMemo로 생성된 nodeTypes 타입
+  nodeTypes: NodeTypes; // useMemo로 생성된 nodeTypes 타입
   selectedPost: TypeTreeItem | null;
   lastSelectedPost: TypeTreeItem | null;
 }) => {
@@ -172,23 +174,23 @@ const TreeCanvas = ({
 // --- 4. 메인 컴포넌트 (상태 관리 및 Provider 제공) ---
 const DrvTreeFlow = ({ data }: { data: TypeTreeItem[] }) => {
   const [selectedPost, setSelectedPost] = useState<TypeTreeItem | null>(null);
-  const [sameDepthPosts, setSameDepthPosts] = useState<TypeTreeItem[] | null>(
-    null
-  );
+  // const [sameDepthPosts, setSameDepthPosts] = useState<TypeTreeItem[] | null>(
+  //   null
+  // );
   const [lastSelectedPost, setLastSelectedPost] = useState<TypeTreeItem | null>(
     null
   );
 
-  useEffect(() => {
-    if (selectedPost) {
-      const { parentPostId } = selectedPost;
-      setSameDepthPosts(
-        data.filter((item) => item.parentPostId === parentPostId)
-      );
-    } else {
-      setSameDepthPosts(null);
-    }
-  }, [selectedPost, data]);
+  // useEffect(() => {
+  //   if (selectedPost) {
+  //     const { parentPostId } = selectedPost;
+  //     setSameDepthPosts(
+  //       data.filter((item) => item.parentPostId === parentPostId)
+  //     );
+  //   } else {
+  //     setSameDepthPosts(null);
+  //   }
+  // }, [selectedPost, data]);
 
   // 노드 클릭 핸들러
   const handleNodeClick = useCallback(

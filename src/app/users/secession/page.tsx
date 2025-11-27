@@ -1,4 +1,3 @@
-import _fetch from "@/APIs/fetcher/ClientSide";
 import { AlertForm, CenteredLayout } from "@/components/Layout";
 import SecessionContent from "./content";
 

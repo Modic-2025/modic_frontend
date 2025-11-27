@@ -16,12 +16,11 @@ import Coins from "@/components/Layout/components/Header/Coins";
 import Tickets from "@/components/Layout/components/Header/Tickets";
 import Search from "@/components/Layout/components/Header/Search";
 import Close from "@/components/Layout/components/Header/Close";
-import { JSX, useEffect, useState } from "react";
+import { JSX } from "react";
 import { usePathname } from "next/navigation";
-import { User, UserMe } from "@/types/User";
+import { UserMe } from "@/types/User";
 import { getCookie } from "cookies-next";
 import useUserMe from "@/hooks/UseUserMe";
-import { getUser } from "@/APIs/profiles";
 import useUser from "@/hooks/UseUser";
 
 const getHeaderComponent = (
@@ -90,12 +89,7 @@ const Header = () => {
 
   const token = getCookie("accessToken")?.toString();
   const { data: userMe }: { data: UserMe | undefined } = useUserMe(token || "");
-  const {
-    data: user,
-    isLoading,
-    error,
-  } = useUser(extractUserIdFromPath(pathName) ?? -1);
-  // const user: User | null = getUser(extractUserIdFromPath(pathName) ?? -1);
+  const { data: user } = useUser(extractUserIdFromPath(pathName) ?? -1);
 
   const headerContent =
     SETTING_HEADER_CONTENTS[convertToRoutePattern(pathName)];

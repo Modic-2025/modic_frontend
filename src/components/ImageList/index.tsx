@@ -52,7 +52,7 @@ const ImageList = ({
   const [images, setImages] = useState<ImageType[]>(items || []);
 
   // Flags
-  const editMode = mode === "EDIT";
+  // const editMode = mode === "EDIT";
   const readonlyMode = mode === "READ-ONLY";
   const onlyoneMode = mode === "ONLY-ONE";
 
@@ -65,7 +65,9 @@ const ImageList = ({
 
   // Trigging onChange callback
   useEffect(() => {
-    onChange && onChange(images);
+    if (onChange) {
+      onChange(images);
+    }
   }, [images]);
 
   // For dnd

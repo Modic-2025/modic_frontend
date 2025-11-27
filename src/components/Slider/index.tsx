@@ -1,11 +1,11 @@
 "use client";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide, SwiperClass } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { ImageType } from "@/types/Art";
 
@@ -18,26 +18,38 @@ const Slider = (props: {
   type?: layoutType;
 }) => {
   const { items, maxItemNum = 1, children, type = "DEFAULT" } = props;
-  const isMaxItemNumUsed = maxItemNum <= 1;
+  // const isMaxItemNumUsed = maxItemNum <= 1;
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [length, setLength] = useState<number>(maxItemNum);
+  // const [length, setLength] = useState<number>(maxItemNum);
+  // const [length, setLength] = useState<number>(maxItemNum);
 
-  useEffect(() => {
-    if (isMaxItemNumUsed && items && items.length > 0) {
-      setLength(items.length);
-    }
-  }, [items]);
+  // useEffect(() => {
+  //   if (isMaxItemNumUsed && items && items.length > 0) {
+  //     setLength(items.length);
+  //   }
+  // }, [items]);
 
   // const currentIndexView = isMaxItemNumUsed ? currentIndex : currentIndex + 1;
 
   const isPANORAMA = type == "PANORAMA";
 
   const swiperClassName = `w-full rounded-lg ${isPANORAMA ? "h-[100px]" : "h-80"}`;
-  const swiperProps = {
+  interface SwiperProps {
+    modules: any[];
+    className: string;
+    onSlideChange: (e: SwiperClass) => void;
+    slidesPerView?: number;
+    spaceBetween?: number;
+    pagination: {
+      clickable: boolean;
+    };
+  }
+
+  const swiperProps: SwiperProps = {
     modules: [Navigation],
     className: swiperClassName,
-    onSlideChange: (e: any) => setCurrentIndex(e.activeIndex),
+    onSlideChange: (e: SwiperClass) => setCurrentIndex(e.activeIndex),
     slidesPerView: isPANORAMA ? 3 : undefined,
     spaceBetween: isPANORAMA ? 12 : undefined,
     pagination: {
@@ -48,7 +60,7 @@ const Slider = (props: {
   return (
     <Swiper {...swiperProps}>
       {items &&
-        items.map((item, index) => (
+        items.map((item) => (
           <SwiperSlide
             key={typeof item == "string" ? item : item.imageUrl}
             className="flex justify-center items-center"

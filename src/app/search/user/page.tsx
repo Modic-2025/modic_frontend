@@ -1,10 +1,13 @@
 import SearchUserContent from "./content";
 import PlaceHolder from "..";
+import { Suspense } from "react";
 
-const SearchUserPage = async ({
+export const dynamic = "force-dynamic";
+
+const SearchUserPageContent = async ({
   searchParams,
 }: {
-  searchParams: { q: string };
+  searchParams: any;
 }) => {
   const q = searchParams.q ?? "";
   const safeKeyword = q && q.trim();
@@ -20,5 +23,11 @@ const SearchUserPage = async ({
 
   return <SearchUserContent keyword={safeKeyword} />;
 };
+
+const SearchUserPage = ({ searchParams }: { searchParams: any }) => (
+  <Suspense>
+    <SearchUserPageContent searchParams={searchParams} />
+  </Suspense>
+);
 
 export default SearchUserPage;

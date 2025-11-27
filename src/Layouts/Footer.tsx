@@ -107,8 +107,7 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
   useEffect(() => {
     setSelectedTab(matchPathnameToTab(pathname));
   }, [pathname]);
-  const [navButtons, setNavButtons] =
-    useState<Array<NavButtonType>>(NAV_BUTTONS);
+  const [navButtons] = useState<Array<NavButtonType>>(NAV_BUTTONS);
 
   const { data: notiCount, mutate } = useNotificationCount(!isNoFooter);
   // Update `selectedTab` by current pathname
@@ -162,8 +161,6 @@ const NavButton = ({
   selectedIcon,
   showsBadge,
 }: NavButtonType) => {
-  const [_value, setValue] = useState<MenuType>(value);
-
   return (
     <Link
       href={href}
@@ -173,7 +170,7 @@ const NavButton = ({
         <span className="absolute rounded-full w-3 h-3 top-3 ml-4 bg-(--color-main) motion-preset-fade"></span>
       )}
       <button
-        onClick={(e) => onClick && onClick(value)}
+        onClick={() => onClick && onClick(value)}
         className="w-full cursor-pointer"
       >
         <Image

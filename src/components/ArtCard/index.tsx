@@ -1,8 +1,7 @@
 import { Art_thumbnail, GeneratedImageType } from "@/types/Art";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { preload } from "react-dom";
+import { useState } from "react";
 
 const ArtCard = ({
   data,
@@ -23,7 +22,9 @@ const ArtCard = ({
 
   // on click card
   const onClickCard = () => {
-    onClick && onClick(data);
+    if (onClick) {
+      onClick(data);
+    }
   };
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);

@@ -12,14 +12,14 @@ const ToolTip = ({ children, text, duration = 500 }: TypeToolTip) => {
     typeof setTimeout
   > | null>(null);
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
+  const handleMouseEnter = (_e?: React.MouseEvent) => {
     const id = setTimeout(() => {
       setIsShow(true);
     }, duration);
     setTimeoutId(id);
   };
 
-  const handleMouseLeave = (e: React.MouseEvent) => {
+  const handleMouseLeave = (_e?: React.MouseEvent) => {
     setIsShow(false);
     if (timeoutId) {
       clearTimeout(timeoutId);
@@ -27,30 +27,41 @@ const ToolTip = ({ children, text, duration = 500 }: TypeToolTip) => {
     }
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (_e?: React.MouseEvent) => {
     setIsShow(true);
   };
 
   // children이 유효한 React element면 기존 props를 보존하며 이벤트 병합해서 주입
   if (React.isValidElement(children)) {
-    const existingOnMouseEnter = (children.props as any).onMouseEnter;
-    const existingOnMouseLeave = (children.props as any).onMouseLeave;
-    const existingOnClick = (children.props as any).onClick;
+    const child = children as React.ReactElement;
+    type ChildProps = {
+      onMouseEnter?: (e: React.MouseEvent) => void;
+      onMouseLeave?: (e: React.MouseEvent) => void;
+      onClick?: (e: React.MouseEvent) => void;
+    };
+    const {
+      onMouseEnter: existingOnMouseEnter,
+      onMouseLeave: existingOnMouseLeave,
+      onClick: existingOnClick,
+    } = (child.props as ChildProps) || {};
 
-    const merged = React.cloneElement(children, {
-      onMouseEnter: (e: React.MouseEvent) => {
-        existingOnMouseEnter?.(e);
-        handleMouseEnter(e);
-      },
-      onMouseLeave: (e: React.MouseEvent) => {
-        existingOnMouseLeave?.(e);
-        handleMouseLeave(e);
-      },
-      onClick: (e: React.MouseEvent) => {
-        existingOnClick?.(e);
-        handleClick(e);
-      },
-    });
+    const merged = React.cloneElement<ChildProps>(
+      child as React.ReactElement<ChildProps>,
+      {
+        onMouseEnter: (e: React.MouseEvent) => {
+          existingOnMouseEnter?.(e);
+          handleMouseEnter(e);
+        },
+        onMouseLeave: (e: React.MouseEvent) => {
+          existingOnMouseLeave?.(e);
+          handleMouseLeave(e);
+        },
+        onClick: (e: React.MouseEvent) => {
+          existingOnClick?.(e);
+          handleClick(e);
+        },
+      }
+    );
 
     return (
       <>

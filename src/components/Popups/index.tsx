@@ -24,9 +24,11 @@ export const PopupWrapper = ({
   onClick?: () => void;
 }) => (
   <div
-    onClick={(e: any) => {
+    onClick={(e) => {
       e.stopPropagation();
-      onClick && onClick();
+      if (onClick) {
+        onClick();
+      }
     }}
     className="w-xs min-h-[100px] bg-white rounded-xl p-4 text-center motion-preset-expand motion-duration-300"
   >
