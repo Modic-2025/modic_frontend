@@ -10,7 +10,7 @@ const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
     <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
       <Header />
       <main className="absolute h-[calc(100vh-48px)] w-full overflow-y-auto px-[16px] pt-[12px] pb-14">
-        {/* <GoogleOAuthProvider> */}
+        {/* <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_ID ?? ""}> */}
         {children}
         {/* </GoogleOAuthProvider> */}
       </main>
