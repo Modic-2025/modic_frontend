@@ -255,10 +255,11 @@ const LandingPage = () => {
               onClick={() =>
                 handleSubmit(new Event("submit") as unknown as React.FormEvent)
               }
-              className="w-full bg-[#1a1a1a] text-white py-4 rounded-2xl font-bold text-md md:text-base hover:bg-black active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 shadow-lg shadow-gray-200"
+              disabled={loading}
+              className="w-full bg-[#1a1a1a] text-white py-4 rounded-2xl font-bold text-md md:text-base hover:bg-black active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 shadow-lg shadow-gray-200 disabled:bg-gray-400"
             >
-              {isLoginMode ? "시작하기" : "가입하기"}
-              <ArrowRight size={18} />
+              {!loading ? "시작하기" : "로그인 중 .."}
+              {!loading && <ArrowRight size={18} />}
             </button>
             <Link
               href="/art"
