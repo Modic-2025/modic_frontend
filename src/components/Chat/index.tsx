@@ -517,7 +517,7 @@ const Chat = ({ artId, chatHistory, page }: PropChat) => {
   return (
     <>
       <div
-        className="absolute width-full height-full overflow-y-auto p-4 pb-16 inset-0"
+        className="absolute width-full height-full overflow-y-auto p-4 inset-0"
         ref={chatRef}
       >
         {/* Buy permissions window */}
