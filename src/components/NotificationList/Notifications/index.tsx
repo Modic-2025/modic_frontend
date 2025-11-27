@@ -21,7 +21,7 @@ const NotificationTemplate = ({
   <li
     className={`flex items-center min-h-20 ${isUnread ? "bg-(--color-light-main)" : "bg-white"} border-b-(--color-gray-2) border-b-1 last:border-none`}
   >
-    <Link href={href} className="flex flex-row gap-2 px-1">
+    <Link href={href} className="flex flex-row gap-2 px-1 w-full">
       <section className="flex basis-12">
         <Image src={iconSrc} alt={iconSrc} width={48} height={48} />
       </section>
