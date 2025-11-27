@@ -7,9 +7,9 @@ const NO_FOOTER_PATHS = ["/art/ai/[art_id]", "/login", "/"];
 
 const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
-    <main className="absolute inset-x-0 mx-auto w-full max-w-sm min-h-screen bg-white shadow-lg p-0">
+    <main className="absolute inset-x-0 mx-auto w-full max-w-sm bg-white shadow-lg p-0 full-screen-wrapper">
       <Header />
-      <main className="absolute h-[calc(100vh-48px)] w-full overflow-y-auto px-[16px] pt-[12px] pb-14">
+      <main className="absolute h-[calc(100vh-48px-56px)] w-full overflow-y-auto px-4 pt-[12px] pb-4">
         {/* <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_ID ?? ""}> */}
         {children}
         {/* </GoogleOAuthProvider> */}

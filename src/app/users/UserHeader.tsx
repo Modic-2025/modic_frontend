@@ -147,7 +147,7 @@ const UserHeader = ({
           onCancel={() => setShowPopup(false)}
         />
       )}
-      <div className="flex flex-row justify-between gap-6 px-2">
+      <div className="flex flex-row justify-between gap-2 px-2">
         <div className="basis-1/4">
           <div className="relative overflow-hidden w-full h-full rounded-full">
             <ClickableImage

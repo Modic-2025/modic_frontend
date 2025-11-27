@@ -48,14 +48,14 @@ const layout = async ({
       name: "정보",
       href: `/art/${postId}`,
     },
-    {
-      name: "후기",
-      href: `/art/${postId}/reviews`,
-    },
-    {
-      name: "문의",
-      href: `/art/${postId}/qnas`,
-    },
+    // {
+    //   name: "후기",
+    //   href: `/art/${postId}/reviews`,
+    // },
+    // {
+    //   name: "문의",
+    //   href: `/art/${postId}/qnas`,
+    // },
   ];
   const isDerivedPost = postStatus.startsWith("DERIVED_");
   return (

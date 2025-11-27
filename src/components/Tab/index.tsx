@@ -42,7 +42,7 @@ const Tab = ({
 
   return (
     tabs && (
-      <div className="flex flex-row border-b border-gray-200 text-sm font-medium">
+      <div className="flex border-b border-gray-200 text-sm font-medium">
         {_tabs &&
           _tabs.map((tab) => (
             <TabButton

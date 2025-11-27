@@ -89,7 +89,7 @@ const LandingPage = () => {
 
   return (
     // h-[100dvh]: 모바일 브라우저 상단/하단 바에 가려지지 않게 동적 높이 사용
-    <div className="fixed top-0 left-0 w-full z-10 h-[100dvh] bg-[#FF8820] flex items-center justify-center overflow-hidden font-sans">
+    <div className="fixed top-0 left-0 w-full z-10 bg-[#FF8820] flex items-center justify-center overflow-hidden font-sans h-svh">
       {/* 배경 장식 (반응형 크기 조절) */}
       {/* <div className="absolute top-[-10%] right-[-10%] w-64 h-64 md:w-96 md:h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-48 h-48 md:w-80 md:h-80 bg-orange-600/20 rounded-full blur-3xl pointer-events-none" /> */}
@@ -255,10 +255,11 @@ const LandingPage = () => {
               onClick={() =>
                 handleSubmit(new Event("submit") as unknown as React.FormEvent)
               }
-              className="w-full bg-[#1a1a1a] text-white py-4 rounded-2xl font-bold text-md md:text-base hover:bg-black active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 shadow-lg shadow-gray-200"
+              disabled={loading}
+              className="w-full bg-[#1a1a1a] text-white py-4 rounded-2xl font-bold text-md md:text-base hover:bg-black active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 shadow-lg shadow-gray-200 disabled:bg-gray-400"
             >
-              {isLoginMode ? "시작하기" : "가입하기"}
-              <ArrowRight size={18} />
+              {!loading ? "시작하기" : "로그인 중 .."}
+              {!loading && <ArrowRight size={18} />}
             </button>
             <Link
               href="/art"
