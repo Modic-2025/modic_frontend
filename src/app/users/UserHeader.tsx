@@ -174,7 +174,7 @@ const UserHeader = ({
       <div className="flex flex-row w-full gap-2 font-bold my-3">
         {isAboutMe ? (
           <>
-            <BlackButton href="/users/me/edit">프로필 편집 </BlackButton>
+            {/* <BlackButton href="/users/me/edit">프로필 편집</BlackButton> */}
             {/* <GrayBorderButton href="/coin">코인 충전</GrayBorderButton> */}
           </>
         ) : (
