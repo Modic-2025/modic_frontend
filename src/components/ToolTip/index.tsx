@@ -8,14 +8,23 @@ type TypeToolTip = {
 const ToolTip = ({ children, text, duration = 500 }: TypeToolTip) => {
   const [isShow, setIsShow] = useState<boolean>(false);
 
+  const [timeoutId, setTimeoutId] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
   const handleMouseEnter = (e: React.MouseEvent) => {
-    setTimeout(() => {
+    const id = setTimeout(() => {
       setIsShow(true);
     }, duration);
+    setTimeoutId(id);
   };
 
   const handleMouseLeave = (e: React.MouseEvent) => {
     setIsShow(false);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      setTimeoutId(null);
+    }
   };
 
   const handleClick = (e: React.MouseEvent) => {

@@ -104,9 +104,9 @@ const LandingPage = () => {
             - min-h-0: flex container 안에서 내용물이 넘칠 때 줄어들 수 있게 함 (중요)
             - overflow-hidden: 화면이 작아지면 폰 이미지가 잘리더라도 레이아웃을 깨지 않음
         */}
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0 overflow-hidden relative">
+        <div className="flex-1 flex flex-col items-center justify-between min-h-0 overflow-hidden relative">
           {/* 타이포그래피 (화면 높이가 아주 작으면 숨김) */}
-          <div className="text-left w-full px-8 mb-4 md:mb-8 shrink-0 z-20 transition-all duration-300">
+          <div className="text-left w-full px-4 mb-4 md:mb-8 shrink-0 z-20 transition-all duration-300">
             <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter transition-all">
               MODIC
             </h1>
@@ -264,12 +264,12 @@ const LandingPage = () => {
               href="/art"
               className="underline text-(--color-gray-4) text-center text-xs"
             >
-              혹은 간단히 둘러보기
+              간단히 둘러보기
             </Link>
           </form>
 
           {/* 소셜 로그인 */}
-          <div className="mt-4 md:mt-8">
+          {/* <div className="mt-4 md:mt-8">
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-100"></div>
@@ -310,8 +310,11 @@ const LandingPage = () => {
                 </svg>
               </button>
             </div>
-          </div>
+          </div> */}
 
+          <div className="text-center text-gray-400 text-[10px] mt-4">
+            Contact: hellomodic@gmail.com
+          </div>
           <div className="text-center text-gray-300 text-[10px] mt-4">
             © 2026 Team MODIC. All rights reserved
           </div>

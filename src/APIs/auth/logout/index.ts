@@ -5,6 +5,7 @@ const logout = async (): Promise<boolean | APIFailureMsg> => {
   const response = await (
     await _fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/auth/logout`, true, {
       method: "POST",
+      credentials: "include",
     })
   ).json();
   const { isSuccess, status } = response;

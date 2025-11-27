@@ -104,6 +104,9 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
   const [selectedTab, setSelectedTab] = useState<MenuType>(
     matchPathnameToTab(pathname)
   );
+  useEffect(() => {
+    setSelectedTab(matchPathnameToTab(pathname));
+  }, [pathname]);
   const [navButtons, setNavButtons] =
     useState<Array<NavButtonType>>(NAV_BUTTONS);
 
@@ -164,7 +167,7 @@ const NavButton = ({
   return (
     <Link
       href={href}
-      className="basis-1/4 flex justify-center items-center cursor-pointer"
+      className="basis-1/4 flex h-full justify-center items-center cursor-pointer"
     >
       {showsBadge && (
         <span className="absolute rounded-full w-3 h-3 top-3 ml-4 bg-(--color-main) motion-preset-fade"></span>

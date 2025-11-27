@@ -21,7 +21,7 @@ export default function SecondartButton({
       disabled={disabled}
       className={clsx(
         "w-full h-[56px] rounded-[8px] transition duration-200 cursor-pointer",
-        disabled ? "bg-[#E5E6EB]" : "bg-[#FFFFFF] hover:opacity-90"
+        disabled ? "bg-[#E5E6EB]" : "bg-[#FFFFFF] hover:bg-(--color-gray-1)"
       )}
       style={{
         color: disabled ? "var(--Grayscale-400, #9E9FAD)" : "#9E9FAD",

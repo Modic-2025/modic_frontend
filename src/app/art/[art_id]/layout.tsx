@@ -105,8 +105,8 @@ const layout = async ({
           </CostItem>
           <CostItem value={`${response.ticketPrice}티켓`}>
             <Image
-              src="/ticket.svg"
-              alt=""
+              src="/ticket-gray-4.svg"
+              alt="티켓"
               width={24}
               height={24}
               className="inline"
