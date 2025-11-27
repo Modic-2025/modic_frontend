@@ -112,3 +112,9 @@ h6 {
   --color-light-main: #fff9f6;
   --color-point-red: #eb003b;
 }
+
+.full-screen-wrapper {
+  /* 기존 height: 100vh; 대신 아래 3줄을 순서대로 작성 */
+  height: 100vh; /* 구형 브라우저 */
+  height: 100svh; /* 최신 브라우저 (권장) */
+}

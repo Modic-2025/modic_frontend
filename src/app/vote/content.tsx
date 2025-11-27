@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Pagination } from "swiper/modules";
-import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 type TypeView = "DO_VOTE" | "RESULT" | "EXCEPTION";
 type TypeVotePresentational = Vote & {

@@ -29,7 +29,7 @@ export default function RootLayout({
   // const isLandingPage = pathname === "/";
   // console.log("isLandingPage :>> ", isLandingPage);
   return (
-    <html lang="ko" data-color-mode="light">
+    <html lang="ko" data-color-mode="light" className="full-screen-wrapper">
       <head>
         {/* Pretendard 웹폰트 CDN */}
         <link
@@ -44,7 +44,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-gray-100 h-svh full-screen-wrapper`}
         style={{ fontFamily: "Pretendard, Inter, sans-serif" }}
       >
         <MasterLayout>{children}</MasterLayout>
