@@ -131,7 +131,7 @@ export default function LoginPage() {
       </div>
 
       {/* 간편 로그인 */}
-      <div className="w-full max-w-xs flex flex-col items-center">
+      {/* <div className="w-full max-w-xs flex flex-col items-center">
         <div className="flex items-center w-full mb-[16px]">
           <div className="flex-1 h-px bg-gray-300" />
           <span className="px-3 text-[#9E9FAD] text-[14px] font-[Pretendard]">
@@ -165,7 +165,7 @@ export default function LoginPage() {
             />
           </button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

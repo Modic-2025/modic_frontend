@@ -269,7 +269,7 @@ const LandingPage = () => {
           </form>
 
           {/* 소셜 로그인 */}
-          <div className="mt-4 md:mt-8">
+          {/* <div className="mt-4 md:mt-8">
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-100"></div>
@@ -310,7 +310,7 @@ const LandingPage = () => {
                 </svg>
               </button>
             </div>
-          </div>
+          </div> */}
 
           <div className="text-center text-gray-300 text-[10px] mt-4">
             © 2026 Team MODIC. All rights reserved
