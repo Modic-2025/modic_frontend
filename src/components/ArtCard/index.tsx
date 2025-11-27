@@ -69,7 +69,7 @@ const ArtCard = ({
 
       {!isImageLoaded && (
         <div
-          className={`absolute inset-0 bg-gray-200 z-10 pointer-events-none transition-opacity duration-500
+          className={`absolute inset-0 bg-gray-200 pointer-events-none transition-opacity duration-500
         ${isImageLoaded ? "opacity-0" : "opacity-100 motion-preset-blink"}
       `}
         ></div>

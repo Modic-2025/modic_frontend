@@ -124,7 +124,7 @@ const Footer = ({ excepts }: { excepts: string[] }) => {
   }
 
   return (
-    <footer className="absolute h-14 w-full bottom-0 bg-white z-1">
+    <footer className="absolute h-14 w-full bottom-0 bg-white z-10">
       <div className="flex flex-row justify-center items-center h-full">
         {navButtons.map((navButton, i) => (
           <NavButton
