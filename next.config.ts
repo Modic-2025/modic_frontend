@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
     minimumCacheTTL: 31536000,
+    unoptimized: true,
   },
   output: "standalone",
 };
