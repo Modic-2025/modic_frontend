@@ -184,6 +184,24 @@ export const SETTING_HEADER_CONTENTS: SettingHeaderContentsType = {
       },
     },
   },
+  "/signup": {
+    elements: ["backward"],
+  },
+  "/signup/verify": {
+    elements: ["backward"],
+  },
+  "/signup/success": {
+    elements: ["backward"],
+  },
+  "/signup/password": {
+    elements: ["backward"],
+  },
+  "/signup/password/code": {
+    elements: ["backward"],
+  },
+  "/signup/password/rest": {
+    elements: ["backward"],
+  },
 };
 
 // 동적 path를 정적 path로 변환하여 매칭시키기 위한 함수
