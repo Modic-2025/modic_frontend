@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   output: "standalone",
+  generateBuildId: async () => {
+    // 단, 코드가 바뀌었을 때 브라우저가 구버전을 볼 수도 있으니 주의해야 합니다.
+    return "modic-v-0.1.0";
+  },
 };
 
 export default nextConfig;
