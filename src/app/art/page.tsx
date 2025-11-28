@@ -16,7 +16,7 @@ export default function Home() {
         href="/art/regist"
         className="fixed bottom-16 z-10 right-[calc(50vw-180px)]"
       >
-        <button className="bg-(--color-main) p-4 py-2 rounded-full text-white font-bold shadow-md cursor-pointer">
+        <button className="bg-(--color-main) p-4 py-2 rounded-full text-white font-bold shadow-md cursor-pointer z-30">
           {" "}
           그림 등록하기{" "}
         </button>

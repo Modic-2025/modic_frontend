@@ -3,7 +3,7 @@ import Footer from "./Footer";
 import Header from "./Header";
 // import { GoogleOAuthProvider } from "@react-oauth/google";
 
-const NO_FOOTER_PATHS = ["/art/ai/[art_id]", "/login", "/"];
+const NO_FOOTER_PATHS = ["/art/ai/[art_id]", "/login", "/signup", "/"];
 
 const MasterLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
